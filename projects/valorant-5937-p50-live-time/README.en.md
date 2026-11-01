@@ -2,12 +2,12 @@
 
 ## Objective
 
-Estimate the theoretical additional watch time and its share of the five-platform daily watch-time denominator if eligible top-tier and mid-tier streamers increased average daily live time to the P50 for their ACU tier while their current average daily ACU remained unchanged.
+Estimate the theoretical additional watch time and its ratio to the five-platform Valorant-category daily watch-time denominator if eligible top-tier and mid-tier Valorant streamers increased average daily live time to the P50 for their ACU tier while their current average daily ACU remained unchanged.
 
 ## Population and Time Range
 
 - Data period: 2026-01-01 through 2026-10-22, `gameid=5937`.
-- Industry watch-time denominator: 91,858,247.16 viewer-minutes/day across five platforms, using valid streamer-days from 2026-01-01 through 2026-10-21. The denominator ends one day earlier than the streamer-metric data; retain this date difference when comparing.
+- Denominator: 91,858,247.16 viewer-minutes/day is the five-platform (Huya, Douyin, Douyu, Bilibili, Kuaishou) **Valorant-category** interval-average watch time for 2026-01-01 through 2026-10-21. It is not all-category watch time across the five platforms. The calculation averages dates with data and does not fill missing days with zero; a valid streamer-day has `vaild_acu > 0` and at least 15 live minutes. The denominator ends one day earlier than the streamer-metric data; retain this date difference when comparing.
 - Initial population: 32,399 streamers.
 - ACU tiers: top tier has annual average daily ACU >= 2,000; mid tier has 100 <= annual average daily ACU < 2,000.
 - Eligibility filters: average live days per active month >= 10, where active months are months with 5937 streaming records; annual average daily live time >= 60 minutes; exclude event/content accounts, clubs, and high outliers.
@@ -21,7 +21,7 @@ Estimate the theoretical additional watch time and its share of the five-platfor
 - Streamers needing uplift: count streamers whose current annual average daily live time is below their tier P50.
 - Theoretical additional watch time (viewer-minutes/day): for each streamer needing uplift, calculate `annual average daily ACU × max(0, tier P50 target minutes − current average daily live minutes)`, then sum.
 - Convert to viewer-hours/day by dividing by 60.
-- Industry share: theoretical additional watch time divided by the five-platform daily watch-time denominator.
+- Valorant-category baseline ratio: theoretical additional watch time divided by the five-platform Valorant-category daily watch-time denominator.
 
 ## Aggregate Results
 

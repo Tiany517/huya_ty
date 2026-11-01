@@ -37,7 +37,7 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 
 Counts, extensions, and modification dates for the candidates below come from filesystem metadata. Except for the first reviewed subproject, the other candidates have not been reviewed or copied.
 
-The first reviewed subproject is documented at `projects/valorant-5937-p50-live-time/README.en.md`. It contains anonymous aggregate definitions and values only; streamer-level attachments were excluded.
+Reviewed projects: `projects/valorant-5937-p50-live-time/` and `projects/fps-anchor-cleaning/`. The FPS project includes seven analysis scripts and an anonymized quantile summary CSV; streamer-level attachments were excluded. Its 2.6489% model ratio is documented as a source-workbook value with a category-scope mismatch, not as a share conclusion.
 
 | Priority candidate | Current size and latest modification | Review focus |
 | --- | --- | --- |
