@@ -1,0 +1,7 @@
+﻿feature,smd_before,smd_after
+before_watch_duration,0.0022,0.0294
+before_watch_dcnt,0.04,0.0003
+before_watch_anchorcnt,0.0109,0.0403
+before_watch_gamecnt,0.0456,0.0124
+before_consume_amount,0.0331,0.0203
+before_active_dcnt,0.0465,0.0072

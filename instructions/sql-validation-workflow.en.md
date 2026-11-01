@@ -55,8 +55,9 @@ Do not apply one generic checklist with equal weight to every query. Before impl
 | Amount, duration, or ACU | Source units, conversion, aggregation method | Min/max/quantiles, a unit counterexample, totals rebuilt from numerator and denominator |
 | Deduplication or latest record | Business key, ordering key, tie-break rule | Row counts before/after, tie counts, deterministic ordered result |
 | `union all` or expansion | Source grain, output grain, expected multiplier | Rows per branch, unique keys, multiplier before/after expansion |
-| PSM, DID, or PSM-DID | Eligibility, treatment time, matching features, pre/post windows | Sample counts before/after matching, balance, parallel trends, reconciliation between definition and result tables |
-| Excel or CSV export | Field names, row count, encoding, ID type | Three-way reconciliation across query result and export; read-back check for Chinese text and long IDs |
+| PSM, DID, or PSM-DID | Eligibility, treatment time, matching features, pairing method, pre/post windows, and identification assumptions | Counts before/after matching, match rate, maximum SMD, parallel-trend evidence, DID/p-values/confidence intervals, and report-to-result reconciliation; list unverified items separately |
+| Significance labels and statistical conclusions | p-value threshold, effect direction, test type, wording, and units | Generate labels from one result object; check p-value, DID sign, stars, significant/not-significant text, percentages, and percentage points together |
+| Excel or CSV export | Field names, row count, encoding, ID type, sample count, and labels | Multi-way reconciliation across report, XLSX, CSV, script output, and query result; read-back checks for Chinese text, long IDs, and units |
 
 Retain the risk profile and result contract in the execution record. If a matched scenario lacks evidence, its status is `not run`, never `verified`.
 
@@ -76,6 +77,17 @@ After writing the query, do not treat successful execution as the conclusion. Re
 10. Readability and reproducibility: use stable aliases, make material CTEs independently runnable with grain comments, and find implicit casts that can change semantics.
 
 Static review can reveal problems but cannot prove correctness. Every high-risk check still needs an executed result as evidence.
+
+### 3.3 Statistical Output and Label Review
+
+A report review must verify that values, direction, units, tests, and text come from the same result set:
+
+1. Retain enough precision for means and differences. Every displayed value must trace to script output or a result table, not a manually copied historical report.
+2. Generate significance text and stars from the p-value, effect direction, test type, and one threshold. Define behavior separately for zero effects, negative effects, missing p-values, and multiple comparisons.
+3. Keep amount, minute, day, count, percent, and percentage point distinct. A pay-conversion group difference is normally in percentage points, not a percent lift or `days`.
+4. A PSM/DID report must retain treatment, control, matching algorithm, caliper, counts before/after matching, match rate, maximum SMD, disposition of unmatched records, pre/post windows, DID, p-values, and confidence intervals.
+5. Post-match balance does not replace parallel trends or other identification assumptions. Without period-by-period trend evidence, describe an estimate under the stated design and mark parallel trends `not verified`.
+6. Reconcile report, XLSX, CSV, raw script output, and query result on sample counts, metric names, DID, p-values, units, significance text, and version. Any mismatch prevents the full result set from being labeled verified.
 
 ## 4. Eight Validation Gates
 
@@ -113,6 +125,7 @@ Every gate must have a query, result, and status: `pass`, `fail`, or `not run`. 
 - Numerator is no larger than denominator; parts do not exceed a total without an explicit overlapping definition.
 - Common denominators across D7/14/30, acquisition/reactivation, or pre/post windows satisfy stated consistency rules.
 - Overall totals reconcile with group totals; means can be reconstructed from numerator and denominator.
+- p-values, effect direction, significance text, stars, and units satisfy the predefined combination rules; significance labels are not static templates.
 - These are necessary checks, not proof that a denominator is correct.
 
 ### 4.6 Independent Recomputation and Reconciliation
@@ -136,6 +149,7 @@ Every gate must have a query, result, and status: `pass`, `fail`, or `not run`. 
 - Verify SQL-to-export headers, string preservation for long IDs, Chinese encoding, blank rows or columns, and formatted numeric values.
 - Confirm idempotent target writes: no duplicate write, wrong overwrite, missing partition, or stale result.
 - Record the engine, time range, runtime or known performance risk, output paths, and the impact of failures. “It finished” alone proves neither correctness nor adequate performance.
+- Reconcile report, XLSX, CSV, script output, and query result on sample counts, metric names, DID, p-values, significance labels, units, and version. For PSM/DID, also reconcile match rate, maximum SMD, and parallel-trend status.
 
 ## 5. Copyable Execution Record
 

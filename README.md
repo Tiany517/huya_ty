@@ -19,6 +19,7 @@
 | `projects/monthly-external-ecosystem-dau/` | 外部生态 DAU 月报的取数口径、SQL 说明和匿名月度聚合附件 |
 | `projects/weekly-ecosystem-monitoring/` | 周报生态监控：日级品类与主播下钻 SQL、6 周匿名快照、平台 DAU、展示模板结构和可重复校验 |
 | `projects/ai-workshop-commercialization/` | AI 工坊商业化价值：PSM7/PSM8、DID、付费留存、版本转换、礼物人工打标、匿名品类/ACU 汇总、最终单页和可重复校验 |
+| `projects/buxiucup-popup-psm/` | 不朽杯三套独立 PSM/DID 复盘：打卡活动、当天 DOTA2 曝光、4 月兴趣曝光；含最终报告、匿名结果、核心 SQL/脚本、错误复盘和自动校验 |
 | `projects/valorant-fps-cross-broadcast/` | FPS 主播跨播事件表、ACU 分层成功率 SQL 和匿名校验基线 |
 | `projects/valorant-watchtime-contribution-knee/` | 实际观时月度拐点、Top-N 覆盖和跨月候选筛选的匿名结果及脚本 |
 | `projects/valorant-yuezi-event-costream/` | 去标识的赛事二路节目化案例、窗口汇总和分析脚本 |

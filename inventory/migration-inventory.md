@@ -12,7 +12,7 @@
 
 附件版与本次对话中提供的 AGENTS 内容一致。相较桌面版，附件增加两条规则；其中一条包含明文 API 凭据，迁移副本和本机 `.codex/AGENTS.md` 均已将其替换为安全存储说明，实际凭据只保存在加密保险包。
 
-新增 SQL 验证工作流：`instructions/sql-validation-workflow.md`。所有正式 SQL 必须先定义结果契约和可反驳的预期，再核查字段、分区、单位和样本，完成静态审查后按风险画像执行数据可用性、Schema/语义、粒度与唯一键、关联与行数放大、指标不变量、独立复算与对账、边界与业务抽查，以及交付和运行检查；任何校验失败都必须修复，未执行的高风险校验不得标记为“已验证”，同类错误复发时必须转为可执行检查或最小反例。
+新增 SQL 验证工作流：`instructions/sql-validation-workflow.md`。所有正式 SQL 必须先定义结果契约和可反驳的预期，再核查字段、分区、单位和样本，完成静态审查后按风险画像执行数据可用性、Schema/语义、粒度与唯一键、关联与行数放大、指标不变量、独立复算与对账、边界与业务抽查，以及交付和运行检查；任何校验失败都必须修复，未执行的高风险校验不得标记为“已验证”，同类错误复发时必须转为可执行检查或最小反例。统计输出还必须程序化生成 p 值星号和显著性标签，核对 DID 正负与单位，并对账报告、XLSX、CSV、脚本和查询结果；PSM/DID 必须保留匹配率、最大 SMD、前后窗和平行趋势状态。
 
 ## SQL
 
@@ -41,13 +41,15 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 以下候选项目的数量、扩展名和修改时间来自文件系统元数据；除下方列出的已完成项目外，其他候选尚未复盘或复制项目文件。
 
-已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/weekly-ecosystem-monitoring/`、`projects/ai-workshop-commercialization/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
+已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/weekly-ecosystem-monitoring/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
 
 外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。
 
 周报生态监控已整理至 `projects/weekly-ecosystem-monitoring/`：归档 9 个 SQL/Python 脚本、6 个匿名品类周度 CSV、5 个平台 DAU 快照、小型品类总览与 2026-10-13 结果快照，以及中英文结构清单和校验记录。最新周整体日均观看 DAU `3,627,835.428571`、整体日均归因人数 `4,338,349.285714`，均可由 CSV 独立重算并与结果快照一致。20260923 平台文件与 20260914 完全相同，20261008 平台文件为带空列和空行的手工导出；源模板 `王者总览!B1`、`户外归因!B1` 标题疑似复制错误；主播下钻未归属补充行不能直接跨主播相加。约 186 至 291 MB 的源模板、6 个主播日级数据源工作表、5 至 7 MB 的主播下钻 CSV 和逐主播明细均未上传。
 
 AI 工坊商业化价值已整理至 `projects/ai-workshop-commercialization/`：归档 PSM7/PSM8 聚合报告、最终单页、版本转换报告、3 张匿名匹配质量图、13 个一级类目与 26 个二级类目的匿名汇总、品类/ACU/曝光汇总，以及核心 SQL、打标、版本和 PSM 脚本。PSM7 后 7 日整体打赏金额 DID 为 `84.9967` 元/人/日，95% CI `46.3997–123.5937`，p=`1.652e-05`，1,804 对匹配；PSM8 匹配 3,520 对，后 6 日总打赏金额 DID 为 `169.64` 元，p=`0.0490`。项目页明确区分付费留存原始组间差与 DID 净差，并标注最终单页采用 81 元/用户天与报告 84.9967 元尚未勾稽、ROI 约 40 与旧版 17.9/18 的版本差异。约 27.6 GB `.pkl` 缓存、约 11.76 GB PSM 源 CSV、用户/主播/礼物明细均未上传。
+
+不朽杯弹窗 PSM 实验已整理至 `projects/buxiucup-popup-psm/`：归档三套独立分析，即打卡活动（13,846 对、最大匹配后 SMD `0.0403`）、当天观看 DOTA2 用户曝光（7,631 对、`0.0350`）和 4 月兴趣为 DOTA2 用户曝光（7,175 对、`0.0589`）。保留最终 DOCX、XLSX、4 个匿名汇总 CSV、3 张匿名匹配图、3 个最终脚本和 3 个核心 SQL，并新增自动校验。旧的 2026-06-12 报告同时写“全部 SMD < 0.1”和最大 |SMD| `0.2028`，已明确替代；最终报告“差异完全由活动导致”等过强因果表述、1 天曝光限制、付费转化率单位错误及 5 处中位数显著性标签异常均已记录。约 9.71 GB 全量用户 CSV、831 MB 未参与用户明细、320 MB 打卡分析源 CSV、曝光用户级源数据和全部历史迭代文件未上传。
 
 OB 二路赛事节目化情景已整理至 `projects/valorant-ob-costream-scenario/`：仅保留公式链和匿名汇总。确认到 21% 成功概率与“5 次中 1 次成功”不一致，另有 11.47 分钟观时差值未进入增量公式；均作为模型限制明示，未将 2.6944% 解释为已实现或因果份额增长。原含主播明细工作簿未复制。
 
@@ -73,7 +75,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 | FPS主播清洗_20261023 | 76 个文件；最近修改 2026-10-23；6 个 Excel、28 个 CSV、6 个 NDJSON | 挑选测算结果和脚本；区分明细表与检查产物 |
 | 周报监控模型 | 55 个文件；最近修改 2026-10-23；8 个 SQL、1 个 Python、25 个 Excel、21 个 CSV；最大工作簿约 291 MB | 核心流程已整理至 `projects/weekly-ecosystem-monitoring/`；其余大型模板、主播明细和未复核周次仍不整体推送 |
 | AI工坊专题 | 已完成核心项目复盘 | 已迁移至 `projects/ai-workshop-commercialization/`；大型缓存、逐用户/主播明细和礼物提示词不放入 Git |
-| 不朽杯弹窗PSM实验 | 195 个文件；最近修改 2026-06-17；含报告、Excel、CSV、Python 和图片 | 复核最终报告及关键汇总表；排除用户级明细和中间图像 |
+| 不朽杯弹窗PSM实验 | 已完成核心项目复盘 | 已迁移至 `projects/buxiucup-popup-psm/`；三套最终报告、匿名结果、核心脚本/SQL 和校验已归档；用户级源数据与历史迭代未上传 |
 | 反挖 | 33 个文件；含 8 个 Notebook、8 个 Python；有约 169 MB RAR 和约 21 MB TAR | 压缩包内容未知；先识别归属和必要性，不直接上传 |
 | 用户画像分析 | 151 个文件；最近修改 2026-05-29；含 3 个 SQL、10 个 CSV；其中一个 CSV 约 36 MB | SQL 和结论材料可优先评估，用户画像明细 CSV 暂不纳入 |
 | 月报_虎牙外部生态DAU | 3 个文件：1 个 SQL、2 个模板工作簿 | 体量小，可优先复核是否纳入模板 |

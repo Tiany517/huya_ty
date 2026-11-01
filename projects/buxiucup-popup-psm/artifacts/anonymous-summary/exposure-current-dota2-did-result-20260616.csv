@@ -1,0 +1,9 @@
+﻿outcome,label,unit,treat_before,treat_after,ctrl_before,ctrl_after,did_effect,lift_pct,p_value_display,sig_text,significant,med_treat_before,med_treat_after,med_ctrl_before,med_ctrl_after,med_did_effect,med_lift_pct
+after_watch_duration,观看时长(min),分钟,562.72,665.84,541.45,664.55,-19.97,-3.5,0.9068,不显著,False,361.8,467.73,340.5,445.97,0.47,0.1
+after_watch_dcnt,观看天数,天,5.82,6.01,5.82,5.93,0.07,1.2,0.0024,正向显著***↑,True,7.0,7.0,7.0,7.0,0.0,0.0
+after_watch_anchorcnt,观看主播数,个,12.62,12.88,12.23,11.9,0.59,4.7,0.0018,正向显著***↑,True,7.0,8.0,7.0,7.0,1.0,14.3
+after_watch_gamecnt,观看游戏数,个,3.94,3.96,3.92,3.78,0.15,3.9,0.0003,正向显著***↑,True,3.0,3.0,3.0,3.0,0.0,0.0
+after_consume_amount,付费金额(元),元,1.43,1.86,0.64,0.99,0.08,5.5,0.2020,不显著,False,0.0,0.0,0.0,0.0,0.0,0.0
+after_active_dcnt,活跃天数,天,6.01,6.19,6.02,6.13,0.07,1.2,0.0195,正向显著**↑,True,7.0,7.0,7.0,7.0,0.0,0.0
+ltv_pay_rate,付费转化率,%,5.6611,4.5735,3.8789,3.8003,-1.009,-17.82,0.0171,负向显著**↓,True,0.0,0.0,0.0,0.0,0.0,0.0
+ltv_arppu,ARPPU,元,25.32,40.68,16.51,26.02,5.84,23.08,0.3654,不显著,False,0.3,0.2,0.2,0.25,-0.15,-50.0

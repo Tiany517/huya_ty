@@ -137,6 +137,12 @@ The eight gates are:
 
 The risk profile must cover at minimum: common cohort denominators for retention/multi-window queries; key uniqueness, match rate, and multipliers for joins; partitions and observable windows for time analysis; units for amount/duration fields; row count and grain for `union all` and expansion; sample size, balance, and parallel trends for PSM/DID; and headers, row counts, string IDs, and field consistency for exports. A check matched to the scenario may not be skipped.
 
+Statistical outputs require three additional hard checks:
+
+1. Generate significance labels programmatically from the p-value, effect direction, test type, and one explicit threshold. Never hand-write a label in a report template or separate branch and then reuse it. Check p-value, DID sign, significance text, stars, and units together.
+2. For PSM/DID/PSM-DID, reconcile treatment and control definitions, pre/post-match counts, pairing method, match rate, maximum SMD, pre/post windows, parallel-trend evidence, DID, p-values, and confidence intervals. Balance does not replace identification assumptions, and `SMD < 0.1` never means the difference was entirely caused by treatment.
+3. Reconcile report, XLSX, CSV, stage tables, and script output. A mismatch in sample count, metric name, effect, p-value, unit, or label prevents the result set from being labeled verified.
+
 Every failed gate must be fixed; a gate not run may not be described as verified. The complete process and delivery format are in `instructions/sql-validation-workflow.en.md`. For every high-risk scenario, state at least one expectation that can disprove the current implementation. If all checks only show that a result “looks plausible,” the validation design is insufficient. The rules below are the minimum requirements for grain, expansion, and retention.
 
 1. Before writing SQL, state the source grain, intermediate grains, final grain, and unique key. For retention, funnel, or multi-window metrics, also state the cohort grain, target-date mapping, and denominator definition.
@@ -376,5 +382,6 @@ Before delivery, check:
 20. Was missing target-partition coverage checked rather than silently counted as zero, and were unexecuted data checks labeled explicitly?
 21. Were filter placement, null-versus-zero semantics, closed time boundaries, window frames, `union all` column order, and hardcoded dates reviewed?
 22. Were the execution engine, runtime or material performance risk, output paths, stage/target/export reconciliation, and the impact of failed or unrun checks recorded?
+23. Were significance labels generated programmatically from p-values, effect direction, and one threshold, then reconciled across report, XLSX, CSV, and script output? For PSM/DID, were pre/post-match counts, pairing method, maximum SMD, parallel-trend status, and unrun checks retained?
 
 Chinese version: `AGENTS.md`.

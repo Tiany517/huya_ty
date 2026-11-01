@@ -1,0 +1,245 @@
+{
+  "project": "buxiucup-popup-psm",
+  "status": "pass_with_documented_warnings",
+  "hard_failures": [],
+  "documented_warnings": [
+    "Current DOTA2 median 观看天数: p=0.0001, label=不显著",
+    "Current DOTA2 median 观看游戏数: p=0.0000, label=不显著",
+    "April-interest median 观看主播数: p=0, label=不显著",
+    "April-interest median 观看游戏数: p=0, label=不显著",
+    "April-interest median 活跃天数: p=0.0003, label=不显著"
+  ],
+  "checks": [
+    {
+      "check": "required_file",
+      "path": "README.md",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "README.en.md",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "methodology\\report-revisions.md",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "methodology\\report-revisions.en.md",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\final-reports\\activity-psm-did-report-20260615.docx",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\final-reports\\activity-psm-did-results-20260615.xlsx",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\final-reports\\exposure-current-dota2-report-20260616.docx",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\final-reports\\exposure-current-dota2-results-20260616.xlsx",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\final-reports\\exposure-april-interest-report-20260616.docx",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\final-reports\\exposure-april-interest-results-20260616.xlsx",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\anonymous-summary\\activity-did-result-20260615.csv",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\anonymous-summary\\activity-psm-balance-20260615.csv",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\anonymous-summary\\exposure-current-dota2-did-result-20260616.csv",
+      "pass": true
+    },
+    {
+      "check": "required_file",
+      "path": "artifacts\\anonymous-summary\\exposure-april-interest-did-result-20260616.csv",
+      "pass": true
+    },
+    {
+      "check": "docx_expected_text",
+      "path": "artifacts\\final-reports\\activity-psm-did-report-20260615.docx",
+      "expected": [
+        "13,846",
+        "0.0403"
+      ],
+      "pass": true
+    },
+    {
+      "check": "docx_expected_text",
+      "path": "artifacts\\final-reports\\exposure-current-dota2-report-20260616.docx",
+      "expected": [
+        "7,631",
+        "0.0350"
+      ],
+      "pass": true
+    },
+    {
+      "check": "docx_expected_text",
+      "path": "artifacts\\final-reports\\exposure-april-interest-report-20260616.docx",
+      "expected": [
+        "7,175",
+        "0.0589"
+      ],
+      "pass": true
+    },
+    {
+      "check": "xlsx_sheet_names",
+      "path": "artifacts\\final-reports\\activity-psm-did-results-20260615.xlsx",
+      "expected": [
+        "DID净效应数据"
+      ],
+      "actual": [
+        "DID净效应数据"
+      ],
+      "pass": true
+    },
+    {
+      "check": "xlsx_sheet_names",
+      "path": "artifacts\\final-reports\\exposure-current-dota2-results-20260616.xlsx",
+      "expected": [
+        "DID净效应数据",
+        "中位数DID数据"
+      ],
+      "actual": [
+        "DID净效应数据",
+        "中位数DID数据"
+      ],
+      "pass": true
+    },
+    {
+      "check": "xlsx_sheet_names",
+      "path": "artifacts\\final-reports\\exposure-april-interest-results-20260616.xlsx",
+      "expected": [
+        "DID净效应数据",
+        "DID净效应数据-中位数",
+        "SMD平衡检验"
+      ],
+      "actual": [
+        "DID净效应数据",
+        "DID净效应数据-中位数",
+        "SMD平衡检验"
+      ],
+      "pass": true
+    },
+    {
+      "check": "anonymous_csv_header",
+      "path": "artifacts\\anonymous-summary\\activity-did-result-20260615.csv",
+      "pass": true,
+      "pii_hits": []
+    },
+    {
+      "check": "key_did_value",
+      "path": "artifacts\\anonymous-summary\\activity-did-result-20260615.csv",
+      "outcome": "after_watch_duration",
+      "expected": 53.23,
+      "actual": 53.23,
+      "pass": true
+    },
+    {
+      "check": "key_did_value",
+      "path": "artifacts\\anonymous-summary\\activity-did-result-20260615.csv",
+      "outcome": "after_consume_amount",
+      "expected": 7.98,
+      "actual": 7.98,
+      "pass": true
+    },
+    {
+      "check": "key_did_value",
+      "path": "artifacts\\anonymous-summary\\activity-did-result-20260615.csv",
+      "outcome": "ltv_pay_rate",
+      "expected": 1.7622,
+      "actual": 1.7622,
+      "pass": true
+    },
+    {
+      "check": "anonymous_csv_header",
+      "path": "artifacts\\anonymous-summary\\exposure-current-dota2-did-result-20260616.csv",
+      "pass": true,
+      "pii_hits": []
+    },
+    {
+      "check": "key_did_value",
+      "path": "artifacts\\anonymous-summary\\exposure-current-dota2-did-result-20260616.csv",
+      "outcome": "after_watch_duration",
+      "expected": -19.97,
+      "actual": -19.97,
+      "pass": true
+    },
+    {
+      "check": "key_did_value",
+      "path": "artifacts\\anonymous-summary\\exposure-current-dota2-did-result-20260616.csv",
+      "outcome": "after_watch_dcnt",
+      "expected": 0.07,
+      "actual": 0.07,
+      "pass": true
+    },
+    {
+      "check": "key_did_value",
+      "path": "artifacts\\anonymous-summary\\exposure-current-dota2-did-result-20260616.csv",
+      "outcome": "ltv_pay_rate",
+      "expected": -1.009,
+      "actual": -1.009,
+      "pass": true
+    },
+    {
+      "check": "anonymous_csv_header",
+      "path": "artifacts\\anonymous-summary\\exposure-april-interest-did-result-20260616.csv",
+      "pass": true,
+      "pii_hits": []
+    },
+    {
+      "check": "key_did_value",
+      "path": "artifacts\\anonymous-summary\\exposure-april-interest-did-result-20260616.csv",
+      "outcome": "after_watch_duration",
+      "expected": 9.39,
+      "actual": 9.39,
+      "pass": true
+    },
+    {
+      "check": "key_did_value",
+      "path": "artifacts\\anonymous-summary\\exposure-april-interest-did-result-20260616.csv",
+      "outcome": "after_watch_dcnt",
+      "expected": 0.19,
+      "actual": 0.19,
+      "pass": true
+    },
+    {
+      "check": "key_did_value",
+      "path": "artifacts\\anonymous-summary\\exposure-april-interest-did-result-20260616.csv",
+      "outcome": "ltv_pay_rate",
+      "expected": -0.1672,
+      "actual": -0.1672,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "hard_check_count": 32,
+    "hard_failure_count": 0,
+    "warning_count": 5
+  }
+}
