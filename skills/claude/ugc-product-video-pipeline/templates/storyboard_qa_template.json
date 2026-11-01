@@ -1,0 +1,9 @@
+{
+  "schema_version": "2.0",
+  "structure_manifest": {"path": "audit_pack/product_structure.json", "status": "pending"},
+  "asset_manifest": {"path": "audit_pack/asset_manifest.json", "status": "pending"},
+  "installation_reference": {"asset_id": "", "required": false, "status": "pending"},
+  "overall_status": "pending",
+  "required_files": [],
+  "frames": {}
+}

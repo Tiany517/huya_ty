@@ -1,0 +1,41 @@
+{
+  "skill_name": "douyin-playwright",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我分析下这个抖音博主 https://www.douyin.com/user/MS4wLjABAAAARGJtMMMujtgxbnl18CQHeUiTdopr5C--P4I3t80KvumwcZw2di4vfeteEnBhYI-x 的Top 10高赞视频",
+      "expected_output": "应触发 douyin-playwright skill，执行环境预检，使用 Playwright 或 CDP 模式抓取博主主页数据，生成包含博主信息、Top 10 视频数据表格和 AI 摘要的输出，并生成 Excel 文件（3 个 Sheet）",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "这个抖音视频讲了什么？https://www.douyin.com/video/7650438039197601043",
+      "expected_output": "应触发 douyin-playwright skill，识别为单视频场景，抓取视频标题、文案、点赞数、评论数等数据，生成视频内容摘要",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "帮我导出黄士铨看世界这个抖音博主的视频数据到Excel表格",
+      "expected_output": "应触发 douyin-playwright skill，先用搜索找到博主主页 URL，然后抓取数据并生成 Excel 文件，包含博主信息 Sheet、视频数据 Sheet、AI 脚本分析 Sheet",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "帮我分析下小Lin说的抖音，特别是评论区都在讨论什么",
+      "expected_output": "应触发 skill，搜索找到博主主页，抓取 Top 10 视频数据后，额外执行评论区深度抓取（Step 3.5），用 subagent 并行生成话题聚类（Step 4.5），Excel 中评论区话题列应有内容",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "这个抖音视频 https://www.douyin.com/video/7650453175333342470 的评论区舆论怎么样？",
+      "expected_output": "应触发 skill，识别为单视频+评论区分析场景，深度抓取评论区后用 subagent 生成话题聚类摘要，输出包含评论区话题的文字摘要",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "帮我把这个抖音博主的数据导出成表格，只要点赞排名就好 https://www.douyin.com/user/MS4wLjABAAAAunpkE2IXyHAxm4A24G5d1Cf5141pnZy8HwNR5f2-6pI_GYBVR-Pv23uFyfMPB_9I",
+      "expected_output": "应触发 skill，识别用户只要点赞排名，可跳过阶段二详情页补全，但仍需进入详情页获取评论数/收藏数/转发数等数据。除非用户明确说'只要点赞'，否则仍需完整数据。",
+      "files": []
+    }
+  ]
+}

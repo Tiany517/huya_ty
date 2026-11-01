@@ -1,0 +1,48 @@
+{
+  "task_name": "",
+  "platform": {
+    "image_model_priority": [
+      {
+        "provider": "google",
+        "model": "gemini-3-pro-image-preview",
+        "type": "text2image"
+      }
+    ],
+    "default_parameters": {
+      "aspectRatio": "9:16"
+    }
+  },
+  "shots": [
+    {
+      "shot_id": "product_ugc_01",
+      "image_file": "product_ugc_01.png",
+      "beat_id": "beat_01_hook",
+      "reference_bindings": {
+        "canonical_product_refs": [],
+        "installation_refs": [],
+        "scene_anchor_refs": [],
+        "presenter_anchor_refs": [],
+        "previous_shot_refs": [],
+        "actual_last_frame_refs": []
+      },
+      "inheritance_mode": "none",
+      "structure_constraints": [],
+      "camera": {
+        "camera_effect": "",
+        "camera_keywords": [],
+        "camera_subject": "",
+        "camera_amplitude": "",
+        "camera_duration": "",
+        "start_framing": "",
+        "end_framing": ""
+      },
+      "prompt_spec": {
+        "subject_and_structure": "",
+        "action_and_camera": "",
+        "continuity": "",
+        "negative": []
+      },
+      "prompt": ""
+    }
+  ]
+}

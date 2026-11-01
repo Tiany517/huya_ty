@@ -1,0 +1,90 @@
+with wx_anchor_day as (
+    select
+        a.dt,
+        date_trunc('week', cast(dt as date)) as week_start,
+        b.creator_uid as luid,
+        a.userid,
+        sum(cast(a.audiencecnt as bigint)) as dau
+    from gamelive.dwd_spider_wxmcn_anchor_livedata_list_d_i a
+    left join (
+        select
+            pid as creator_uid,
+            vx_vedio_id
+        from gamelive.ods_live_huya_vedio_stream_push_conf_1760614652931321858
+        where dt = date_format(
+            date_add('day', -1, current_date),
+            '%Y-%m-%d'
+        )
+        group by
+            pid,
+            vx_vedio_id
+    ) b
+        on a.userid = b.vx_vedio_id
+    where a.dt >= '2026-08-17'
+      and a.dt <= '2026-09-06'
+      and cast(a.onlinetimeduration as double) > 0
+      and b.creator_uid is not null
+    group by
+        a.dt,
+        substr(a.dt, 1, 7),
+        b.creator_uid,
+        a.userid
+),
+huya_anchor_day as (
+    select
+        dt,
+        luid,
+        sum(cast(online_duration as double) / 1000 / 3600) as online_duration_huya
+    from gamelive.dwt_huya_ayyuid_session_from_server_no_user
+    where dt >= '2026-08-17'
+      and dt <= '2026-09-06'
+      and length(dt) = 10
+      and tag = 'gameid'
+      and htime = 'session'
+    group by
+        dt,
+        luid
+)
+
+
+select
+    a.week_start,
+    case
+        when coalesce(c.online_duration_huya, 0) > 0
+            then '双播'
+        else '单播'
+    end as luid_type,
+    a.luid,
+    b.nick,
+    b.game_id as belong_game_id,
+    b.game_name as belong_game_name,
+    sum(a.dau) as dau,
+    sum(a.dau) * 0.26 as dau_youxiao,
+    count(distinct a.dt) as live_days
+from wx_anchor_day a
+left join (
+  select distinct
+    luid,
+    nick,
+    max(igameid) as game_id,
+    max(game_name) as game_name
+  from zhgametemp.cwq_huya_ukey_shichang_luid_gameid_guishu_day_v1
+  where 
+    dt >= '2025-01-01'
+  group by luid, nick
+) b
+on a.luid = b.luid
+left join huya_anchor_day c
+  on a.dt = c.dt
+  and a.luid = c.luid
+group by 
+  a.week_start,
+  case
+      when coalesce(c.online_duration_huya, 0) > 0
+          then '双播'
+      else '单播'
+  end,
+  a.luid,
+  b.nick,
+  b.game_id,
+  b.game_name

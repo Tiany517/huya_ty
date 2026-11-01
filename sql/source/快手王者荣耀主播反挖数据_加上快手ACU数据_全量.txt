@@ -1,0 +1,122 @@
+with predict_anchor as (
+    select
+        uid,
+        pcode,
+        r_category,
+        r_owner,
+        liucun,
+        avg_com,
+        danmu,
+        dingyue_add,
+        dingyue_all,
+        danmu_only,
+        danmu_new,
+        live_mins as predict_live_mins,
+        gift_user,
+        gift_value,
+        predict_acu,
+        predict_viewhours,
+        predict_laxin,
+        predict_yingshou,
+        predict_pay_year,
+        dt as predict_dt
+    from zhgametemp.cys_huya_jingpin_fanwa_result
+    where pcode = 'kuaishou'
+      and r_category = '王者荣耀'
+      and dt >= '2026-01-31'
+),
+
+kuaishou_actual_month as (
+    select
+        substr(dt, 1, 7) as mth,
+        pcode,
+        r_category,
+        r_lid,
+        r_owner,
+
+        avg(vaild_acu) as kuaishou_avg_acu,
+
+        sum(live_mins) as kuaishou_live_mins,
+
+        sum(watch_min) as kuaishou_watch_min,
+
+        sum(mall_watch_min) as kuaishou_mall_watch_min,
+
+        sum(cate_vaild_dau)
+            / day(
+                last_day_of_month(
+                    cast(concat(substr(dt, 1, 7), '-01') as date)
+                )
+            ) as kuaishou_avg_cate_dau,
+
+        sum(anchor_vaild_dau)
+            / day(
+                last_day_of_month(
+                    cast(concat(substr(dt, 1, 7), '-01') as date)
+                )
+            ) as kuaishou_avg_anchor_dau,
+
+        count(distinct dt) as actual_days
+
+    from zhgametemp.yty_jingpin_anchor_vaild_dau_v2
+    where dt >= '2026-01-01'
+      and pcode = 'kuaishou'
+      and r_category = '王者荣耀'
+    group by
+        substr(dt, 1, 7),
+        pcode,
+        r_category,
+        r_lid,
+        r_owner
+)
+
+select
+    a.mth,
+
+    -- 快手主播信息
+    a.pcode,
+    a.r_category,
+    a.r_lid,
+    a.r_owner,
+
+    -- 快手实际表现
+    a.kuaishou_avg_acu,
+    a.kuaishou_live_mins,
+    a.kuaishou_watch_min,
+    a.kuaishou_mall_watch_min,
+    a.kuaishou_avg_cate_dau,
+    a.kuaishou_avg_anchor_dau,
+    a.actual_days,
+
+    -- 虎牙预测信息
+    p.uid as huya_predict_uid,
+    p.predict_dt,
+
+    p.liucun as huya_liucun,
+    p.avg_com as huya_avg_com,
+    p.danmu as huya_danmu,
+    p.dingyue_add as huya_dingyue_add,
+    p.dingyue_all as huya_dingyue_all,
+    p.danmu_only as huya_danmu_only,
+    p.danmu_new as huya_danmu_new,
+    p.predict_live_mins as huya_predict_live_mins,
+    p.gift_user as huya_gift_user,
+    p.gift_value as huya_gift_value,
+    p.predict_acu as huya_predict_acu,
+    p.predict_viewhours as huya_predict_viewhours,
+    p.predict_laxin as huya_predict_laxin,
+    p.predict_yingshou as huya_predict_yingshou,
+    p.predict_pay_year as huya_predict_pay_year
+
+from kuaishou_actual_month a
+left join predict_anchor p
+    on a.r_lid = p.uid
+   and a.pcode = p.pcode
+   and a.r_category = p.r_category
+   and p.predict_dt = last_day_of_month(
+       cast(concat(a.mth, '-01') as date)
+   )
+where p.predict_acu is not null
+order by
+    a.mth,
+    a.r_owner

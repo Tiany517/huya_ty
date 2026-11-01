@@ -1,0 +1,21 @@
+{
+  "task_name": "曹操",
+  "experiment_strategy": {
+    "mode": "actual_last_frame_chained_generation",
+    "goal": "保留模型生成口播和嘴型同步，同时通过真实末帧链式生成降低段落感。"
+  },
+  "segments": [
+    {
+      "segment_id": "曹操_视频_01_v1",
+      "client_business_id": "caocao-v1-seg-01",
+      "first_frame_file": "曹操_情节_01.png",
+      "last_frame_file": "曹操_情节_02.png",
+      "output_file": "曹操_视频_01_v1.mp4",
+      "duration": 9,
+      "from_label": "青年曹操看见乱世将起",
+      "to_label": "起兵成为乱世诸侯的曹操",
+      "voiceover_cn": "曹操的起点，不只是野心。",
+      "visual_goal": "从洛阳动荡街巷自然推进到军营起兵，人物保持同一人、同一纪录片质感。"
+    }
+  ]
+}

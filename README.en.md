@@ -8,8 +8,8 @@ This repository hands reusable work materials over to a new computer: working ru
 | --- | --- |
 | `README.md` / `README.en.md` | Chinese / English guide and new-computer bootstrap |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | Chinese / English data-analysis working rules; secret values go in an encrypted vault |
-| `skills/<skill-name>/` | Preserved skill snapshot with its references and required assets |
-| `sql/<topic>/<file>.sql` | Reusable SQL organized by business topic |
+| `skills/README.md`, `skills/<source>/<skill-name>/` | Skills archive guide and full snapshots by installation source |
+| `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
 | `projects/<project-slug>/README.md` / `README.en.md` | Project purpose, scope, metric definitions, findings, limitations, and sources |
 | `projects/<project-slug>/scripts/` | Reproducible project scripts |
 | `projects/<project-slug>/artifacts/` | Important result files that support understanding or continuing the project |

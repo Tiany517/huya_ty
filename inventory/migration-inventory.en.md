@@ -14,11 +14,11 @@ The attachment matches the AGENTS content shared in this conversation. Compared 
 
 ## SQL
 
-The current SQL directory contains 382 files: 243 `.sql`/`.txt` scripts, 76 `.xlsx`/`.xls`/`.csv` result files, and other files. Classify and deduplicate scripts by topic before copying. Identify important result files during project review; detailed user-level Excel remains out under the original boundary.
+The SQL source contains 240 `.sql` files and 2 SQL-formatted `.txt` files, now copied under their original names into `sql/source/`. It also contains 54 CSV files, 22 Excel files, and 25 Python scripts. Result data was not copied; the Python scripts and `content_categories_full.txt` remain queued for project review. Review important results individually; detailed user-level Excel remains out under the original boundary.
 
 ## Skills
 
-Skills were found under Codex, Claude, and shared agent configuration directories; directory counts overlap. Preserve useful local and third-party skill snapshots, including required references and assets, and record source and version. Deduplicate only after comparing contents; do not rely on being able to reinstall a skill as the only backup.
+There are 155 skill folders across Codex, Claude, and shared-agent configuration roots. A total of 1,182 source files were copied by source; 1,088 skill files are tracked in the repository, retaining same-named copies and references. Another 94 files ignored by source `.gitignore` files were not pushed. The `douyin-playwright` folder has Excel files, scripts, images, and temporary JSON that may be project results; review whether to include them under a project directory. Common credential formats were not found; test tokens and environment-variable examples remain unchanged.
 
 ## Project Review Candidates
 

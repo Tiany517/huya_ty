@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "product": {
+    "product_id": "",
+    "product_name": "",
+    "category": ""
+  },
+  "recognition": {
+    "status": "pending",
+    "method": "manual_or_model_assisted",
+    "source_asset_ids": [],
+    "confidence": 0.0,
+    "unresolved_questions": []
+  },
+  "geometry": {
+    "silhouette": "",
+    "scale_reference": "",
+    "orientation_rules": [],
+    "material": [],
+    "color": []
+  },
+  "components": [],
+  "relations": [],
+  "installation": {
+    "required": false,
+    "attached_to": "",
+    "orientation": "",
+    "water_or_motion_path": [],
+    "physical_constraints": []
+  },
+  "usage": {
+    "recognition_status": "pending",
+    "operable_components": [],
+    "installation_only_components": [],
+    "control_to_effect_map": [],
+    "usage_steps": [],
+    "safety_limits": [],
+    "forbidden_interactions": []
+  },
+  "state_transitions": {
+    "mutually_exclusive_states": [],
+    "allowed_transitions": [],
+    "transition_evidence": []
+  },
+  "must_keep": [],
+  "must_not_change": []
+}

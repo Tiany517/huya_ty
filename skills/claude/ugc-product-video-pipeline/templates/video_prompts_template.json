@@ -1,0 +1,67 @@
+{
+  "task_name": "",
+  "platform": {
+    "video_model_priority": [
+      {
+        "provider": "volcengine",
+        "model": "seedance-2.0-fast-cn",
+        "type": "image2video"
+      },
+      {
+        "provider": "volcengine",
+        "model": "seedance-2.0-cn",
+        "type": "image2video"
+      },
+      {
+        "provider": "aliyun",
+        "model": "happyhorse-1.0",
+        "type": "image2video"
+      }
+    ],
+    "default_parameters": {
+      "aspectRatio": "9:16",
+      "resolution": "480p_to_720p",
+      "generateAudio": true,
+      "roleMode": "frame",
+      "nsfw": false,
+      "isUploadAsset": true
+    }
+  },
+  "video_tasks": [
+    {
+      "segment_id": "product_ugc_video_01",
+      "client_business_id": "product-ugc-seg-01",
+      "first_frame_file": "product_ugc_01.png",
+      "last_frame_file": "product_ugc_02.png",
+      "output_file": "product_ugc_video_01.mp4",
+      "duration": 6,
+      "spoken_line": "",
+      "reference_bindings": {
+        "canonical_product_refs": [],
+        "installation_refs": [],
+        "scene_anchor_refs": [],
+        "presenter_anchor_refs": [],
+        "previous_shot_refs": [],
+        "actual_last_frame_refs": []
+      },
+      "inheritance_mode": "strict",
+      "structure_constraints": [],
+      "camera": {
+        "camera_effect": "",
+        "camera_keywords": [],
+        "camera_subject": "",
+        "camera_amplitude": "",
+        "camera_duration": "",
+        "start_framing": "",
+        "end_framing": ""
+      },
+      "prompt_spec": {
+        "subject_and_structure": "",
+        "action_and_camera": "",
+        "continuity": "",
+        "negative": []
+      },
+      "prompt": ""
+    }
+  ]
+}

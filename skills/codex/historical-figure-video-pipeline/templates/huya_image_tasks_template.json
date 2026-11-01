@@ -1,0 +1,22 @@
+{
+  "task_name": "曹操_分镜图",
+  "platform": {
+    "image_model_priority": [
+      {
+        "provider": "google",
+        "model": "gemini-3-pro-image-preview",
+        "type": "text2image"
+      }
+    ],
+    "default_parameters": {
+      "aspectRatio": "9:16"
+    }
+  },
+  "shots": [
+    {
+      "shot_id": "曹操_情节_01",
+      "image_file": "曹操_情节_01.png",
+      "prompt": "青年曹操站在东汉末年的洛阳街巷中，神情警觉而克制，真实中国古代历史纪录片风格。"
+    }
+  ]
+}

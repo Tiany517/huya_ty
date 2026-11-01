@@ -1,0 +1,22 @@
+{
+  "product": {"product_id": "example-countertop-appliance", "product_name": "Example countertop appliance", "category": "home_appliance"},
+  "recognition": {"status": "passed", "confidence": 0.95, "unresolved_questions": []},
+  "geometry": {"silhouette": "compact rectangular appliance", "scale_reference": "fits beside a sink", "orientation_rules": ["controls face the user"], "material": ["plastic", "metal"], "color": ["white"]},
+  "components": ["housing", "power_button", "mode_dial", "power_cable"],
+  "relations": ["power_cable connected_to wall_socket", "mode_dial attached_to front_panel"],
+  "installation": {"required": false, "attached_to": "", "orientation": "upright", "water_or_motion_path": [], "physical_constraints": ["cable remains connected before operation"]},
+  "usage": {
+    "recognition_status": "passed",
+    "operable_components": [
+      {"id": "power_button", "allowed_actions": ["press"], "effect": "device turns on"},
+      {"id": "mode_dial", "allowed_actions": ["rotate_to_mode"], "effect": "selected mode changes"}
+    ],
+    "installation_only_components": ["housing", "power_cable"],
+    "control_to_effect_map": ["power_button --press--> powered_on", "mode_dial --rotate_to_mode--> mode_selected"],
+    "usage_steps": ["connect power cable", "press power button", "rotate mode dial", "observe output"],
+    "safety_limits": ["do not operate with exposed wiring"],
+    "forbidden_interactions": ["do not rotate housing", "do not pull power cable to operate"]
+  },
+  "must_keep": ["button and dial remain on front panel", "cable remains connected"],
+  "must_not_change": ["do not invent a touchscreen", "do not move controls to the rear"]
+}

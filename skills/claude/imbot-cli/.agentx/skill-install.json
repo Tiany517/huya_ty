@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "skill": "aiops/imbot-cli",
+  "installName": "imbot-cli",
+  "revisionType": "git_commit",
+  "revision": "bd94b31b3ff5c0cde916d57e69bdcdb3f5cef0ac",
+  "updatedAt": "2026-07-29T02:48:30Z"
+}

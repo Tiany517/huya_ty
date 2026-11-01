@@ -1,0 +1,23 @@
+{
+  "skill_name": "douyin-playwright",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我分析下这个抖音博主 https://www.douyin.com/user/MS4wLjABAAAARGJtMMMujtgxbnl18CQHeUiTdopr5C--P4I3t80KvumwcZw2di4vfeteEnBhYI-x 的Top 10高赞视频",
+      "expected_output": "应触发 douyin-playwright skill，执行环境预检，使用 Playwright 或 CDP 模式抓取博主主页数据，生成包含博主信息、Top 10 视频数据表格和 AI 摘要的输出，并生成 Excel 文件",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "这个抖音视频讲了什么？https://www.douyin.com/video/7650438039197601043",
+      "expected_output": "应触发 douyin-playwright skill，识别为单视频场景，抓取视频标题、文案、点赞数、评论数等数据，生成视频内容摘要（不需要 Excel）",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "帮我导出黄士铨看世界这个抖音博主的视频数据到Excel表格",
+      "expected_output": "应触发 douyin-playwright skill，需要先搜索找到博主主页 URL，然后抓取数据并生成 Excel 文件，包含博主信息 Sheet 和视频数据 Sheet",
+      "files": []
+    }
+  ]
+}

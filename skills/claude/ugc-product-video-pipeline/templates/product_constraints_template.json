@@ -1,0 +1,17 @@
+{
+  "product_name": "",
+  "observed_from_images": {
+    "color": "",
+    "shape": "",
+    "size_relative_to_hand_or_scene": "",
+    "material": "",
+    "visible_parts": [],
+    "logo_or_label": "",
+    "installation_or_use_state": ""
+  },
+  "user_claims": [],
+  "assumptions": [],
+  "must_keep": [],
+  "must_not_change": [],
+  "prompt_constraint_sentence": ""
+}

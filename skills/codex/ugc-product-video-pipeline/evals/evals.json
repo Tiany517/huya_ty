@@ -1,0 +1,23 @@
+{
+  "skill_name": "ugc-product-video-pipeline",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我有一个360度旋转水龙头过滤器，想做墨西哥市场TikTok带货视频，目标是家庭主妇，先别生成视频，先给我审核包。",
+      "expected_output": "Creates an audit-first package with intake assumptions, product constraints placeholder, Mexican Spanish script, storyboard plan, image prompts, video prompts, compliance notes, and review checklist. It should not call video generation APIs.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "帮我用这几张产品图做一条美国TikTok UGC视频，卖点是小巧、免工具安装、三档水流。先让我确认脚本和分镜，再生成。",
+      "expected_output": "Asks for/uses product images, separates user-provided selling points from inferred ideas, creates English UGC audit package, and clearly gates generation pending approval.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "这个产品要做中英西三版带货视频，字幕、BGM、分镜图、图生视频、拼接都要考虑，后续要一镜到底感。",
+      "expected_output": "Designs multilingual scripts and prompts, uses actual-last-frame chaining for final generation, post-produces subtitles/BGM, and includes QA checks for black frames, subtitle fit, and product consistency.",
+      "files": []
+    }
+  ]
+}

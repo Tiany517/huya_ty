@@ -8,8 +8,8 @@
 | --- | --- |
 | `README.md` / `README.en.md` | 中文 / 英文说明和新电脑启动步骤 |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | 中文 / 英文数据分析工作规则；秘密值放在加密保险包中 |
-| `skills/<skill-name>/` | 完整保留的 skill 快照及其引用和必要资源 |
-| `sql/<topic>/<file>.sql` | 按业务主题整理的可复用 SQL |
+| `skills/README.md`、`skills/<source>/<skill-name>/` | Skills 归档说明及按安装来源保留的完整快照 |
+| `sql/README.md`、`sql/source/<file>` | SQL 归档说明和来自现有目录的原名脚本；后续可按主题建立索引 |
 | `projects/<project-slug>/README.md` / `README.en.md` | 项目目的、范围、指标口径、发现、限制和来源 |
 | `projects/<project-slug>/scripts/` | 可复现项目的脚本 |
 | `projects/<project-slug>/artifacts/` | 支持理解或继续项目的重要结果文件 |

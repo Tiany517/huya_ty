@@ -1,0 +1,23 @@
+{
+  "skill_name": "historical-figure-video-pipeline",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我做一条刘备的一生短视频，从情节、分镜图 prompt 到 Seedance 图生视频任务配置都生成好，要求后续方便跑实际末帧链式生成。",
+      "expected_output": "Creates a Liu Bei task folder contract, story markdown, image prompt JSON, video plan JSON, and explains chained generation commands.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "我已经有曹操_图片里的分镜图和 story_video_plan_v1.json，请你用上一段实际末帧接下一段的方式重新生成视频，并最终拼接成片。",
+      "expected_output": "Uses generate_huya_chained_story_videos.py, resumes submitted tasks if needed, renders final video, and runs ffprobe/blackdetect/frame QA.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "这条历史人物视频段落感很强，还有黑帧和字幕溢出，请你检查原因并修一版。",
+      "expected_output": "Diagnoses generation versus editing causes, avoids pad/fade/xfade, fixes ASS title/subtitle style, re-renders, and runs QA.",
+      "files": []
+    }
+  ]
+}

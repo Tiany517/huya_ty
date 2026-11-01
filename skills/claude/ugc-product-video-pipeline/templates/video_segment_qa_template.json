@@ -1,0 +1,19 @@
+{
+  "schema_version": "2.0",
+  "review_basis": "post_generation_video_evidence",
+  "overall_status": "pending",
+  "raw_generation_qa": {
+    "video_file": "",
+    "sampled_frames": {"early": "", "middle": "", "late": []},
+    "technical_checks": {"status": "pending", "codec": "", "audio": "", "duration_seconds": 0, "resolution": "", "aspect_ratio": "", "black_frames": null},
+    "visual_checks": {"status": "pending", "reviewed_frames": [], "product_consistency": "", "physics": "", "observed_interactions": [], "forbidden_interactions_observed": [], "interaction_visibility": {"control_before": "", "control_during": "", "control_after": "", "status": "pending"}, "observed_effects": []}
+  },
+  "normalized_delivery_qa": {
+    "required": true,
+    "video_file": "",
+    "sampled_frames": {"early": "", "middle": "", "late": ""},
+    "technical_checks": {"status": "pending", "codec": "", "audio": "", "duration_seconds": 0, "resolution": "", "aspect_ratio": "", "black_frames": null},
+    "visual_checks": {"status": "pending", "reviewed_frames": [], "product_consistency": "", "physics": "", "observed_interactions": [], "forbidden_interactions_observed": [], "interaction_visibility": {"control_before": "", "control_during": "", "control_after": "", "status": "pending"}, "observed_effects": []}
+  },
+  "segments": {}
+}

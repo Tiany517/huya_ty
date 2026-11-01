@@ -1,0 +1,22 @@
+{
+  "task_name": "",
+  "target_market": "",
+  "target_platform": "",
+  "target_language": "",
+  "aspect_ratio": "9:16",
+  "estimated_total_duration_seconds": 25,
+  "continuity_mode": "actual_last_frame_chaining_after_approval",
+  "beats": [
+    {
+      "beat_id": "beat_01_hook",
+      "time_range": "0-3s",
+      "goal": "pain point / hook",
+      "scene": "",
+      "creator_action": "",
+      "product_state": "",
+      "spoken_line": "",
+      "post_text": "",
+      "duration": 3
+    }
+  ]
+}
