@@ -18,6 +18,7 @@
 | `projects/<project-slug>/artifacts/` | 支持理解或继续项目的重要结果文件；FPS 项目含匿名时长分位 CSV |
 | `projects/monthly-external-ecosystem-dau/` | 外部生态 DAU 月报的取数口径、SQL 说明和匿名月度聚合附件 |
 | `projects/weekly-ecosystem-monitoring/` | 周报生态监控：日级品类与主播下钻 SQL、6 周匿名快照、平台 DAU、展示模板结构和可重复校验 |
+| `projects/ai-workshop-commercialization/` | AI 工坊商业化价值：PSM7/PSM8、DID、付费留存、版本转换、礼物人工打标、匿名品类/ACU 汇总、最终单页和可重复校验 |
 | `projects/valorant-fps-cross-broadcast/` | FPS 主播跨播事件表、ACU 分层成功率 SQL 和匿名校验基线 |
 | `projects/valorant-watchtime-contribution-knee/` | 实际观时月度拐点、Top-N 覆盖和跨月候选筛选的匿名结果及脚本 |
 | `projects/valorant-yuezi-event-costream/` | 去标识的赛事二路节目化案例、窗口汇总和分析脚本 |
@@ -29,7 +30,8 @@
 | `projects/non-douyin-valorant-streamer-discovery/` | 非抖 B 站/斗鱼/快手无畏主播头部候选、月度基准、战队剔除情景及匿名筛选结果 |
 | `projects/valorant-streamer-potential-analysis/` | 无畏契约主播潜力复盘：虎牙站内互动筛选、抖音 v1/v2 持续领先方法对比、2026-09 外部平台人才池及匿名校验结果 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
-| `vault/env-files.aesgcm` | AES-256-GCM 加密的 `.env` 文件包；解密密钥单独保存 |
+| `vault/migration-secrets.aesgcm` | AES-256-GCM 加密的 `.env` 与数据平台凭据包；解密密钥单独保存 |
+| `vault/env-files.aesgcm` | 旧版 `.env` 加密包，保留作历史副本；新电脑优先使用 `migration-secrets.aesgcm` |
 | `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单 |
 | `local-source-map.md` / `local-source-map.en.md` | 中文 / 英文本机路径映射，仅保存在本机并由 Git 忽略 |
 
@@ -50,7 +52,7 @@ GitHub 仓库地址：<https://github.com/Tiany517/huya_ty>
 1. 登录 GitHub 后克隆本仓库。
 2. 阅读 `instructions/AGENTS.md` 和 `inventory/migration-inventory.md`。
 3. 从 `skills/` 恢复 skills，并查看来源和版本说明。
-4. 参考 `local-source-map.md` 重建本机路径；将仓库外单独保存的 `huya_ty-env-files.key` 安全转移到新电脑，再按 `vault/decrypt-env-files.mjs` 的说明解密到暂存目录并逐项恢复。
+4. 参考 `local-source-map.md` 重建本机路径；将仓库外单独保存的 `huya_ty-env-files.key` 安全转移到新电脑，再用 `vault/decrypt-env-files.mjs` 解密 `vault/migration-secrets.aesgcm` 到暂存目录并逐项恢复。
 5. 阅读 `projects/` 中的项目背景和结果附件，再继续相关工作。
 6. 重新连接获准的数据服务，并在运行 SQL 前验证权限。
 

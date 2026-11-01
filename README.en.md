@@ -18,6 +18,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/<project-slug>/artifacts/` | Important result files; the FPS project includes an anonymized live-time quantile CSV |
 | `projects/monthly-external-ecosystem-dau/` | External ecosystem DAU workflow, SQL definitions, and anonymized monthly aggregates |
 | `projects/weekly-ecosystem-monitoring/` | Weekly ecosystem monitoring: daily category and streamer SQL, six anonymized snapshots, platform DAU, template structure, and reproducible validation |
+| `projects/ai-workshop-commercialization/` | AI Workshop commercialization: PSM7/PSM8, DID, paid retention, version conversion, manual gift tagging, anonymous category/ACU summaries, final business page, and reproducible validation |
 | `projects/valorant-fps-cross-broadcast/` | FPS cross-broadcast event SQL, ACU-tier success-rate query, and anonymized validation baseline |
 | `projects/valorant-watchtime-contribution-knee/` | Anonymized actual watch-time knee, Top-N coverage, and monthly candidate-screen results with scripts |
 | `projects/valorant-yuezi-event-costream/` | De-identified event co-streaming case, window aggregates, and analysis scripts |
@@ -29,7 +30,8 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/non-douyin-valorant-streamer-discovery/` | Non-Douyin Bilibili/Douyu/Kuaishou Valorant head candidates, monthly benchmarks, team-exclusion sensitivity, and anonymized results |
 | `projects/valorant-streamer-potential-analysis/` | Valorant streamer-potential review: Huya internal interaction screen, Douyin v1/v2 sustained-leader comparison, September 2026 external talent pool, and anonymized validation evidence |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
-| `vault/env-files.aesgcm` | AES-256-GCM encrypted `.env` bundle; decryption key stored separately |
+| `vault/migration-secrets.aesgcm` | AES-256-GCM encrypted `.env` and data-platform credential bundle; decryption key stored separately |
+| `vault/env-files.aesgcm` | Legacy `.env` bundle retained as a historical copy; use `migration-secrets.aesgcm` on the new computer |
 | `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue |
 | `local-source-map.md` / `local-source-map.en.md` | Chinese / English local machine paths; kept locally and ignored by Git |
 
@@ -50,7 +52,7 @@ These are repository-relative GitHub paths. For example, `instructions/AGENTS.md
 1. Sign in to GitHub and clone this repository.
 2. Read `instructions/AGENTS.en.md` and `inventory/migration-inventory.en.md` (Chinese versions are available at the corresponding paths without `.en`).
 3. Restore skills from `skills/` and read their source and version notes.
-4. Recreate local paths using `local-source-map.md`; transfer `huya_ty-env-files.key` from outside the repository to the new computer through a secure channel, then use `vault/decrypt-env-files.mjs` to decrypt into a staging directory and restore files individually.
+4. Recreate local paths using `local-source-map.md`; transfer `huya_ty-env-files.key` from outside the repository to the new computer through a secure channel, then use `vault/decrypt-env-files.mjs` to decrypt `vault/migration-secrets.aesgcm` into a staging directory and restore files individually.
 5. Read project context and result artifacts under `projects/` before continuing work.
 6. Reconnect approved data services and validate access before running saved SQL.
 

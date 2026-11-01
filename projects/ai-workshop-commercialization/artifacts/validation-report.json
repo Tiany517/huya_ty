@@ -1,0 +1,231 @@
+{
+  "status": "pass",
+  "checks": [
+    "expected files present",
+    "PSM7 sample/matching/DID values reconciled",
+    "PSM8 sample/matching values reconciled",
+    "version report date range and version count reconciled",
+    "final slide count and required result wording verified",
+    "anonymous CSV headers contain no UID/nickname/item/prompt fields",
+    "anonymous summary row counts verified"
+  ],
+  "summary_row_counts": {
+    "ai-gift-primary-category-summary.csv": 13,
+    "ai-gift-primary-category-summary.en.csv": 13,
+    "ai-gift-secondary-category-summary.csv": 26,
+    "ai-gift-secondary-category-summary.en.csv": 26,
+    "ai-vs-regular-gift-category-acu-flow.csv": 2788,
+    "ai-vs-regular-gift-category-acu-flow.en.csv": 2788,
+    "ai-vs-regular-gift-category-flow.csv": 788,
+    "ai-vs-regular-gift-category-flow.en.csv": 788,
+    "ai-workshop-category-exposure.csv": 1742,
+    "ai-workshop-category-exposure.en.csv": 1742
+  },
+  "files": [
+    {
+      "path": "artifacts/anonymous-summary/ai-gift-primary-category-summary.csv",
+      "bytes": 1469,
+      "sha256": "2e07ee914e3158e9af71c644fea44e735387031f6bf30a543a304000d2a9ebd2"
+    },
+    {
+      "path": "artifacts/anonymous-summary/ai-gift-primary-category-summary.en.csv",
+      "bytes": 1478,
+      "sha256": "6ec989998327eedde048d65cf2e7c0dd14b7322b13865ea5aadfff2aac36c6bf"
+    },
+    {
+      "path": "artifacts/anonymous-summary/ai-gift-secondary-category-summary.csv",
+      "bytes": 3131,
+      "sha256": "92d2d2d3c318709636f745c509c5fa59490231ec75181759d5af6c669bda2893"
+    },
+    {
+      "path": "artifacts/anonymous-summary/ai-gift-secondary-category-summary.en.csv",
+      "bytes": 3139,
+      "sha256": "48e1c89b0bf926894654b9799fd3bf039ed53d125ebc11717da1d131206adc04"
+    },
+    {
+      "path": "artifacts/anonymous-summary/ai-vs-regular-gift-category-acu-flow.csv",
+      "bytes": 158014,
+      "sha256": "c58b89cb6cb19e0ff2ca835c2b362e62d61479b2a048abec62b8a9e4a67b5f41"
+    },
+    {
+      "path": "artifacts/anonymous-summary/ai-vs-regular-gift-category-acu-flow.en.csv",
+      "bytes": 158013,
+      "sha256": "1dfff19d196a1ff8357e61949bd86518617396407a81b845fcac4162d02aeb1a"
+    },
+    {
+      "path": "artifacts/anonymous-summary/ai-vs-regular-gift-category-flow.csv",
+      "bytes": 34221,
+      "sha256": "fab63e7c0a13dcdfd546caa7432649b2e712d922dac37caf5d8b46cc0370ef5d"
+    },
+    {
+      "path": "artifacts/anonymous-summary/ai-vs-regular-gift-category-flow.en.csv",
+      "bytes": 34225,
+      "sha256": "b7ffcbf805b97d60a509713b64d506083f4f98826ea6bdf33658664ec5449b22"
+    },
+    {
+      "path": "artifacts/anonymous-summary/ai-workshop-category-exposure.csv",
+      "bytes": 82299,
+      "sha256": "a72485ff442a1e82969c7071e2ca15e796943cc3ee9f39388d5e78270882a7c6"
+    },
+    {
+      "path": "artifacts/anonymous-summary/ai-workshop-category-exposure.en.csv",
+      "bytes": 82321,
+      "sha256": "98b06058e88b8577b9e4feb9adaf417c049b0bee43fb3dc8622ac49da257cf1d"
+    },
+    {
+      "path": "artifacts/charts/chart-notes-cn.txt",
+      "bytes": 247,
+      "sha256": "0d7c10fc72f3bdd86582dff1c17b7cd7f6af7e95495af47331ba912a16314e73"
+    },
+    {
+      "path": "artifacts/charts/propensity-score-ecdf.png",
+      "bytes": 51590,
+      "sha256": "830877cc3a5b2bfc10ae86a853532df271d15ac7ff0ac988ae01909d77ca3b4f"
+    },
+    {
+      "path": "artifacts/charts/propensity-score-overlap.png",
+      "bytes": 41575,
+      "sha256": "26e78c107155f2a7331183c533c24f1b6d63eddb901eb1c0db1e7e077de003c8"
+    },
+    {
+      "path": "artifacts/charts/propensity-score-qq.png",
+      "bytes": 84951,
+      "sha256": "85491b916b3ebf3895b1bfc5986dbaadc574f24dce054cf8ded376c07893d9d3"
+    },
+    {
+      "path": "artifacts/final-report/ai-workshop-psm7-f2-report.xlsx",
+      "bytes": 102959,
+      "sha256": "2bfc373d316863389af2c54ad58a860af93eca32f82ba99143171c88304a81c3"
+    },
+    {
+      "path": "artifacts/final-report/ai-workshop-psm8-ab-did-report.xlsx",
+      "bytes": 16088,
+      "sha256": "678522aa4e4fa182b1d7c5ad8bda9b0acf72414f35af88462188475eff47b630"
+    },
+    {
+      "path": "artifacts/final-slides/ai-workshop-commercial-value-20260921.pptx",
+      "bytes": 1588218,
+      "sha256": "886af40da16f7039d69008dec2761458f15906a6de39a3ad238001b41802f59d"
+    },
+    {
+      "path": "artifacts/version-analysis/ai-workshop-version-conversion-report.xlsx",
+      "bytes": 24946,
+      "sha256": "2240b7e2df57782db68cf689fb568569ca1fc33e598341816973a3e3512d224d"
+    },
+    {
+      "path": "artifacts/version-analysis/ai-workshop-version-daily-detail.csv",
+      "bytes": 15796,
+      "sha256": "964252ac7e843371ef46922954fd6eaa8a71970a1b62f35aea228ba724e3e6dc"
+    },
+    {
+      "path": "methodology/gift-tagging-rules-v6-frozen.en.md",
+      "bytes": 10891,
+      "sha256": "971c133eca15af994eeb89dc22273e4095fa1cf413836c758af8e4c2cfa24c48"
+    },
+    {
+      "path": "methodology/gift-tagging-rules-v6-frozen.md",
+      "bytes": 9514,
+      "sha256": "55882383f0b66a6709878ea91cad621027182e520713b3d4676dfb753f06d512"
+    },
+    {
+      "path": "README.en.md",
+      "bytes": 12160,
+      "sha256": "a7cefe1ee7dcaf85039e760089d12d245fd57d994f4c510c82258b640dfdc4ee"
+    },
+    {
+      "path": "README.md",
+      "bytes": 11001,
+      "sha256": "652f3fd6bc275166022ec0b2ab6c34992a001c2b25d3b341e7b22262df1d2f6a"
+    },
+    {
+      "path": "scripts/ai-gift-psm-user-revenue-breakdown.sql",
+      "bytes": 26203,
+      "sha256": "a0bbe8df22daeea7fbd825d80ff11905f6aab4364ff2718b3104790844ca5413"
+    },
+    {
+      "path": "scripts/apply_audit_fixes_v6.py",
+      "bytes": 5746,
+      "sha256": "77d6dcfcdd09f391503e4febb1c9ae0c567eb1bcea2dadb255b8c65a6bb0c191"
+    },
+    {
+      "path": "scripts/build_ab_did_report.py",
+      "bytes": 4939,
+      "sha256": "e982bbbeee6c2b7026c571e04a688eb81f1c1b19ebeab729955e33f4aaf0ed7c"
+    },
+    {
+      "path": "scripts/build_version_conversion_report.py",
+      "bytes": 18202,
+      "sha256": "a22f00192a31c54da362f07faea000e9a5534f926857e1bf51cf21a17d1c9621"
+    },
+    {
+      "path": "scripts/build_version_week_conversion.mjs",
+      "bytes": 15529,
+      "sha256": "4cde6f7df966f6301cb5c5087a0902380cc01ce6991a473df7f0c8302e76eb06"
+    },
+    {
+      "path": "scripts/merge_manual_labels_v6.py",
+      "bytes": 16450,
+      "sha256": "53cd7578a4f12c880ffa3f17633ee1ba8267b66a58a898887500331d04a6da65"
+    },
+    {
+      "path": "scripts/prepare_anonymous_artifacts.py",
+      "bytes": 7325,
+      "sha256": "271c71d5a7f2111137623df64b422add528d6232fc721e87a12efefa4a9c082e"
+    },
+    {
+      "path": "scripts/requirements.txt",
+      "bytes": 88,
+      "sha256": "9e61ccf92e60aa8d59d25be96725ee804393c510203480e9f739057b7397802d"
+    },
+    {
+      "path": "scripts/run_overlap_weighting_psm8.py",
+      "bytes": 4393,
+      "sha256": "61979a83720f6c258e98c9eb5016221620044f91c34cb9b20359b4ca426d2b04"
+    },
+    {
+      "path": "scripts/run_psm8_psm7_style.py",
+      "bytes": 4470,
+      "sha256": "e9238bda8a2f6aa75a5d309a4eb743ad8985a2fe55a7c5e7320464954581b974"
+    },
+    {
+      "path": "scripts/run_psm8_three_group_compare.py",
+      "bytes": 5208,
+      "sha256": "57dd003b47b98311f11f02c5ec31d9b29144be8d388f38bf9d9d11b9038ce3f5"
+    },
+    {
+      "path": "scripts/tag_ai_gift_categories_v2.py",
+      "bytes": 23698,
+      "sha256": "49afac7b2406349232f31da4f7cf77c1a2db9cec1815257d95758384fbf1b3f0"
+    },
+    {
+      "path": "scripts/tag_ai_gift_categories_v3.py",
+      "bytes": 19765,
+      "sha256": "63cd1862eb981476576c78119f39e0510a7dd19957f2ab8e2863e0e969771c52"
+    },
+    {
+      "path": "scripts/tag_ai_gift_categories_v4.py",
+      "bytes": 15362,
+      "sha256": "f806c89c659202cd3848c8d42ed847ce3273d81cd4be6f679a689131ef28afc4"
+    },
+    {
+      "path": "scripts/tag_ai_gift_categories_v5.py",
+      "bytes": 16273,
+      "sha256": "0425749fe5d3c282f2dbda8897f020ef5057cdf68be635e2a0117da53434cc4e"
+    },
+    {
+      "path": "scripts/validate_ai_project.py",
+      "bytes": 6912,
+      "sha256": "76c78b36bc1a603422a00ca367239b81ddfb6b62dcccf15e62fa094a63dfb2bc"
+    },
+    {
+      "path": "scripts/validate_tagging_v5.py",
+      "bytes": 3633,
+      "sha256": "2bcde456ce738ff4e0b5654fd0f14b6e00cc173f4d65ae83d5112457b6bd8bb9"
+    },
+    {
+      "path": "scripts/verify_version_week.mjs",
+      "bytes": 1416,
+      "sha256": "fe53e66a18d774731154bf8f0522d950f33b252bd14ef307fbe553e8a1d948d0"
+    }
+  ]
+}
