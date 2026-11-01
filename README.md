@@ -18,7 +18,7 @@
 | `projects/valorant-watchtime-contribution-knee/` | 实际观时月度拐点、Top-N 覆盖和跨月候选筛选的匿名结果及脚本 |
 | `projects/valorant-yuezi-event-costream/` | 去标识的赛事二路节目化案例、窗口汇总和分析脚本 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
-| `vault/env-files.age` | 客户端加密的 `.env` 文件包；解密密钥单独保存 |
+| `vault/env-files.aesgcm` | AES-256-GCM 加密的 `.env` 文件包；解密密钥单独保存 |
 | `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单 |
 | `local-source-map.md` / `local-source-map.en.md` | 中文 / 英文本机路径映射，仅保存在本机并由 Git 忽略 |
 
@@ -39,7 +39,7 @@ GitHub 仓库地址：<https://github.com/Tiany517/huya_ty>
 1. 登录 GitHub 后克隆本仓库。
 2. 阅读 `instructions/AGENTS.md` 和 `inventory/migration-inventory.md`。
 3. 从 `skills/` 恢复 skills，并查看来源和版本说明。
-4. 参考 `local-source-map.md` 重建本机路径；使用单独保存的解密密钥恢复加密凭据包。
+4. 参考 `local-source-map.md` 重建本机路径；将仓库外单独保存的 `huya_ty-env-files.key` 安全转移到新电脑，再按 `vault/decrypt-env-files.mjs` 的说明解密到暂存目录并逐项恢复。
 5. 阅读 `projects/` 中的项目背景和结果附件，再继续相关工作。
 6. 重新连接获准的数据服务，并在运行 SQL 前验证权限。
 

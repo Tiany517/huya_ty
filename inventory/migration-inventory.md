@@ -69,6 +69,6 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 
 ## 凭据
 
-凭据属于迁移清单范围。所需 `.env` 和其他含凭据配置将放入客户端加密包，GitHub 中不保存明文；解密密钥单独保存。聊天或明文规则文件中暴露过的凭据，应先轮换再制作加密包。
+已在 `vault/env-files.aesgcm` 中加密归档用户目录下发现的 4 个实际 `.env` 文件；`.env.example`、示例模板和快捷方式不重复打包。密钥保存在仓库外的本机 Documents 目录，由当前 Windows 用户单独转移到新电脑。仓库不保存明文凭据。聊天或明文规则文件中暴露过的凭据，应先轮换再继续复用。
 
 英文版见 `migration-inventory.en.md`。

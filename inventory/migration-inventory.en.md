@@ -69,6 +69,6 @@ Request an account data export if the account or workspace offers it, then revie
 
 ## Credentials
 
-Credentials are in scope for migration. Place required `.env` files and other credential-bearing configuration in a client-encrypted bundle; do not store plaintext in GitHub. Store the decryption key separately. Rotate credentials exposed in chat or plaintext instruction files before creating the encrypted bundle.
+Four actual `.env` files found under the user profile are encrypted in `vault/env-files.aesgcm`. `.env.example` files, templates, and shortcuts are not duplicated in the bundle. The key is stored outside the repository in the local Documents folder and must be transferred separately by the current Windows user. GitHub contains no plaintext credentials. Rotate credentials exposed in chat or plaintext instruction files before continuing to reuse them.
 
 Chinese version: `migration-inventory.md`.

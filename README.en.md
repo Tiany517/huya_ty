@@ -18,7 +18,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/valorant-watchtime-contribution-knee/` | Anonymized actual watch-time knee, Top-N coverage, and monthly candidate-screen results with scripts |
 | `projects/valorant-yuezi-event-costream/` | De-identified event co-streaming case, window aggregates, and analysis scripts |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
-| `vault/env-files.age` | Client-encrypted `.env` bundle; decryption key stored separately |
+| `vault/env-files.aesgcm` | AES-256-GCM encrypted `.env` bundle; decryption key stored separately |
 | `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue |
 | `local-source-map.md` / `local-source-map.en.md` | Chinese / English local machine paths; kept locally and ignored by Git |
 
@@ -39,7 +39,7 @@ These are repository-relative GitHub paths. For example, `instructions/AGENTS.md
 1. Sign in to GitHub and clone this repository.
 2. Read `instructions/AGENTS.en.md` and `inventory/migration-inventory.en.md` (Chinese versions are available at the corresponding paths without `.en`).
 3. Restore skills from `skills/` and read their source and version notes.
-4. Recreate local paths using `local-source-map.md`; restore the encrypted credential bundle using its separately stored decryption key.
+4. Recreate local paths using `local-source-map.md`; transfer `huya_ty-env-files.key` from outside the repository to the new computer through a secure channel, then use `vault/decrypt-env-files.mjs` to decrypt into a staging directory and restore files individually.
 5. Read project context and result artifacts under `projects/` before continuing work.
 6. Reconnect approved data services and validate access before running saved SQL.
 
