@@ -117,24 +117,27 @@ Keep SQL reproducible; do not return only a final aggregate while dropping key i
 Every formal SQL task must follow this fixed loop. “The SQL ran,” “I reviewed it,” and “the rate is below 100%” are not validation.
 
 1. Define the result contract first: business question, population, time, source/intermediate/output deduplication grains, unique keys, numerator, denominator, join relationships, and expected row-count changes.
-2. Build a risk profile next: for retention/funnels, multi-table joins, time windows, units, deduplication, PSM/DID, and exports, select the mandatory checks and falsifiable expected results before implementation.
-3. Inspect source fields, partitions, and a small sample before writing SQL. Stop and revisit the definition if the expected scale or unique key does not hold.
-4. Execute the seven gates and retain the query, result, and status for each: `pass`, `fail`, or `not run`. Do not deliver a result as “verified” when a high-risk check was not run.
-5. Reconcile stage tables, target tables, and exported files before delivery, then turn the failure pattern into a project or reusable validation rule.
+2. Inspect data facts next: field dictionary, partitions, date coverage, units, nulls, enums, and a small sample. Stop and revisit the definition if expected scale or key uniqueness does not hold.
+3. Write the risk profile and falsifiable expectations before implementation: identify the most likely failure mode and the evidence that could disprove the planned implementation.
+4. Implement the SQL: state input grain, output grain, filters, and whether multiplication is allowed on material CTEs; build numerator, denominator, and common cohorts separately.
+5. Perform a static review before execution: filter placement, join predicates, null versus zero, closed date intervals, window frames, deduplication order, `union all` alignment, post-left-join filtering, hardcoded dates, and zero denominators.
+6. Execute the eight gates and retain the query, result, and status for each: `pass`, `fail`, or `not run`. Do not deliver a result as “verified” when a high-risk check was not run. Investigate the result contract and base grain before patching code.
+7. Reconcile stage tables, target tables, exports, and reports before delivery. Convert every discovered failure into an executable check, counterexample, or validation query, and review other SQL for the same pattern.
 
-The seven gates are:
+The eight gates are:
 
 1. Data availability: partitions, time coverage, missing dates, empty target tables.
 2. Schema and semantics: fields, types, units, enums, nulls, and abnormal values.
 3. Grain and uniqueness: unique keys and row counts before and after aggregation at source, intermediate, and output grains.
 4. Joins and row multiplication: cardinality, match rate, multiplier, and duplicate-counting risk for every join.
 5. Metric invariants: numerator not greater than denominator, valid rate ranges, and agreement between totals and grouped totals.
-6. Independent recomputation and reconciliation: rebuild key values from base grain through an independent path and reconcile exactly by group with the final output.
+6. Independent recomputation and reconciliation: rebuild key values from base grain through an independent path that minimizes reuse of the CTE under test, then reconcile exactly by group with the final output.
 7. Boundaries and business spot checks: date boundaries, small samples, null/unknown groups, sensitivity, and manual end-to-end checks of at least 3 to 5 base units.
+8. Delivery and runtime checks: verify actual execution and reconcile stage tables, target tables, exports, and reports on row counts, unique keys, metrics, headers, encoding, and ID type. Record engine, run range, output path, failed checks, idempotency, and material runtime risk.
 
 The risk profile must cover at minimum: common cohort denominators for retention/multi-window queries; key uniqueness, match rate, and multipliers for joins; partitions and observable windows for time analysis; units for amount/duration fields; row count and grain for `union all` and expansion; sample size, balance, and parallel trends for PSM/DID; and headers, row counts, string IDs, and field consistency for exports. A check matched to the scenario may not be skipped.
 
-Every failed gate must be fixed; a gate not run may not be described as verified. The complete process and delivery format are in `instructions/sql-validation-workflow.en.md`. The rules below are the minimum requirements for grain, expansion, and retention.
+Every failed gate must be fixed; a gate not run may not be described as verified. The complete process and delivery format are in `instructions/sql-validation-workflow.en.md`. For every high-risk scenario, state at least one expectation that can disprove the current implementation. If all checks only show that a result “looks plausible,” the validation design is insufficient. The rules below are the minimum requirements for grain, expansion, and retention.
 
 1. Before writing SQL, state the source grain, intermediate grains, final grain, and unique key. For retention, funnel, or multi-window metrics, also state the cohort grain, target-date mapping, and denominator definition.
 2. For every `union all`, pivot/unpivot, one-to-many join, or operation that may multiply rows, document the expected multiplier. After execution, compare row counts before and after expansion and check uniqueness under the expected key; successful SQL execution is not a validation.
@@ -371,5 +374,7 @@ Before delivery, check:
 18. Are source, intermediate, and output grains and unique keys stated, with row-count checks around `union all`, expansion, and many-to-many joins?
 19. For retention, funnels, and multi-window metrics, was the common denominator independently recomputed from base grain and reconciled exactly with the final output?
 20. Was missing target-partition coverage checked rather than silently counted as zero, and were unexecuted data checks labeled explicitly?
+21. Were filter placement, null-versus-zero semantics, closed time boundaries, window frames, `union all` column order, and hardcoded dates reviewed?
+22. Were the execution engine, runtime or material performance risk, output paths, stage/target/export reconciliation, and the impact of failed or unrun checks recorded?
 
 Chinese version: `AGENTS.md`.

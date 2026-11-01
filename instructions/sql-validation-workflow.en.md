@@ -40,6 +40,7 @@ Beyond the written contract, pre-register at least one falsifiable expectation, 
 4. Numerator and denominator must share the same business filters and cohort. When different windows share a denominator, state exactly which inputs are common.
 5. For long-format expansion, check the expected multiplier. For long-to-wide conversion, check final-key uniqueness.
 6. Define denominator-zero behavior explicitly: null, zero, or drop the group. Do not leave it to implicit behavior.
+7. Keep independently reproducible numerator, denominator, and intermediate counts where possible instead of hiding business logic in one large expression.
 
 ## 3.1 Build a Risk Profile
 
@@ -59,7 +60,24 @@ Do not apply one generic checklist with equal weight to every query. Before impl
 
 Retain the risk profile and result contract in the execution record. If a matched scenario lacks evidence, its status is `not run`, never `verified`.
 
-## 4. Seven Validation Gates
+## 3.2 First Static Review After Writing SQL
+
+After writing the query, do not treat successful execution as the conclusion. Review the behavior most likely to be inferred incorrectly or omitted:
+
+1. Filter placement: fact-table partitions and business filters belong in the fact CTE. A right-table filter in `left join ... on` versus `where` must match the intent to preserve unmatched rows.
+2. Null versus zero: check whether `count`, `sum`, `avg`, division, and `coalesce` turn “no data” into zero. Preserve an unknown group when a null grouping key represents real source coverage.
+3. Time boundaries: check string versus date types, inclusive endpoints, whether D7 means T+6, T+7, or the seventh eligible day, and timezone consistency.
+4. Window functions: verify `partition by`, `order by`, frame, tie handling, and `row_number` versus `rank` against the business rule.
+5. Deduplication order: decide whether to deduplicate before a join, join before aggregation, or aggregate before a join. Ensure `distinct` uses the final-key grain.
+6. Join semantics: compare key types; avoid putting unrelated filters in the join; check that right-table filters after a `left join` do not remove unmatched rows.
+7. Sets and expansion: verify column count, order, and type in every `union all`; check the expected multiplier after pivot, unpivot, or expansion.
+8. Rate and population logic: numerator and denominator must share a cohort. Check duplicate-row inflation in both numerator and expanded denominator, and handle zero denominators explicitly.
+9. Hardcodes and dependencies: validate dates, game IDs, caps, snapshot partitions, table names, and thresholds for the current task. Do not reuse another week's debugging values.
+10. Readability and reproducibility: use stable aliases, make material CTEs independently runnable with grain comments, and find implicit casts that can change semantics.
+
+Static review can reveal problems but cannot prove correctness. Every high-risk check still needs an executed result as evidence.
+
+## 4. Eight Validation Gates
 
 Every gate must have a query, result, and status: `pass`, `fail`, or `not run`. A failure must be fixed; “not run” must never be reported as “verified.”
 
@@ -111,6 +129,14 @@ Every gate must have a query, result, and status: `pass`, `fail`, or `not run`. 
 - Manually trace at least three to five base units from source through joins and aggregation. For retention, include at least one retained and one non-retained case.
 - Compare the result direction with business expectations. If it looks implausible, investigate definitions and code before rationalizing the output.
 
+### 4.8 Delivery and Runtime
+
+- Confirm actual execution completed without implicit type changes, resource limits, timeouts, partial results, or permission failures.
+- Reconcile stage tables, target tables, exports, and reports on row counts, unique keys, metrics, groups, and filters.
+- Verify SQL-to-export headers, string preservation for long IDs, Chinese encoding, blank rows or columns, and formatted numeric values.
+- Confirm idempotent target writes: no duplicate write, wrong overwrite, missing partition, or stale result.
+- Record the engine, time range, runtime or known performance risk, output paths, and the impact of failures. “It finished” alone proves neither correctness nor adequate performance.
+
 ## 5. Copyable Execution Record
 
 Before writing SQL, fill in the task note or delivery document:
@@ -141,14 +167,16 @@ After execution, fill in at least the following record. For evidence, cite a que
 | Metric invariants | Numerator/denominator, ranges, totals |  | pass/fail/not run |  |
 | Independent recomputation | Independent reconciliation by group |  | pass/fail/not run |  |
 | Boundaries and spot checks | Date edges, small samples, manual cases |  | pass/fail/not run |  |
+| Delivery and runtime | Stage/target/export/report, headers, encoding, idempotency, performance |  | pass/fail/not run |  |
 
-Answer five questions before delivery:
+Answer six questions before delivery:
 
 1. What does one final row represent, and does it still match the result contract?
 2. Did every join, expansion, or deduplication change the row count as expected?
 3. Was the denominator rebuilt independently from base grain rather than by reusing the logic under test?
 4. Was the output reconciled against the target table, stage tables, and exported file?
 5. Which checks were not run, and which conclusions does each affect?
+6. Does actual execution and delivery satisfy type, encoding, idempotency, and performance constraints?
 
 ## 6. Delivery Format
 
@@ -157,9 +185,10 @@ A formal SQL delivery includes at least:
 1. Executable SQL.
 2. Independent validation SQL or validation steps.
 3. Result contract and known limitations.
-4. Engine, time range, and output path actually used.
+4. Engine, time range, output path, and runtime or known performance risk actually used.
 5. Status and key numbers for each validation gate.
 6. Items that were not executed or could not be verified.
+7. Reconciliation results across stage tables, target tables, exports, and reports.
 
 SQL without validation evidence is a draft and may not be labeled “verified.”
 

@@ -8,7 +8,7 @@
 | --- | --- |
 | `README.md` / `README.en.md` | 中文 / 英文说明和新电脑启动步骤 |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | 中文 / 英文数据分析工作规则；秘密值放在加密保险包中 |
-| `instructions/sql-validation-workflow.md` / `.en.md` | 通用 SQL 五步闭环、风险画像、七道验证闸门、交付要求和失败复盘框架 |
+| `instructions/sql-validation-workflow.md` / `.en.md` | 通用 SQL 七步闭环、静态审查、风险画像、八道验证闸门、交付运行要求和失败复盘框架 |
 | `skills/README.md`、`skills/<source>/<skill-name>/` | Skills 归档说明及按安装来源保留的完整快照 |
 | `sql/README.md`、`sql/source/<file>` | SQL 归档说明和来自现有目录的原名脚本；后续可按主题建立索引 |
 | `sql/topics/retention-analytics/` | 站外斗鱼/B站/抖音及虎牙星秀的弹幕、打赏留存 SQL 索引、依赖、口径、版本和已知缺陷 |
@@ -17,6 +17,7 @@
 | `projects/<project-slug>/scripts/` | 可复现项目的脚本；FPS 项目收录 7 个清洗和分析脚本 |
 | `projects/<project-slug>/artifacts/` | 支持理解或继续项目的重要结果文件；FPS 项目含匿名时长分位 CSV |
 | `projects/monthly-external-ecosystem-dau/` | 外部生态 DAU 月报的取数口径、SQL 说明和匿名月度聚合附件 |
+| `projects/weekly-ecosystem-monitoring/` | 周报生态监控：日级品类与主播下钻 SQL、6 周匿名快照、平台 DAU、展示模板结构和可重复校验 |
 | `projects/valorant-fps-cross-broadcast/` | FPS 主播跨播事件表、ACU 分层成功率 SQL 和匿名校验基线 |
 | `projects/valorant-watchtime-contribution-knee/` | 实际观时月度拐点、Top-N 覆盖和跨月候选筛选的匿名结果及脚本 |
 | `projects/valorant-yuezi-event-costream/` | 去标识的赛事二路节目化案例、窗口汇总和分析脚本 |

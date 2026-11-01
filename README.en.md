@@ -8,7 +8,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | --- | --- |
 | `README.md` / `README.en.md` | Chinese / English guide and new-computer bootstrap |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | Chinese / English data-analysis working rules; secret values go in an encrypted vault |
-| `instructions/sql-validation-workflow.md` / `.en.md` | General five-step SQL loop, risk profile, seven validation gates, delivery requirements, and failure review |
+| `instructions/sql-validation-workflow.md` / `.en.md` | General seven-step SQL loop, static review, risk profile, eight validation gates, delivery/runtime requirements, and failure review |
 | `skills/README.md`, `skills/<source>/<skill-name>/` | Skills archive guide and full snapshots by installation source |
 | `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
 | `sql/topics/retention-analytics/` | Retention SQL index, dependencies, definitions, versions, and known defects for external Douyu/Bilibili/Douyin and Huya Star Show danmu/gift behavior |
@@ -17,6 +17,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/<project-slug>/scripts/` | Reproducible project scripts; the FPS project includes 7 cleaning and analysis scripts |
 | `projects/<project-slug>/artifacts/` | Important result files; the FPS project includes an anonymized live-time quantile CSV |
 | `projects/monthly-external-ecosystem-dau/` | External ecosystem DAU workflow, SQL definitions, and anonymized monthly aggregates |
+| `projects/weekly-ecosystem-monitoring/` | Weekly ecosystem monitoring: daily category and streamer SQL, six anonymized snapshots, platform DAU, template structure, and reproducible validation |
 | `projects/valorant-fps-cross-broadcast/` | FPS cross-broadcast event SQL, ACU-tier success-rate query, and anonymized validation baseline |
 | `projects/valorant-watchtime-contribution-knee/` | Anonymized actual watch-time knee, Top-N coverage, and monthly candidate-screen results with scripts |
 | `projects/valorant-yuezi-event-costream/` | De-identified event co-streaming case, window aggregates, and analysis scripts |

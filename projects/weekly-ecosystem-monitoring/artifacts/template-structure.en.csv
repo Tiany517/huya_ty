@@ -1,0 +1,23 @@
+worksheet,rows,columns,formula_count,purpose,detail_uploaded
+各品类的DAU和打赏情况,6249,13,18744,daily category aggregate with week/month/day derived fields,no
+品类总览,116,88,6223,monthly and weekly category scale monetization and averages,no
+品类归因,176,46,4642,monthly and weekly attribution structure and trend,no
+英雄总览,124,130,9645,League of Legends streamer and category overview and trend,no
+英雄归因,195,46,4783,League of Legends attribution detail,no
+王者总览,124,130,9645,Honor of Kings streamer and category overview and trend,no
+王者归因,195,46,4783,Honor of Kings attribution detail,no
+CS2总览,124,130,9645,CS2 streamer and category overview and trend,no
+CS2归因,195,46,4783,CS2 attribution detail,no
+体育总览,124,130,9645,sports streamer and category overview and trend,no
+体育归因,195,46,4783,sports attribution detail,no
+无畏总览,124,130,9645,Valorant streamer and category overview and trend,no
+无畏归因,195,46,4783,Valorant attribution detail,no
+户外总览,124,130,9645,outdoor streamer and category overview and trend,no
+户外归因,195,46,4783,outdoor attribution detail,no
+过程表4(王者）,24,2,0,Honor of Kings streamer screening remnants,no
+英雄数据源,553327,23,not scanned,streamer-day detail,no
+王者数据源,591852,23,not scanned,streamer-day detail,no
+CS2数据源,469505,23,not scanned,streamer-day detail,no
+体育数据源,469505,23,not scanned,streamer-day detail,no
+户外数据源,469505,23,not scanned,streamer-day detail,no
+无畏数据源,196310,23,not scanned,streamer-day detail,no

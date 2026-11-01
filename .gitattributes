@@ -1,0 +1,2 @@
+# Exported CSV snapshots retain source-cell spacing; CSV validation is executable in project scripts.
+*.csv -whitespace

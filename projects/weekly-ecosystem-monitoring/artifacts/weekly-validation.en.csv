@@ -1,0 +1,8 @@
+﻿check,status,value,expected,note
+"Six weekly category files pass date, category, key, null, and range checks",warning,6.0,All six files pass,Excel presentation format: category-weekly-20260907.csv has 7 dash placeholders and 7 blank cells; Excel presentation format: category-weekly-20260914.csv has 7 dash placeholders and 7 blank cells; Excel presentation format: category-weekly-20260923.csv has 7 dash placeholders and 7 blank cells; Excel presentation format: category-weekly-20261008.csv has 7 dash placeholders and 7 blank cells
+Latest weekly overall average viewing DAU matches the result workbook,pass,3627835.4285714286,Match J14 within 0.01,Independent CSV mean compared with result workbook J14
+Latest weekly overall average attributed users matches the result workbook,pass,4338349.285714285,Match Q14 within 0.01,Independent CSV mean compared with result workbook Q14
+Latest platform active DAU matches overall attributed users in the result workbook,pass,4338349.286,Match Q14 within 0.01; still review definitions,Review metric definitions after rerunning; equality alone does not establish that both metrics measure the same population
+Platform DAU gap can be rebuilt from the two weekly values,pass,-106756.5714,Match CURRENT_WEEK_DAU minus LAST_WEEK_DAU within 0.01,CURRENT_WEEK_DAU minus LAST_WEEK_DAU
+Overall revenue per paying user can be rebuilt from revenue and paying users,pass,2.9786178856738843e-08,Maximum absolute difference below 0.000001,Seven daily overall rows
+Historical platform DAU schema and duplication,warning,2.0,Consistent headers and no duplicate snapshot,Platform DAU file has a different header: platform-active-20261008-exported.csv; The 20260923 platform DAU file is byte-for-byte identical to 20260914
