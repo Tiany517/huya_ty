@@ -13,6 +13,7 @@
 | `projects/<project-slug>/README.md` / `README.en.md` | 项目目的、范围、指标口径、发现、限制和来源；已复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/` |
 | `projects/<project-slug>/scripts/` | 可复现项目的脚本；FPS 项目收录 7 个清洗和分析脚本 |
 | `projects/<project-slug>/artifacts/` | 支持理解或继续项目的重要结果文件；FPS 项目含匿名时长分位 CSV |
+| `projects/monthly-external-ecosystem-dau/` | 外部生态 DAU 月报的取数口径、SQL 说明和匿名月度聚合附件 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `vault/env-files.age` | 客户端加密的 `.env` 文件包；解密密钥单独保存 |
 | `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单 |

@@ -13,6 +13,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/<project-slug>/README.md` / `README.en.md` | Project purpose, scope, metric definitions, findings, limitations, and sources; reviewed projects: `projects/valorant-5937-p50-live-time/`, `projects/fps-anchor-cleaning/` |
 | `projects/<project-slug>/scripts/` | Reproducible project scripts; the FPS project includes 7 cleaning and analysis scripts |
 | `projects/<project-slug>/artifacts/` | Important result files; the FPS project includes an anonymized live-time quantile CSV |
+| `projects/monthly-external-ecosystem-dau/` | External ecosystem DAU workflow, SQL definitions, and anonymized monthly aggregates |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
 | `vault/env-files.age` | Client-encrypted `.env` bundle; decryption key stored separately |
 | `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue |

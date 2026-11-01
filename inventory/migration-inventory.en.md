@@ -39,6 +39,8 @@ Counts, extensions, and modification dates for the candidates below come from fi
 
 Reviewed projects: `projects/valorant-5937-p50-live-time/` and `projects/fps-anchor-cleaning/`. The FPS project includes seven analysis scripts and an anonymized quantile summary CSV; streamer-level attachments were excluded. Its 2.6489% model ratio is documented as a source-workbook value with a category-scope mismatch, not as a share conclusion.
 
+The external ecosystem DAU report is documented at `projects/monthly-external-ecosystem-dau/`: its SQL and anonymized monthly platform aggregates from 2025-07 through 2026-05-18 are retained. Two source workbooks containing streamer IDs, nicknames, contracts, or revenue were excluded. The OB co-streaming scenario workbook contains streamer-level details and assumptions that need further review; no share conclusion is inferred from its filename.
+
 | Priority candidate | Current size and latest modification | Review focus |
 | --- | --- | --- |
 | 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | Recent work with code and results; identify key aggregate workbooks and reproducible scripts before copying |
