@@ -1,0 +1,12 @@
+window_type,window_label,start_date,end_date,live_days,avg_daily_live_minutes,mean_effective_acu,avg_total_watch_time_10000_minutes_per_day,acu_comparison_or_post_event_retention
+event,event_1,2026-05-18,2026-05-31,9,453.3,1119.7,40.7,baseline
+event,london_masters,2026-06-06,2026-06-21,12,225.0,3421.0,65.9,3.06x_vs_event_1;post_event_acu_retention_11.7pct
+event,event_3,2026-07-02,2026-07-12,10,354.0,1459.1,43.0,1.30x_vs_event_1
+event,vct_cn_stage_2,2026-07-13,2026-08-23,40,439.5,1747.6,69.5,1.56x_vs_event_1;post_event_acu_retention_82.6pct
+event,evolution_act_3,2026-09-03,2026-09-13,11,310.9,1056.7,30.7,0.94x_vs_event_1;post_event_acu_retention_28.9pct
+event,shanghai_champions,2026-09-24,2026-10-07,11,294.5,4025.5,116.8,3.60x_vs_event_1;post_event_acu_retention_70.0pct
+non_event,pre_event_baseline,2026-05-15,2026-05-17,3,540.0,2089.2,95.7,baseline
+non_event,june_end,2026-06-25,2026-06-30,5,240.0,401.6,10.8,0.19x_vs_baseline
+non_event,august_end_early_september,2026-08-24,2026-09-01,8,405.0,1443.1,55.6,0.69x_vs_baseline
+non_event,september_mid_late,2026-09-15,2026-09-23,3,160.0,305.9,4.6,0.15x_vs_baseline
+non_event,october_latest,2026-10-08,2026-10-11,4,330.0,2817.2,89.3,1.35x_vs_baseline

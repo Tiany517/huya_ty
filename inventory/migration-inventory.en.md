@@ -45,6 +45,8 @@ The FPS cross-broadcast final compact workflow is documented at `projects/valora
 
 The watch-time contribution knee review is documented at `projects/valorant-watchtime-contribution-knee/`, with actual-watch-time monthly knees, Top-N coverage, monthly 0.2% qualification aggregates, and core scripts. Raw/cleaned data, streamer-month shares, and workbooks with streamer identities were excluded; verify upstream field definitions before rerunning on the new computer.
 
+The single-streamer Huya-affiliated Douyin co-streaming case is documented in de-identified form at `projects/valorant-yuezi-event-costream/`, with event/non-event window and monthly aggregates plus analysis scripts. Nickname, platform ID, daily detail, and identity-bearing workbook were excluded. Post-event ACU retention is explicitly not user retention, and data ends on 2026-10-11.
+
 | Priority candidate | Current size and latest modification | Review focus |
 | --- | --- | --- |
 | 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | Recent work with code and results; identify key aggregate workbooks and reproducible scripts before copying |
