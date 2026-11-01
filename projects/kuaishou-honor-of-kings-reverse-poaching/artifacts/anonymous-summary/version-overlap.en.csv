@@ -1,0 +1,16 @@
+﻿version_a,version_b,overlap,only_a,only_b
+initial_5_7_model,old_5_7_conditioned,13,40,30
+initial_5_7_model,v2_5_7_conditioned,13,40,2
+initial_5_7_model,old_5_7_columns,13,40,2
+initial_5_7_model,v2_5_7_columns,13,40,2
+initial_5_7_model,v2_4_7_50pct,7,46,1
+old_5_7_conditioned,v2_5_7_conditioned,15,28,0
+old_5_7_conditioned,old_5_7_columns,15,28,0
+old_5_7_conditioned,v2_5_7_columns,15,28,0
+old_5_7_conditioned,v2_4_7_50pct,7,36,1
+v2_5_7_conditioned,old_5_7_columns,15,0,0
+v2_5_7_conditioned,v2_5_7_columns,15,0,0
+v2_5_7_conditioned,v2_4_7_50pct,7,8,1
+old_5_7_columns,v2_5_7_columns,15,0,0
+old_5_7_columns,v2_4_7_50pct,7,8,1
+v2_5_7_columns,v2_4_7_50pct,7,8,1

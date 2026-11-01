@@ -1,0 +1,343 @@
+{
+  "status": "pass",
+  "source_dependent_checks": "executed",
+  "checks_total": 26,
+  "checks_passed": 26,
+  "checks_failed": 0,
+  "checks_not_run": 0,
+  "records": [
+    {
+      "check": "artifact_file_set",
+      "status": "pass",
+      "observed": [
+        "candidate-month-profile.csv",
+        "candidate-month-profile.en.csv",
+        "huya-market-monthly.csv",
+        "huya-market-monthly.en.csv",
+        "huya-waist-comparison.csv",
+        "huya-waist-comparison.en.csv",
+        "rule-reconciliation.csv",
+        "rule-reconciliation.en.csv",
+        "source-coverage.csv",
+        "source-coverage.en.csv",
+        "source-manifest.csv",
+        "source-manifest.en.csv",
+        "summary-profile.json",
+        "version-comparison.csv",
+        "version-comparison.en.csv",
+        "version-overlap.csv",
+        "version-overlap.en.csv",
+        "workbook-inventory.csv",
+        "workbook-inventory.en.csv"
+      ]
+    },
+    {
+      "check": "summary_candidate_counts",
+      "status": "pass",
+      "observed": {
+        "initial_5_7_model": 53,
+        "old_5_7_columns": 15,
+        "old_5_7_conditioned": 43,
+        "v2_5_7_columns": 15,
+        "v2_4_7_50pct": 8,
+        "v2_5_7_conditioned": 15
+      }
+    },
+    {
+      "check": "summary_source_coverage",
+      "status": "pass",
+      "observed": {
+        "v1": {
+          "rows": 453551,
+          "unique_anchors": 327768,
+          "anchor_months": 431103
+        },
+        "v2": {
+          "rows": 579868,
+          "unique_anchors": 402290,
+          "anchor_months": 551212
+        }
+      }
+    },
+    {
+      "check": "prediction_duplicate_disclosed",
+      "status": "pass",
+      "observed": {
+        "rows": 46,
+        "anchor_months": 45,
+        "duplicate_anchor_months": 1
+      }
+    },
+    {
+      "check": "huya_waist_reconciliation",
+      "status": "pass",
+      "observed": {
+        "observed_all_three": 3,
+        "predicted_all_three": 7,
+        "predicted_pay_year_p50": 158400.0
+      }
+    },
+    {
+      "check": "summary_anonymization_flags",
+      "status": "pass",
+      "observed": {
+        "raw_identifiers_exported": false,
+        "raw_anchor_names_exported": false,
+        "raw_user_level_rows_exported": false
+      }
+    },
+    {
+      "check": "english_version_text",
+      "status": "pass",
+      "observed": "description and conclusion contain no CJK characters"
+    },
+    {
+      "check": "english_candidate_labels",
+      "status": "pass",
+      "observed": [
+        "Initial screen",
+        "Old conditioned summary",
+        "V2 final 15",
+        "V2 four-month 50% scenario"
+      ]
+    },
+    {
+      "check": "bilingual_csv_shapes",
+      "status": "pass",
+      "observed": {
+        "candidate-month-profile": [
+          14,
+          14,
+          7,
+          7
+        ],
+        "huya-market-monthly": [
+          9,
+          9,
+          5,
+          5
+        ],
+        "huya-waist-comparison": [
+          3,
+          3,
+          7,
+          7
+        ],
+        "rule-reconciliation": [
+          4,
+          4,
+          9,
+          9
+        ],
+        "source-coverage": [
+          9,
+          9,
+          4,
+          4
+        ],
+        "source-manifest": [
+          9,
+          9,
+          5,
+          5
+        ],
+        "version-comparison": [
+          6,
+          6,
+          9,
+          9
+        ],
+        "version-overlap": [
+          15,
+          15,
+          5,
+          5
+        ],
+        "workbook-inventory": [
+          19,
+          19,
+          6,
+          6
+        ]
+      }
+    },
+    {
+      "check": "bilingual_document_structure",
+      "status": "pass",
+      "observed": {
+        "README.md": [
+          8,
+          6,
+          8,
+          6
+        ],
+        "methodology/reverse-poaching-rules.md": [
+          12,
+          7,
+          12,
+          7
+        ],
+        "validation/validation-report.md": [
+          7,
+          6,
+          7,
+          6
+        ]
+      }
+    },
+    {
+      "check": "artifact_size_budget",
+      "status": "pass",
+      "observed": 2679
+    },
+    {
+      "check": "no_workbook_copied",
+      "status": "pass",
+      "observed": []
+    },
+    {
+      "check": "source_file_count",
+      "status": "pass",
+      "observed": 9
+    },
+    {
+      "check": "source_manifest_integrity",
+      "status": "pass",
+      "observed": []
+    },
+    {
+      "check": "source_candidate_counts",
+      "status": "pass",
+      "observed": {
+        "initial_5_7_model": 53,
+        "old_5_7_columns": 15,
+        "old_5_7_conditioned": 43,
+        "v2_5_7_columns": 15,
+        "v2_4_7_50pct": 8,
+        "v2_5_7_conditioned": 15
+      }
+    },
+    {
+      "check": "initial_shortlist_subset",
+      "status": "pass",
+      "observed": 53
+    },
+    {
+      "check": "initial_rule_population_undocumented",
+      "status": "pass",
+      "observed": 1190
+    },
+    {
+      "check": "initial_acu_above_100_count",
+      "status": "pass",
+      "observed": 16
+    },
+    {
+      "check": "old_43_exact_weaker_rule",
+      "status": "pass",
+      "observed": 43
+    },
+    {
+      "check": "old_43_label_defect",
+      "status": "pass",
+      "observed": 15
+    },
+    {
+      "check": "v2_final_exact_rule",
+      "status": "pass",
+      "observed": 15
+    },
+    {
+      "check": "v2_final_rule_profile",
+      "status": "pass",
+      "observed": {
+        "found": 15,
+        "all_auc_over_100": 15,
+        "strict_decline_5_7": 15,
+        "minimum_adjacent_live_ratio_5_7": 0.812362
+      }
+    },
+    {
+      "check": "v2_four_month_exact_rule",
+      "status": "pass",
+      "observed": 8
+    },
+    {
+      "check": "v1_v2_common_month_exact",
+      "status": "pass",
+      "observed": {
+        "2026-05": {
+          "rows": 112854,
+          "same_ids": true,
+          "max_abs_diff": {
+            "month_acu": 7.275957614183426e-12,
+            "daily_live": 0.0,
+            "days": 0.0
+          }
+        },
+        "2026-06": {
+          "rows": 105982,
+          "same_ids": true,
+          "max_abs_diff": {
+            "month_acu": 3.637978807091713e-12,
+            "daily_live": 0.0,
+            "days": 0.0
+          }
+        },
+        "2026-07": {
+          "rows": 116148,
+          "same_ids": true,
+          "max_abs_diff": {
+            "month_acu": 1.8189894035458565e-12,
+            "daily_live": 0.0,
+            "days": 0.0
+          }
+        },
+        "2026-08": {
+          "rows": 96115,
+          "same_ids": true,
+          "max_abs_diff": {
+            "month_acu": 7.275957614183426e-12,
+            "daily_live": 0.0,
+            "days": 0.0
+          }
+        }
+      }
+    },
+    {
+      "check": "workbook_monthly_reconciliation",
+      "status": "pass",
+      "observed": {
+        "initial": {
+          "rows": 159,
+          "max_abs_diff": {
+            "actual_days": 0.0,
+            "daily_live_mins": 5.684341886080802e-14,
+            "month_acu": 1.0913936421275139e-11
+          }
+        },
+        "old_conditioned": {
+          "rows": 129,
+          "max_abs_diff": {
+            "actual_days": 0.0,
+            "daily_live_mins": 5.684341886080802e-14,
+            "month_acu": 3.637978807091713e-12
+          }
+        },
+        "v2_conditioned": {
+          "rows": 45,
+          "max_abs_diff": {
+            "actual_days": 0.0,
+            "daily_live_mins": 5.684341886080802e-14,
+            "month_acu": 3.637978807091713e-12
+          }
+        }
+      }
+    },
+    {
+      "check": "no_source_identifiers_in_artifacts",
+      "status": "pass",
+      "observed": false
+    }
+  ]
+}

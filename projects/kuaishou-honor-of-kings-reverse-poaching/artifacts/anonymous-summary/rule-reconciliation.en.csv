@@ -1,0 +1,5 @@
+﻿check,rule,rule_population,workbook_population,exact_overlap,rule_only,workbook_only,status,conclusion
+initial_screen,Initial screen: strict May-July ACU decline and July/May daily live minutes >=80%,1190,53,53,1137,0,incomplete,"All 53 satisfy the rule, but 1,190 pass overall; the additional shortlist rule is undocumented."
+old_actual_rule,"Old workbook: ACU >100 and adjacent live ratios >=80%, without an ACU-decline test",43,43,43,0,0,confirmed_defect,"The independent rebuild matches all 43 exactly, proving the old workbook did not enforce consecutive ACU decline."
+v2_final_rule,V2: ACU >100 and strict decline in May-July; adjacent daily-live ratios >=80%,15,15,15,0,0,pass,"The rule reproduces 15 candidates, exactly matching the V2 workbook."
+v2_four_month_rule,V2: ACU >100 and strict decline for April-July; adjacent daily-live ratios >=50%,8,8,8,0,0,pass,The current CSV reproduces all eight candidates exactly; the earlier 7/8 draft was disproved by independent recomputation.

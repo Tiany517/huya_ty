@@ -1,0 +1,36 @@
+{
+  "source_files": 9,
+  "v1": {
+    "rows": 453551,
+    "unique_anchors": 327768,
+    "anchor_months": 431103
+  },
+  "v2": {
+    "rows": 579868,
+    "unique_anchors": 402290,
+    "anchor_months": 551212
+  },
+  "v2_added_anchors": 74522,
+  "candidate_counts": {
+    "initial_5_7_model": 53,
+    "old_5_7_columns": 15,
+    "old_5_7_conditioned": 43,
+    "v2_5_7_columns": 15,
+    "v2_4_7_50pct": 8,
+    "v2_5_7_conditioned": 15
+  },
+  "v2_final_candidates": 15,
+  "v2_final_candidate_months": 45,
+  "v2_prediction_rows": 46,
+  "v2_prediction_anchor_months": 45,
+  "v2_duplicate_prediction_anchor_months": 1,
+  "v2_duplicate_prediction_values_identical": true,
+  "v2_final_observed_above_waist_all_three": 3,
+  "v2_final_predicted_above_waist_all_three": 7,
+  "v2_final_predicted_pay_year_p50": 158400.0,
+  "v2_final_missing_predict_laxin": true,
+  "v2_final_missing_predict_yingshou": true,
+  "raw_identifiers_exported": false,
+  "raw_anchor_names_exported": false,
+  "raw_user_level_rows_exported": false
+}

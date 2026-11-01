@@ -1,0 +1,7 @@
+﻿version,description,file,last_modified,candidates,unique_candidate_ids,overlap_with_v2_final,overlap_rate_pct,conclusion
+initial_5_7_model,Initial May-July model screen,快手王者荣耀主播_ACU连续三个月下降且开播时长稳定_含虎牙预测_含腰部ACU对比_连续三个月_含快手ACU_202605-202607.xlsx,2026-08-28 07:32:17,53,53,13,86.666667,All 53 satisfy strict May-July ACU decline and July/May daily live minutes >=80%; the additional shortlist rule is undocumented.
+old_5_7_conditioned,Old conditioned summary,快手王者荣耀主播_筛选_ACU均大于100且连续下降且开播稳定_全量信息.xlsx,2026-08-28 09:30:20,43,43,15,100.0,"The filename claims consecutive decline, but only 15 of 43 strictly decline; all 43 match the weaker rule ACU>100 plus adjacent live-time ratio >=80%, with no ACU-decline test."
+v2_5_7_conditioned,V2 conditioned summary,快手王者荣耀主播_V2筛选_5-7月ACU均大于100且连续下降且开播稳定_全量信息.xlsx,2026-08-28 09:32:22,15,15,15,100.0,"All 15 are reproduced exactly by ACU >100 in May-July, strict monthly decline, and adjacent daily-live-minute ratios >=80%."
+old_5_7_columns,Old specified-column result,快手王者荣耀主播_旧版全量_按指定列名_5-7月筛选结果.xlsx,2026-08-28 09:40:10,15,15,15,100.0,Its 15 candidate IDs exactly match the V2 final set of 15.
+v2_5_7_columns,V2 final 15,快手王者荣耀主播_V2_按指定列名排列_5-7月筛选结果.xlsx,2026-08-28 09:47:41,15,15,15,100.0,The 15 candidates are reproduced exactly and are the final V2 definition for this review.
+v2_4_7_50pct,V2 four-month 50% live-ratio scenario,快手王者荣耀主播_V2筛选_4-7月ACU连续下降_开播比例50%_按指定列名.xlsx,2026-08-28 09:49:43,8,8,7,46.666667,The current CSV reproduces all eight candidates exactly; the earlier 7/8 draft was disproved by independent recomputation.

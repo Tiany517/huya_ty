@@ -32,6 +32,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/non-douyin-valorant-streamer-discovery/` | Non-Douyin Bilibili/Douyu/Kuaishou Valorant head candidates, monthly benchmarks, team-exclusion sensitivity, and anonymized results |
 | `projects/valorant-streamer-potential-analysis/` | Valorant streamer-potential review: Huya internal interaction screen, Douyin v1/v2 sustained-leader comparison, September 2026 external talent pool, and anonymized validation evidence |
 | `projects/external-streamer-reverse-poaching/` | Reverse-poaching heuristic review: Douyu/Bilibili historical predictions, Douyin/Kuaishou model functions, anonymous platform/category summaries, version drift, and known model defects |
+| `projects/kuaishou-honor-of-kings-reverse-poaching/` | Kuaishou Honor of Kings reverse-poaching screen: six-workbook version chain, V1/V2 raw coverage, final V2-15 rule, Huya waist benchmark, anonymous artifacts, and 26 checks |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
 | `vault/migration-secrets.aesgcm` | AES-256-GCM encrypted `.env` and data-platform credential bundle; decryption key stored separately |
 | `vault/env-files.aesgcm` | Legacy `.env` bundle retained as a historical copy; use `migration-secrets.aesgcm` on the new computer |
