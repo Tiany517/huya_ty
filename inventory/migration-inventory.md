@@ -1,12 +1,12 @@
 # 迁移资料清单
 
-状态：2026-11-01 初步只读盘点。尚未移动或覆盖源文件。以下项目类别仅根据目录名整理，仍需复核项目内容和背景。
+状态：截至 2026-11-01，迁移仓库已提交并推送到 GitHub 私有仓库。源文件保持原位；仅将经过复核的说明、SQL、skills、项目脚本和匿名结果整理进仓库。以下未完成候选仍需逐项复盘，不能按目录名直接认定为已迁移。
 
 ## 工作规则
 
 | 候选 | 当前来源 | 状态 |
 | --- | --- | --- |
-| 数据分析工作规则 | `instructions/AGENTS.md` 基于附件文本，已将含凭据行改为安全存储说明 | 待确认 |
+| 数据分析工作规则 | `instructions/AGENTS.md` 基于附件文本，已将含凭据行改为安全存储说明 | 已纳入；与本次对话附件核对一致 |
 | 桌面版 AGENTS | `Desktop/agents_md/AGENTS.md` | 与附件版有差异，保留对照 |
 | Codex 和 Claude 规则 | `.codex/AGENTS.md`、`.claude/AGENTS.md` | 复核差异后再整合 |
 
@@ -14,7 +14,7 @@
 
 ## SQL
 
-当前 SQL 来源有 240 个 `.sql` 和 2 个 SQL 格式 `.txt`，已原名复制到 `sql/source/`。另外有 54 个 CSV、22 个 Excel 和 25 个 Python 脚本；结果数据未复制，Python 脚本及 `content_categories_full.txt` 待项目复盘决定是否纳入。重要结果文件逐项审核；详细用户级 Excel 暂按原边界不纳入。
+当前 SQL 来源有 240 个 `.sql` 和 2 个 SQL 格式 `.txt`，已原名复制到 `sql/source/`。另外有 54 个 CSV、22 个 Excel 和 25 个 Python 脚本；其中 1 个 FPS 项目纳入 7 个分析脚本，虎视虎啸 ACU 阈值项目纳入 1 个复用脚本。其余结果数据、脚本及 `content_categories_full.txt` 仍待按项目复盘决定是否纳入。重要结果文件逐项审核；详细用户级 Excel 暂按原边界不纳入。
 
 ## Skills
 
@@ -37,7 +37,7 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 以下候选项目的数量、扩展名和修改时间来自文件系统元数据；除已完成的首个子项目外，其他候选尚未复盘或复制项目文件。
 
-已完成复盘：`projects/valorant-5937-p50-live-time/` 与 `projects/fps-anchor-cleaning/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
+已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
 
 外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。
 
@@ -53,7 +53,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 
 | 优先候选 | 当前规模和最近修改 | 复盘重点 |
 | --- | --- | --- |
-| 无畏契约份额增长 | 201 个文件；最近修改 2026-10-29；90 个 Python、41 个 Excel、21 个 CSV | 最近且有代码与结果；先核对关键汇总工作簿和复现脚本，不整目录上传 |
+| 无畏契约份额增长 | 201 个文件；最近修改 2026-10-29；90 个 Python、41 个 Excel、21 个 CSV | 5937、OB 二路和虎视虎啸 ACU 阈值子项目已分别整理；大锅饭、反炸鱼等子项目仍待复盘，不整目录上传 |
 | FPS主播清洗_20261023 | 76 个文件；最近修改 2026-10-23；6 个 Excel、28 个 CSV、6 个 NDJSON | 挑选测算结果和脚本；区分明细表与检查产物 |
 | 周报监控模型 | 55 个文件；最近修改 2026-10-23；8 个 SQL、1 个 Python、25 个 Excel、21 个 CSV；最大工作簿约 289 MB | 先识别模板、数据与可复用监控逻辑；不整体推送大工作簿 |
 | AI工坊专题 | 403 个文件；最近修改 2026-09-24；含 Python、Excel、CSV、TSV 和 PKL | 数据文件较多，先梳理核心项目说明、脚本和汇总结果 |
@@ -63,7 +63,13 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 | 月报_虎牙外部生态DAU | 3 个文件：1 个 SQL、2 个模板工作簿 | 体量小，可优先复核是否纳入模板 |
 | Documents/ChatGPT/异动归因 | 12 个 Python 脚本及输出；含汇总表和带“明细”字样的工作簿；Git 工作区没有提交历史 | 可复盘近期视频号 DAU 归因；逐一确认哪些结果表为汇总、哪些为明细 |
 
-技能快照 `douyin-playwright` 还包含被源 `.gitignore` 排除的 Top 10 视频分析工作簿、脚本、图片和临时 JSON；这些文件不在本次推送中，后续按项目结果单独复核。
+技能快照 `douyin-playwright` 还包含被源 `.gitignore` 排除的 Top 10 视频分析工作簿、脚本、图片和临时 JSON；这些文件不在当前仓库中，后续按项目结果单独复核。
+
+## 待办状态
+
+- 继续复盘无畏契约份额增长中的大锅饭、反炸鱼、非抖主播挖掘等独立子项目，再转向其它优先候选。
+- 迁移清单中的其它项目仍为待复盘，不代表已归档。每完成一项，更新本清单和首页路径地图并检查、推送完整变更。
+- ChatGPT 原始导出目前未归档；需确认当前公司 API 账号是否提供账号级导出，且 API 工作记录可能不属于 ChatGPT 网页账号导出范围。
 
 每个选定项目应记录目的、样本、指标口径、时间窗、已知结论、剩余问题，以及代码和交付物位置。纳入支撑项目结论或后续工作的关键结果文件；详细用户级 Excel 依照原要求不上传，除非用户明确调整边界。
 

@@ -1,12 +1,12 @@
 # Migration Inventory
 
-Status: initial read-only discovery on 2026-11-01. No source files have been moved or overwritten. Project categories below are inferred from folder names and still need content and context review.
+Status: as of 2026-11-01, the migration repository has been committed and pushed to the private GitHub repository. Source files remain in place; only reviewed notes, SQL, skills, project scripts, and anonymized results have been organized in the repository. Remaining candidates below still require individual review and are not considered migrated based on folder names alone.
 
 ## Working Rules
 
 | Candidate | Current source | Status |
 | --- | --- | --- |
-| Data-analysis working rules | `instructions/AGENTS.md` is based on the attached text; its credential-bearing line was replaced with a secure-storage instruction | Needs confirmation |
+| Data-analysis working rules | `instructions/AGENTS.md` is based on the attached text; its credential-bearing line was replaced with a secure-storage instruction | Included; checked against the attachment in this conversation |
 | Desktop AGENTS version | `Desktop/agents_md/AGENTS.md` | Differs from the attachment; retained for comparison |
 | Codex and Claude rules | `.codex/AGENTS.md`, `.claude/AGENTS.md` | Compare before merging |
 
@@ -14,7 +14,7 @@ The attachment matches the AGENTS content shared in this conversation. Compared 
 
 ## SQL
 
-The SQL source contains 240 `.sql` files and 2 SQL-formatted `.txt` files, now copied under their original names into `sql/source/`. It also contains 54 CSV files, 22 Excel files, and 25 Python scripts. Result data was not copied; the Python scripts and `content_categories_full.txt` remain queued for project review. Review important results individually; detailed user-level Excel remains out under the original boundary.
+The SQL source contains 240 `.sql` files and 2 SQL-formatted `.txt` files, copied under their original names into `sql/source/`. It also contains 54 CSV files, 22 Excel files, and 25 Python scripts. One FPS project includes seven analysis scripts, and the HuShi/HuXiao ACU-threshold project includes one reusable script. Other result data, scripts, and `content_categories_full.txt` remain queued for project review. Review important results individually; detailed user-level Excel remains out under the original boundary.
 
 ## Skills
 
@@ -35,9 +35,9 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 
 ### First-Pass File Inventory (Metadata Only)
 
-Counts, extensions, and modification dates for the candidates below come from filesystem metadata. Except for the first reviewed subproject, the other candidates have not been reviewed or copied.
+Counts, extensions, and modification dates for the candidates below come from filesystem metadata. The eight reviews listed above are complete; all other candidates have not been reviewed or copied yet.
 
-Reviewed projects: `projects/valorant-5937-p50-live-time/` and `projects/fps-anchor-cleaning/`. The FPS project includes seven analysis scripts and an anonymized quantile summary CSV; streamer-level attachments were excluded. Its 2.6489% model ratio is documented as a source-workbook value with a category-scope mismatch, not as a share conclusion.
+Reviewed and pushed projects: `projects/valorant-5937-p50-live-time/`, `projects/fps-anchor-cleaning/`, `projects/monthly-external-ecosystem-dau/`, `projects/valorant-fps-cross-broadcast/`, `projects/valorant-watchtime-contribution-knee/`, `projects/valorant-yuezi-event-costream/`, `projects/valorant-ob-costream-scenario/`, and `projects/huya-douyin-valorant-acu-threshold/`. The FPS project includes seven analysis scripts and an anonymized quantile summary CSV; streamer-level attachments were excluded. Its 2.6489% model ratio is documented as a source-workbook value with a category-scope mismatch, not as a share conclusion.
 
 The external ecosystem DAU report is documented at `projects/monthly-external-ecosystem-dau/`: its SQL and anonymized monthly platform aggregates from 2025-07 through 2026-05-18 are retained. Two source workbooks containing streamer IDs, nicknames, contracts, or revenue were excluded.
 
@@ -53,7 +53,7 @@ The single-streamer Huya-affiliated Douyin co-streaming case is documented in de
 
 | Priority candidate | Current size and latest modification | Review focus |
 | --- | --- | --- |
-| 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | Recent work with code and results; identify key aggregate workbooks and reproducible scripts before copying |
+| 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | The 5937, OB co-streaming, and HuShi/HuXiao ACU-threshold subprojects are documented separately; Big Pot, anti-fraud, and other subprojects still need review |
 | FPS主播清洗_20261023 | 76 files; latest 2026-10-23; 6 Excel, 28 CSV, 6 NDJSON | Select estimate outputs and scripts; distinguish detailed data from inspection artifacts |
 | 周报监控模型 | 55 files; latest 2026-10-23; 8 SQL, 1 Python, 25 Excel, 21 CSV; largest workbook about 289 MB | Identify templates, data, and reusable monitoring logic; do not push the largest workbook wholesale |
 | AI工坊专题 | 403 files; latest 2026-09-24; includes Python, Excel, CSV, TSV, and PKL | Data-heavy; first identify core project notes, scripts, and aggregate outputs |
@@ -63,7 +63,13 @@ The single-streamer Huya-affiliated Douyin co-streaming case is documented in de
 | 月报_虎牙外部生态DAU | 3 files: 1 SQL and 2 template workbooks | Small footprint; review templates for inclusion |
 | Documents/ChatGPT/异动归因 | 12 Python scripts and outputs; includes summary workbooks and a workbook named as detail; Git working tree has no commit history | Review recent Video Channel DAU attribution; identify summary versus detailed workbooks individually |
 
-The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workbooks, scripts, images, and temporary JSON ignored by the source `.gitignore`. They were not included in this push and will be reviewed separately as project evidence.
+The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workbooks, scripts, images, and temporary JSON ignored by the source `.gitignore`. They are not in the repository and will be reviewed separately as project evidence.
+
+## Remaining Work
+
+- Continue reviewing Big Pot, anti-fraud, non-Douyin streamer discovery, and other distinct subprojects under the Valorant share-growth folder, then move to other priority candidates.
+- Other projects in this inventory remain pending review, not archived. For each completed review, update this inventory and the root path map, inspect the full diff, and push the changes.
+- A raw ChatGPT export has not been archived. Confirm whether the company API account offers an account-level export; API work records may not be part of a ChatGPT web-account export.
 
 For each selected project, record purpose, population, metric definitions, time windows, known findings, open questions, and links to code and deliverables. Include important artifacts that support findings or follow-up work. Detailed user-level Excel remains excluded under the original requirement unless the user explicitly changes that boundary.
 

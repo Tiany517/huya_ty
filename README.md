@@ -10,7 +10,7 @@
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | 中文 / 英文数据分析工作规则；秘密值放在加密保险包中 |
 | `skills/README.md`、`skills/<source>/<skill-name>/` | Skills 归档说明及按安装来源保留的完整快照 |
 | `sql/README.md`、`sql/source/<file>` | SQL 归档说明和来自现有目录的原名脚本；后续可按主题建立索引 |
-| `projects/<project-slug>/README.md` / `README.en.md` | 项目目的、范围、指标口径、发现、限制和来源；已复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/` |
+| `projects/<project-slug>/README.md` / `README.en.md` | 项目目的、范围、指标口径、发现、限制和来源；已复盘项目清单见下方各路径 |
 | `projects/<project-slug>/scripts/` | 可复现项目的脚本；FPS 项目收录 7 个清洗和分析脚本 |
 | `projects/<project-slug>/artifacts/` | 支持理解或继续项目的重要结果文件；FPS 项目含匿名时长分位 CSV |
 | `projects/monthly-external-ecosystem-dau/` | 外部生态 DAU 月报的取数口径、SQL 说明和匿名月度聚合附件 |
@@ -19,6 +19,7 @@
 | `projects/valorant-yuezi-event-costream/` | 去标识的赛事二路节目化案例、窗口汇总和分析脚本 |
 | `projects/valorant-ob-costream-scenario/` | OB 二路节目化份额情景公式审查和匿名汇总；包含模型假设限制 |
 | `projects/huya-douyin-valorant-acu-threshold/` | 虎视虎啸主播月日均 ACU 阈值盘点的匿名月度结果和复盘说明 |
+| `projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/` | 5937 P50 有效月主播时长测算，以及 FPS 主播时长清洗与分位复盘 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `vault/env-files.aesgcm` | AES-256-GCM 加密的 `.env` 文件包；解密密钥单独保存 |
 | `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单 |
