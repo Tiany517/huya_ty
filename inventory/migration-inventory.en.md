@@ -33,6 +33,24 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 | AI workshop | AI工坊专题; AI工具说明; AI直播间信息; AI直播间监控UID |
 | Game and event topics | 世界杯专题; 斯诺克专题; 王者下跌和吕德华离开影响; 主机游戏需求; 赛事总结 |
 
+### First-Pass File Inventory (Metadata Only)
+
+Counts, extensions, and modification dates below come from filesystem metadata. Project contents have not been read, and no project files have been copied.
+
+| Priority candidate | Current size and latest modification | Review focus |
+| --- | --- | --- |
+| 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | Recent work with code and results; identify key aggregate workbooks and reproducible scripts before copying |
+| FPS主播清洗_20261023 | 76 files; latest 2026-10-23; 6 Excel, 28 CSV, 6 NDJSON | Select estimate outputs and scripts; distinguish detailed data from inspection artifacts |
+| 周报监控模型 | 55 files; latest 2026-10-23; 8 SQL, 1 Python, 25 Excel, 21 CSV; largest workbook about 289 MB | Identify templates, data, and reusable monitoring logic; do not push the largest workbook wholesale |
+| AI工坊专题 | 403 files; latest 2026-09-24; includes Python, Excel, CSV, TSV, and PKL | Data-heavy; first identify core project notes, scripts, and aggregate outputs |
+| 不朽杯弹窗PSM实验 | 195 files; latest 2026-06-17; includes reports, Excel, CSV, Python, and images | Review the final report and key aggregate tables; exclude user-level details and intermediate charts |
+| 反挖 | 33 files; includes 8 notebooks and 8 Python files; contains an approximately 169 MB RAR and 21 MB TAR | Archive contents are unknown; identify purpose and necessity before upload |
+| 用户画像分析 | 151 files; latest 2026-05-29; includes 3 SQL and 10 CSV files; one CSV is about 36 MB | Evaluate SQL and conclusion materials first; keep user-profile detail CSV out for now |
+| 月报_虎牙外部生态DAU | 3 files: 1 SQL and 2 template workbooks | Small footprint; review templates for inclusion |
+| Documents/ChatGPT/异动归因 | 12 Python scripts and outputs; includes summary workbooks and a workbook named as detail; Git working tree has no commit history | Review recent Video Channel DAU attribution; identify summary versus detailed workbooks individually |
+
+The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workbooks, scripts, images, and temporary JSON ignored by the source `.gitignore`. They were not included in this push and will be reviewed separately as project evidence.
+
 For each selected project, record purpose, population, metric definitions, time windows, known findings, open questions, and links to code and deliverables. Include important artifacts that support findings or follow-up work. Detailed user-level Excel remains excluded under the original requirement unless the user explicitly changes that boundary.
 
 ## ChatGPT Conversation History

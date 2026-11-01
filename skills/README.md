@@ -8,6 +8,6 @@
 | `shared-agent/` | 45 | 82 | 共享 agent skills |
 | `claude/` | 54 | 503 tracked | Claude skills |
 
-本机快照复制了 1,182 个来源文件；仓库实际跟踪 1,088 个 skill 文件，另有 2 份本说明。保留各来源下的同名副本，便于恢复来源差异。排除了 `.git`、缓存、虚拟环境、依赖目录、字节码和真实 `.env`；`.env.example` 可以保留。另有 94 个被源目录 `.gitignore` 排除的工作产物未推送，包括 `.superpowers/sdd` 任务日志/差异文件，以及 `douyin-playwright` 下的 Excel、脚本、图片和临时 JSON；它们留待项目复盘决定是否作为项目结果纳入。测试 token 或环境变量示例维持原状；未发现真实凭据。
+本机快照复制了 1,182 个来源文件；仓库实际跟踪 1,088 个 skill 文件，另有 2 份本说明。保留各来源下的同名副本，便于恢复来源差异。排除了 `.git`、缓存、虚拟环境、依赖目录、字节码和真实 `.env`；`.env.example` 可以保留。另有 94 个被源目录 `.gitignore` 排除的工作产物未推送，包括 `.superpowers/sdd` 任务日志/差异文件，以及 `douyin-playwright` 下的 Excel、脚本、图片和临时 JSON；它们留待项目复盘决定是否作为项目结果纳入。测试 token 或环境变量示例维持原状；未发现真实 `.env` 或常见 token 格式。
 
 英文版见 `README.en.md`。
