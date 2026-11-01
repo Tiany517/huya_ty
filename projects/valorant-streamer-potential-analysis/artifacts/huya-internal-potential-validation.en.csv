@@ -1,0 +1,3 @@
+﻿check,status,recomputed_value,workbook_value,note
+the first contiguous detail block in the workbook exactly matches the independently rebuilt selected set,pass,8,8,the workbook sheet contains only the first contiguous detail block; later rows are blank cells and pivot remnants
+the workbook candidate pool matches a direct rebuild from the current source data,warning,187,160,"the workbook stores an older snapshot; the current source rebuild is larger, while the final selected set still matches exactly"

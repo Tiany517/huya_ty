@@ -12,7 +12,7 @@
 
 附件版与本次对话中提供的 AGENTS 内容一致。相较桌面版，附件增加两条规则；其中一条包含明文 API 凭据，迁移副本已将其替换为安全存储说明。
 
-新增 SQL 验证工作流：`instructions/sql-validation-workflow.md`。所有正式 SQL 必须先定义结果契约，再检查数据可用性、Schema/语义、粒度与唯一键、关联与行数放大、指标不变量、独立复算与对账、边界与业务抽查；任何校验失败都必须修复，未执行的数据校验不得标记为“已验证”。
+新增 SQL 验证工作流：`instructions/sql-validation-workflow.md`。所有正式 SQL 必须先定义结果契约和可反驳的预期，再按风险画像执行数据可用性、Schema/语义、粒度与唯一键、关联与行数放大、指标不变量、独立复算与对账、边界与业务抽查；任何校验失败都必须修复，未执行的高风险校验不得标记为“已验证”，同类错误复发时必须转为可执行检查或最小反例。
 
 ## SQL
 
@@ -39,9 +39,9 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 ### 首轮文件盘点（仅元数据）
 
-以下候选项目的数量、扩展名和修改时间来自文件系统元数据；除已完成的首个子项目外，其他候选尚未复盘或复制项目文件。
+以下候选项目的数量、扩展名和修改时间来自文件系统元数据；除下方列出的已完成项目外，其他候选尚未复盘或复制项目文件。
 
-已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
+已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
 
 外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。
 
@@ -55,6 +55,8 @@ OB 二路赛事节目化情景已整理至 `projects/valorant-ob-costream-scenar
 
 非抖无畏主播挖掘已整理至 `projects/non-douyin-valorant-streamer-discovery/`：2026-01 至 2026-09 共 519 个 B 站/斗鱼/快手主播，9 月有数据 249 人；曾达头部候选 34 人、可评估 29 人、最终入选 11 人且全部来自 B 站。保留 4 个核心筛选脚本、去除主播身份的汇总和 64 行月度基准。旧分层工作簿漏掉 1 个 B 站头部件（头部应为 17，原显示 16），源工作簿、主播名、UID 和逐主播明细均未上传。
 
+无畏契约主播潜力复盘已整理至 `projects/valorant-streamer-potential-analysis/`：虎牙站内独立重算得到候选池 187 人、最终入选 8 人（腰部 3、尾部 5）；旧工作簿首个连续明细块的 8 个 ID 完全一致，但其候选池仍为旧快照 160。抖音按两种月份算法复现 v1=267、v2=95，并明确 M4 缺失、M7/M10 为无效短月；2026-09-30 外部平台池为 8,958 条记录、8,957 个唯一 ID。保留 4 个脚本、全部中英文匿名汇总和校验记录；源工作簿、主播 ID、昵称及逐主播明细未上传。
+
 FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归档建事件表 SQL、分层成功率查询和匿名校验基线。事件级主播明细未迁移；成功率仅作为描述性事件统计，不解释为因果效果。
 
 观时贡献率拐点已复盘至 `projects/valorant-watchtime-contribution-knee/`：纳入实际观时月度拐点、Top-N 覆盖和逐月 0.2% 达标汇总及核心脚本。原始/清洗数据、逐主播月度贡献率和带主播信息的 Excel 未迁移；上游字段口径尚需在新电脑重跑前核对。
@@ -63,7 +65,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 
 | 优先候选 | 当前规模和最近修改 | 复盘重点 |
 | --- | --- | --- |
-| 无畏契约份额增长 | 201 个文件；最近修改 2026-10-29；90 个 Python、41 个 Excel、21 个 CSV | 5937、OB 二路、虎视虎啸 ACU 阈值、大锅饭、反炸鱼和非抖主播挖掘已分别整理；其余子项目仍待复盘，不整目录上传 |
+| 无畏契约份额增长 | 201 个文件；最近修改 2026-10-29；90 个 Python、41 个 Excel、21 个 CSV | 5937、OB 二路、虎视虎啸 ACU 阈值、大锅饭、反炸鱼、非抖主播挖掘和主播潜力/外部池已分别整理；其余子项目仍待复盘，不整目录上传 |
 | FPS主播清洗_20261023 | 76 个文件；最近修改 2026-10-23；6 个 Excel、28 个 CSV、6 个 NDJSON | 挑选测算结果和脚本；区分明细表与检查产物 |
 | 周报监控模型 | 55 个文件；最近修改 2026-10-23；8 个 SQL、1 个 Python、25 个 Excel、21 个 CSV；最大工作簿约 289 MB | 先识别模板、数据与可复用监控逻辑；不整体推送大工作簿 |
 | AI工坊专题 | 403 个文件；最近修改 2026-09-24；含 Python、Excel、CSV、TSV 和 PKL | 数据文件较多，先梳理核心项目说明、脚本和汇总结果 |

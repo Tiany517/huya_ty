@@ -1,0 +1,17 @@
+﻿metric,value
+source_rows,280254
+source_unique_anchor_ids,117185
+date_min,2026-01-01
+date_max,2026-10-09
+valid_months,"M1,M2,M3,M5,M6,M8,M9"
+v2_anchors_with_at_least_2_comparable_pairs,1700
+v2_sustained_leaders,95
+v2_head,1
+v2_neck,1
+v2_waist,15
+v2_tail,78
+v1_calendar_adjacent_sustained_leaders,267
+v1_head,0
+v1_neck,1
+v1_waist,9
+v1_tail,257

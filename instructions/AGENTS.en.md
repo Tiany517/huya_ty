@@ -114,7 +114,15 @@ Keep SQL reproducible; do not return only a final aggregate while dropping key i
 
 ### 4.1 SQL Construction and Validation Workflow
 
-Every formal SQL task must first define a result contract, record a query, result, and `pass`/`fail`/`not run` status for each of the following seven gates, then complete the checks below:
+Every formal SQL task must follow this fixed loop. “The SQL ran,” “I reviewed it,” and “the rate is below 100%” are not validation.
+
+1. Define the result contract first: business question, population, time, source/intermediate/output deduplication grains, unique keys, numerator, denominator, join relationships, and expected row-count changes.
+2. Build a risk profile next: for retention/funnels, multi-table joins, time windows, units, deduplication, PSM/DID, and exports, select the mandatory checks and falsifiable expected results before implementation.
+3. Inspect source fields, partitions, and a small sample before writing SQL. Stop and revisit the definition if the expected scale or unique key does not hold.
+4. Execute the seven gates and retain the query, result, and status for each: `pass`, `fail`, or `not run`. Do not deliver a result as “verified” when a high-risk check was not run.
+5. Reconcile stage tables, target tables, and exported files before delivery, then turn the failure pattern into a project or reusable validation rule.
+
+The seven gates are:
 
 1. Data availability: partitions, time coverage, missing dates, empty target tables.
 2. Schema and semantics: fields, types, units, enums, nulls, and abnormal values.
@@ -123,6 +131,8 @@ Every formal SQL task must first define a result contract, record a query, resul
 5. Metric invariants: numerator not greater than denominator, valid rate ranges, and agreement between totals and grouped totals.
 6. Independent recomputation and reconciliation: rebuild key values from base grain through an independent path and reconcile exactly by group with the final output.
 7. Boundaries and business spot checks: date boundaries, small samples, null/unknown groups, sensitivity, and manual end-to-end checks of at least 3 to 5 base units.
+
+The risk profile must cover at minimum: common cohort denominators for retention/multi-window queries; key uniqueness, match rate, and multipliers for joins; partitions and observable windows for time analysis; units for amount/duration fields; row count and grain for `union all` and expansion; sample size, balance, and parallel trends for PSM/DID; and headers, row counts, string IDs, and field consistency for exports. A check matched to the scenario may not be skipped.
 
 Every failed gate must be fixed; a gate not run may not be described as verified. The complete process and delivery format are in `instructions/sql-validation-workflow.en.md`. The rules below are the minimum requirements for grain, expansion, and retention.
 
@@ -135,6 +145,7 @@ Every failed gate must be fixed; a gate not run may not be described as verified
 7. For logic prone to long/wide-shape errors, include a counterexample check: construct one cohort and prove that expanding it into N window rows still contributes exactly one base unit to the denominator.
 8. If permissions, data size, or the environment prevent an independent validation run, label the result “validation not executed” and provide the validation SQL. Never describe a result as verified when only syntax or static reading was checked.
 9. When repairing SQL that previously populated a target table, retain the old-defect note, the corrected SQL, and an independent validation query. Mark the result “fixed” only after the target table has been rebuilt and reconciled with the corrected logic.
+10. When the same error recurs, convert the repair into an executable check or minimal counterexample and search whether other SQL reuses the pattern. Adding prose without validation evidence is not a completed retrospective.
 
 ## 5. Python and Data Processing
 

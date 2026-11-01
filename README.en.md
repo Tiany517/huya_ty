@@ -8,7 +8,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | --- | --- |
 | `README.md` / `README.en.md` | Chinese / English guide and new-computer bootstrap |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | Chinese / English data-analysis working rules; secret values go in an encrypted vault |
-| `instructions/sql-validation-workflow.md` / `.en.md` | General seven-gate SQL validation framework, result contract, delivery requirements, and failure review |
+| `instructions/sql-validation-workflow.md` / `.en.md` | General five-step SQL loop, risk profile, seven validation gates, delivery requirements, and failure review |
 | `skills/README.md`, `skills/<source>/<skill-name>/` | Skills archive guide and full snapshots by installation source |
 | `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
 | `sql/topics/retention-analytics/` | Retention SQL index, dependencies, definitions, versions, and known defects for external Douyu/Bilibili/Douyin and Huya Star Show danmu/gift behavior |
@@ -26,6 +26,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/valorant-big-pot-share-scenario/` | Big Pot watch-time share scenarios, with anonymized aggregates and period, denominator, and coverage limitations |
 | `projects/valorant-anti-fraud-event-review/` | Anonymized anti-fraud ACU, watch-share, and first-stream windows, with event-universe limitations |
 | `projects/non-douyin-valorant-streamer-discovery/` | Non-Douyin Bilibili/Douyu/Kuaishou Valorant head candidates, monthly benchmarks, team-exclusion sensitivity, and anonymized results |
+| `projects/valorant-streamer-potential-analysis/` | Valorant streamer-potential review: Huya internal interaction screen, Douyin v1/v2 sustained-leader comparison, September 2026 external talent pool, and anonymized validation evidence |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
 | `vault/env-files.aesgcm` | AES-256-GCM encrypted `.env` bundle; decryption key stored separately |
 | `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue |
@@ -56,4 +57,4 @@ These are repository-relative GitHub paths. For example, `instructions/AGENTS.md
 
 After each useful work retrospective, or when reusable SQL is added or revised, Codex should update the matching Chinese and English notes and automatically commit and push them to this private repository. Before each push, inspect the full diff and confirm the scope contains no plaintext credentials, unreviewed data, or unrelated changes from other projects. See `instructions/AGENTS.en.md` for the full rule.
 
-中文版本见 `README.md`。
+Chinese version: `README.md`.

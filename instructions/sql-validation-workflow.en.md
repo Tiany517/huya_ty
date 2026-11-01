@@ -22,6 +22,8 @@ Before writing SQL, state:
 
 Do not start implementation while the result contract is incomplete.
 
+Beyond the written contract, pre-register at least one falsifiable expectation, such as “the independently rebuilt denominator will match exactly by month,” “the fact-row count will not change after this join,” or “the export will have 120 rows and the same headers as the query.” If no expectation can be stated, the data or business structure is not understood well enough; inspect fields, partitions, and a sample before writing the full query.
+
 ## 2. Understand Data and Join Cardinality
 
 1. Inspect source DDL, field meaning, partition format, units, nullability, enum values, and time coverage.
@@ -38,6 +40,24 @@ Do not start implementation while the result contract is incomplete.
 4. Numerator and denominator must share the same business filters and cohort. When different windows share a denominator, state exactly which inputs are common.
 5. For long-format expansion, check the expected multiplier. For long-to-wide conversion, check final-key uniqueness.
 6. Define denominator-zero behavior explicitly: null, zero, or drop the group. Do not leave it to implicit behavior.
+
+## 3.1 Build a Risk Profile
+
+Do not apply one generic checklist with equal weight to every query. Before implementation, identify where this task is most likely to fail and make the matching checks mandatory:
+
+| Risk scenario | Define before coding | Minimum validation evidence |
+| --- | --- | --- |
+| Retention, funnel, multi-window | Cohort grain, common denominator, target-date mapping | Equal denominators across windows; independent reconciliation by group; a counterexample where expansion to N rows still contributes one base unit |
+| Multi-table joins | Unique keys on both sides, match rate, cardinality, expected multiplier | Row counts before/after, maximum match count, unmatched samples; explain any one-to-many join |
+| Filters around fact-to-dimension joins | Whether the filter belongs in the fact CTE or the join predicate | Compare before/after moving the filter; reconcile unmatched rows and row counts |
+| Time windows and pre/post events | Closed intervals, calendar or eligible days, actual partitions | Date edges, missing-partition list, exclusion rule for unobservable cohorts |
+| Amount, duration, or ACU | Source units, conversion, aggregation method | Min/max/quantiles, a unit counterexample, totals rebuilt from numerator and denominator |
+| Deduplication or latest record | Business key, ordering key, tie-break rule | Row counts before/after, tie counts, deterministic ordered result |
+| `union all` or expansion | Source grain, output grain, expected multiplier | Rows per branch, unique keys, multiplier before/after expansion |
+| PSM, DID, or PSM-DID | Eligibility, treatment time, matching features, pre/post windows | Sample counts before/after matching, balance, parallel trends, reconciliation between definition and result tables |
+| Excel or CSV export | Field names, row count, encoding, ID type | Three-way reconciliation across query result and export; read-back check for Chinese text and long IDs |
+
+Retain the risk profile and result contract in the execution record. If a matched scenario lacks evidence, its status is `not run`, never `verified`.
 
 ## 4. Seven Validation Gates
 
@@ -105,6 +125,8 @@ Output grain and unique key:
 Numerator definition:
 Denominator definition:
 Join relationships and expected row-count changes:
+High-risk scenarios and mandatory checks:
+Falsifiable expected results:
 Known limitations:
 ```
 
@@ -150,5 +172,9 @@ When an error occurs, fix more than the immediate SQL. Record:
 3. Which validation gate should have caught it and why it did not fire.
 4. New rule, validation query, or test case added.
 5. Other SQL that may reuse the same failure pattern, including the reviewed scope.
+
+Turn the repair into an executable check or minimal example, such as “every window has the same denominator by month after long-format expansion” or “fact-row count cannot change after joining a user dimension.” Adding “check carefully” to the instructions again is not a control; executable evidence is.
+
+When the same class of error recurs, investigate the upstream design: missing field dictionary, aggregation at the wrong grain, treating a join as one-to-one, reusing the same incorrect CTE as a so-called independent check, skipping independent recomputation, or failing to read back the export. Do not respond only by appending a longer prompt.
 
 Chinese documentation: `sql-validation-workflow.md`.

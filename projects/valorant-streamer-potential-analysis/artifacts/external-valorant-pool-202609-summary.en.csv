@@ -1,0 +1,7 @@
+﻿platform,snapshot_rows,unique_anchor_ids,head,neck,waist,tail,note
+bilibili,198,198,17,22,76,83,"largest_tier=tail; head=17, neck=22, waist=76"
+douyin_web,4076,4075,17,28,289,3742,"largest_tier=tail; head=17, neck=28, waist=289"
+douyu,24,24,0,0,9,15,"largest_tier=tail; head=0, neck=0, waist=9"
+huya,4633,4633,4,1,17,4611,"largest_tier=tail; head=4, neck=1, waist=17"
+kuaishou,27,27,0,0,3,24,"largest_tier=tail; head=0, neck=0, waist=3"
+all,8958,8957,38,51,394,8475,2026-09-30 snapshot; pooled across platforms
