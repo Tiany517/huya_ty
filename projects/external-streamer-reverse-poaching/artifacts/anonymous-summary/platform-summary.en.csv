@@ -1,0 +1,3 @@
+﻿platform,records,unique_anchor_ids,zero_predict_acu_rate_pct,zero_predict_laxin_rate_pct,predict_acu_p10,predict_acu_p50,predict_acu_p90,predict_laxin_p50,retention_feature_p50,live_minutes_p50,predicted_revenue_proxy_p50,predicted_salary_p50
+bilibili,29975,23095,36.34,28.35,0.0,50.0,150.0,50.0,0.768963,2158.0,993.76,1650.0
+douyu,4334,2920,17.328,5.238,0.0,50.0,500.0,50.0,0.790984,4741.5,5976.157,1650.0

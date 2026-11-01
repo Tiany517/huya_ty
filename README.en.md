@@ -8,7 +8,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | --- | --- |
 | `README.md` / `README.en.md` | Chinese / English guide and new-computer bootstrap |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | Chinese / English data-analysis working rules; secret values go in an encrypted vault |
-| `instructions/sql-validation-workflow.md` / `.en.md` | General seven-step SQL loop, static review, risk profile, eight validation gates, delivery/runtime requirements, and failure review |
+| `instructions/sql-validation-workflow.md` / `.en.md` | General seven-stage SQL proof chain, static review, risk profile, nine validation dimensions, delivery reconciliation, and recurrence controls |
 | `skills/README.md`, `skills/<source>/<skill-name>/` | Skills archive guide and full snapshots by installation source |
 | `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
 | `sql/topics/retention-analytics/` | Retention SQL index, dependencies, definitions, versions, and known defects for external Douyu/Bilibili/Douyin and Huya Star Show danmu/gift behavior |
@@ -30,6 +30,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/valorant-anti-fraud-event-review/` | Anonymized anti-fraud ACU, watch-share, and first-stream windows, with event-universe limitations |
 | `projects/non-douyin-valorant-streamer-discovery/` | Non-Douyin Bilibili/Douyu/Kuaishou Valorant head candidates, monthly benchmarks, team-exclusion sensitivity, and anonymized results |
 | `projects/valorant-streamer-potential-analysis/` | Valorant streamer-potential review: Huya internal interaction screen, Douyin v1/v2 sustained-leader comparison, September 2026 external talent pool, and anonymized validation evidence |
+| `projects/external-streamer-reverse-poaching/` | Reverse-poaching heuristic review: Douyu/Bilibili historical predictions, Douyin/Kuaishou model functions, anonymous platform/category summaries, version drift, and known model defects |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
 | `vault/migration-secrets.aesgcm` | AES-256-GCM encrypted `.env` and data-platform credential bundle; decryption key stored separately |
 | `vault/env-files.aesgcm` | Legacy `.env` bundle retained as a historical copy; use `migration-secrets.aesgcm` on the new computer |

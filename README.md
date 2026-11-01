@@ -8,7 +8,7 @@
 | --- | --- |
 | `README.md` / `README.en.md` | 中文 / 英文说明和新电脑启动步骤 |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | 中文 / 英文数据分析工作规则；秘密值放在加密保险包中 |
-| `instructions/sql-validation-workflow.md` / `.en.md` | 通用 SQL 七步闭环、静态审查、风险画像、八道验证闸门、交付运行要求和失败复盘框架 |
+| `instructions/sql-validation-workflow.md` / `.en.md` | 通用 SQL 七阶段证明链、静态审查、风险画像、九类校验维度、交付对账和复发控制框架 |
 | `skills/README.md`、`skills/<source>/<skill-name>/` | Skills 归档说明及按安装来源保留的完整快照 |
 | `sql/README.md`、`sql/source/<file>` | SQL 归档说明和来自现有目录的原名脚本；后续可按主题建立索引 |
 | `sql/topics/retention-analytics/` | 站外斗鱼/B站/抖音及虎牙星秀的弹幕、打赏留存 SQL 索引、依赖、口径、版本和已知缺陷 |
@@ -30,6 +30,7 @@
 | `projects/valorant-anti-fraud-event-review/` | 反炸鱼主播 ACU、观时份额与首播窗口的匿名分层结果；含多套事件口径限制 |
 | `projects/non-douyin-valorant-streamer-discovery/` | 非抖 B 站/斗鱼/快手无畏主播头部候选、月度基准、战队剔除情景及匿名筛选结果 |
 | `projects/valorant-streamer-potential-analysis/` | 无畏契约主播潜力复盘：虎牙站内互动筛选、抖音 v1/v2 持续领先方法对比、2026-09 外部平台人才池及匿名校验结果 |
+| `projects/external-streamer-reverse-poaching/` | 反挖启发式估算复盘：斗鱼/B站历史预测表、抖音/快手模型、匿名平台与品类汇总、版本漂移和已知模型缺陷 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `vault/migration-secrets.aesgcm` | AES-256-GCM 加密的 `.env` 与数据平台凭据包；解密密钥单独保存 |
 | `vault/env-files.aesgcm` | 旧版 `.env` 加密包，保留作历史副本；新电脑优先使用 `migration-secrets.aesgcm` |

@@ -1,0 +1,11 @@
+﻿source_file,platform,metric,compared_rows,matching_rows,mismatching_rows,match_rate_pct,max_abs_difference,status,interpretation_zh,interpretation_en
+featt,douyu+bilibili,base_feature_field_parity,34309,34309,0,100.0,0.0,pass,原始特征文件与最终CSV的14个基础字段逐行一致。,The 14 base feature fields match the final CSV row by row.
+res.txt,douyu+bilibili,base_feature_field_parity,34309,34309,0,100.0,0.0,pass,Hive导出文本与最终CSV的14个基础字段逐行一致。,The Hive export and final CSV match row by row on the 14 base fields.
+06allres.csv,bilibili,predict_acu,29975,29975,0,100.0,0.0,pass,当前归档脚本可直接复现历史ACU预测；未复现部分表示脚本或参数版本已改变。,The archived current script reproduces the historical ACU prediction; any mismatch indicates version drift.
+06allres.csv,bilibili,predict_laxin,29975,23262,6713,77.604671,11800.0,warning_version_drift,B站若未完全复现，说明历史结果与当前脚本版本不一致，不能把当前参数当成历史值来源。,"If Bilibili does not fully reproduce, the historical result used a different script/version; do not cite current parameters as the historical source."
+06allres.csv,bilibili,predict_yingshou,29975,29975,0,100.0,0.0,pass,收入为启发式估算；缺失礼物字段时历史逻辑会把整行收入置零。,Revenue is heuristic; the historical logic set the whole row to zero when gift fields were missing.
+06allres.csv,bilibili,predict_pay,29975,29961,14,99.953294,60985.0,warning_version_drift,工资按当前归档的分段费率复算；少量品类映射差异会形成参数版本漂移。,Salary is rebuilt from the archived piecewise rates; a few category mappings show parameter-version drift.
+06allres.csv,douyu,predict_acu,4334,4334,0,100.0,0.0,pass,当前归档脚本可直接复现历史ACU预测；未复现部分表示脚本或参数版本已改变。,The archived current script reproduces the historical ACU prediction; any mismatch indicates version drift.
+06allres.csv,douyu,predict_laxin,4334,4334,0,100.0,0.0,pass,B站若未完全复现，说明历史结果与当前脚本版本不一致，不能把当前参数当成历史值来源。,"If Bilibili does not fully reproduce, the historical result used a different script/version; do not cite current parameters as the historical source."
+06allres.csv,douyu,predict_yingshou,4334,4334,0,100.0,0.0,pass,收入为启发式估算；缺失礼物字段时历史逻辑会把整行收入置零。,Revenue is heuristic; the historical logic set the whole row to zero when gift fields were missing.
+06allres.csv,douyu,predict_pay,4334,4328,6,99.86156,15840.0,warning_version_drift,工资按当前归档的分段费率复算；少量品类映射差异会形成参数版本漂移。,Salary is rebuilt from the archived piecewise rates; a few category mappings show parameter-version drift.

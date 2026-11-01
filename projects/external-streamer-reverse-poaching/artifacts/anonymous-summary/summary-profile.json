@@ -1,0 +1,22 @@
+{
+  "source_rows": 34309,
+  "source_columns": 19,
+  "platforms": {
+    "bilibili": 29975,
+    "douyu": 4334
+  },
+  "unique_anchor_ids": 26015,
+  "duplicate_uid_platform_category_rows": 0,
+  "minimum_category_records": 20,
+  "category_rows_retained": 289,
+  "benchmark": {
+    "source_rows": 438,
+    "first_date": "2024-06-01",
+    "last_date": "2025-08-12",
+    "duplicate_dates": 0,
+    "nonpositive_anchor_counts": 0
+  },
+  "raw_identifiers_exported": false,
+  "raw_anchor_names_exported": false,
+  "raw_user_level_rows_exported": false
+}

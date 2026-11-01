@@ -1,0 +1,13 @@
+source_file,bytes,sha256,repo_treatment,reason
+doubi.py,15897,EB78A14A1E645A9543DA405F4ECD90F725C8EC7BE6B8B3B2DA971B49A0AAFA03,sanitized_functional_copy,HDFS identity and remote write side effects removed; model logic retained in scripts/fanwa_estimator.py
+doukuai.py,13855,6E6089906FEA7CD583B413EF8843E12422F13841CCE2CB36AE2B187FAD7D264B,sanitized_functional_copy,HDFS identity and remote write side effects removed; model logic retained in scripts/fanwa_estimator.py
+doukuai2.py,11275,6A775A2D6459DFEF4858191FB0D6B75C1383BF9CBB1FD4108E08CFA2A15CAD77,excluded_superseded,older Douyin/Kuaishou script superseded by doukuai.py
+06allres.csv,4770113,A63333D809284DD86167403FEFF3EBF24EF1A1549CB93338A5BC7E7FA1EA5FB2,aggregate_only,contains anchor names IDs and row-level predictions; raw file excluded
+res.txt,4575194,2F5A640130A3C1C89420F48AB3B1696457ACA6ADD260E7BEB9A5363A8B8E045B,aggregate_only,same row-level content as final CSV; raw file excluded
+featt,3775557,BDEDB846194AD24B46111F7330B7BA6FE0007ECB0BB5AC884A85B08CDFBC55E1,aggregate_only,contains row-level anchor identifiers; raw file excluded
+dd,10772,C568D0EFF81FD11A79C4B8DB7CFC659B841052556B80E45814D5B38B70E28D10,monthly_aggregate_only,source daily aggregate has no anchor identifiers; only monthly summary retained
+Untitled2.ipynb,15768,B703A7DD47F1B9E7D011AC0FECE0D23112E5A731FEB6817A59ABE53D9FF39B09,logic_documented,embedded daily benchmark is represented by huya-anchor-market-monthly artifacts
+报警邮件/mailall.tar.gz,12054865,42DCBC1D658E3AFD96E32B93A990ED69A7369BE7D5E9120EA619DE7CABF5A29C,excluded_separate_project,operational alerting rather than reverse-poaching; contains HDFS identities raw data and mail configuration
+反挖交接视频录制.rar,169118852,not_copied,excluded_large_media,training archive already covered by two extracted videos
+反挖交接视频录制/反挖培训1.mp4,123068416,not_copied,excluded_large_media,training video not suitable for Git history
+反挖交接视频录制/反挖培训2.mp4,169583664,not_copied,excluded_large_media,training video not suitable for Git history

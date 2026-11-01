@@ -1,0 +1,164 @@
+{
+  "project": "external-streamer-reverse-poaching",
+  "overall_status": "pass",
+  "checks": [
+    {
+      "check_zh": "源记录数",
+      "check_en": "Source row count",
+      "status": "pass",
+      "value": 34309,
+      "expected": 34309
+    },
+    {
+      "check_zh": "唯一主播ID数",
+      "check_en": "Unique anchor count",
+      "status": "pass",
+      "value": 26015,
+      "expected": 26015
+    },
+    {
+      "check_zh": "平台记录数",
+      "check_en": "Platform row counts",
+      "status": "pass",
+      "value": {
+        "bilibili": 29975,
+        "douyu": 4334
+      },
+      "expected": {
+        "bilibili": 29975,
+        "douyu": 4334
+      }
+    },
+    {
+      "check_zh": "平台/品类主播键唯一",
+      "check_en": "Platform-category anchor-key uniqueness",
+      "status": "pass",
+      "value": 0,
+      "expected": 0
+    },
+    {
+      "check_zh": "未导出原始标识",
+      "check_en": "No raw identifiers exported",
+      "status": "pass",
+      "value": false,
+      "expected": false
+    },
+    {
+      "check_zh": "未导出主播昵称",
+      "check_en": "No anchor names exported",
+      "status": "pass",
+      "value": false,
+      "expected": false
+    },
+    {
+      "check_zh": "未导出用户级明细",
+      "check_en": "No raw user-level rows exported",
+      "status": "pass",
+      "value": false,
+      "expected": false
+    },
+    {
+      "check_zh": "必需匿名输出存在",
+      "check_en": "Required anonymized artifacts exist",
+      "status": "pass",
+      "value": [],
+      "expected": []
+    },
+    {
+      "check_zh": "平台汇总记录数合计",
+      "check_en": "Platform summary rows sum",
+      "status": "pass",
+      "value": 34309,
+      "expected": 34309
+    },
+    {
+      "check_zh": "预测ACU中位数非负",
+      "check_en": "Predicted ACU medians are nonnegative",
+      "status": "pass",
+      "value": true,
+      "expected": true
+    },
+    {
+      "check_zh": "虎牙基准月份数",
+      "check_en": "Huya benchmark month count",
+      "status": "pass",
+      "value": 15,
+      "expected": 15
+    },
+    {
+      "check_zh": "虎牙基准观测日数",
+      "check_en": "Huya benchmark day count",
+      "status": "pass",
+      "value": 438,
+      "expected": 438
+    },
+    {
+      "check_zh": "虎牙日均主播数为正",
+      "check_en": "Huya daily anchor counts are positive",
+      "status": "pass",
+      "value": true,
+      "expected": true
+    },
+    {
+      "check_zh": "模型复现检查行数",
+      "check_en": "Model-reproducibility row count",
+      "status": "pass",
+      "value": 10,
+      "expected": 10
+    },
+    {
+      "check_zh": "记录三类版本漂移警告",
+      "check_en": "Three version-drift warnings recorded",
+      "status": "pass",
+      "value": {
+        "pass": 7,
+        "warning_version_drift": 3
+      },
+      "expected": {
+        "warning_version_drift": 3
+      }
+    },
+    {
+      "check_zh": "B站拉新历史复现行数",
+      "check_en": "Bilibili acquisition historical matches",
+      "status": "pass",
+      "value": 23262,
+      "expected": 23262
+    },
+    {
+      "check_zh": "匿名CSV不含标识字段",
+      "check_en": "Anonymized CSVs contain no identifier fields",
+      "status": "pass",
+      "value": [],
+      "expected": []
+    },
+    {
+      "check_zh": "脚本无硬编码Hadoop身份",
+      "check_en": "Scripts contain no hard-coded Hadoop identity",
+      "status": "pass",
+      "value": false,
+      "expected": false
+    },
+    {
+      "check_zh": "脚本无个人邮箱",
+      "check_en": "Scripts contain no personal email",
+      "status": "pass",
+      "value": false,
+      "expected": false
+    },
+    {
+      "check_zh": "featt与最终CSV基础字段一致",
+      "check_en": "featt matches final CSV base fields",
+      "status": "pass",
+      "value": true,
+      "expected": true
+    },
+    {
+      "check_zh": "res.txt与最终CSV基础字段一致",
+      "check_en": "res.txt matches final CSV base fields",
+      "status": "pass",
+      "value": true,
+      "expected": true
+    }
+  ]
+}

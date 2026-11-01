@@ -12,7 +12,7 @@
 
 附件版与本次对话中提供的 AGENTS 内容一致。相较桌面版，附件增加两条规则；其中一条包含明文 API 凭据，迁移副本和本机 `.codex/AGENTS.md` 均已将其替换为安全存储说明，实际凭据只保存在加密保险包。
 
-新增 SQL 验证工作流：`instructions/sql-validation-workflow.md`。所有正式 SQL 必须先定义结果契约和可反驳的预期，再核查字段、分区、单位和样本，完成静态审查后按风险画像执行数据可用性、Schema/语义、粒度与唯一键、关联与行数放大、指标不变量、独立复算与对账、边界与业务抽查，以及交付和运行检查；任何校验失败都必须修复，未执行的高风险校验不得标记为“已验证”，同类错误复发时必须转为可执行检查或最小反例。统计输出还必须程序化生成 p 值星号和显著性标签，核对 DID 正负与单位，并对账报告、XLSX、CSV、脚本和查询结果；PSM/DID 必须保留匹配率、最大 SMD、前后窗和平行趋势状态。
+新增 SQL 验证工作流：`instructions/sql-validation-workflow.md`。所有正式 SQL 必须沿“结果契约、数据事实、风险画像、实现与静态审查、独立证明、交付对账、复发控制”七阶段证明链执行，并从定义、总体、粒度、关系、时间、单位、统计、交付和可复现性九类维度固定核查；风险画像只决定哪些维度需要更深证据，不能跳过定义、粒度、独立复算和交付对账。八类验证闸门为数据可用性、Schema/语义、粒度与唯一键、关联与行数放大、指标不变量、独立复算与对账、边界与业务抽查、交付与运行检查；任何校验失败都必须修复，未执行的高风险校验不得标记为“已验证”，同类错误复发时必须转为可执行检查或最小反例。统计输出还必须程序化生成 p 值星号和显著性标签，核对 DID 正负与单位，并对账报告、XLSX、CSV、脚本和查询结果；PSM/DID 必须保留匹配率、最大 SMD、前后窗和平行趋势状态。
 
 ## SQL
 
@@ -41,7 +41,7 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 以下候选项目的数量、扩展名和修改时间来自文件系统元数据；除下方列出的已完成项目外，其他候选尚未复盘或复制项目文件。
 
-已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/weekly-ecosystem-monitoring/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
+已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/weekly-ecosystem-monitoring/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`、`projects/external-streamer-reverse-poaching/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
 
 外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。
 
@@ -63,6 +63,8 @@ OB 二路赛事节目化情景已整理至 `projects/valorant-ob-costream-scenar
 
 无畏契约主播潜力复盘已整理至 `projects/valorant-streamer-potential-analysis/`：虎牙站内独立重算得到候选池 187 人、最终入选 8 人（腰部 3、尾部 5）；旧工作簿首个连续明细块的 8 个 ID 完全一致，但其候选池仍为旧快照 160。抖音按两种月份算法复现 v1=267、v2=95，并明确 M4 缺失、M7/M10 为无效短月；2026-09-30 外部平台池为 8,958 条记录、8,957 个唯一 ID。保留 4 个脚本、全部中英文匿名汇总和校验记录；源工作簿、主播 ID、昵称及逐主播明细未上传。
 
+反挖估算复盘已整理至 `projects/external-streamer-reverse-poaching/`：历史最终表包含 B 站 29,975 行、斗鱼 4,334 行，共 34,309 行和 26,015 个唯一主播；保留纯计算脚本、匿名平台/品类汇总、15 个月虎牙内部主播市场基准、源文件 SHA-256 清单和 21 项自动校验。当前脚本可完整复现两类平台的 ACU、斗鱼拉新和收入，但 B 站拉新仅复现 23,262/29,975，工资存在少量品类映射漂移，因此历史排名只能引用原最终表，不能把当前参数当成历史方法。约 503 MB 源目录、培训视频/RAR、原始主播昵称/UID、checkpoint 和缓存未上传；`报警邮件` 已识别为独立自动化项目，未混入。
+
 FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归档建事件表 SQL、分层成功率查询和匿名校验基线。事件级主播明细未迁移；成功率仅作为描述性事件统计，不解释为因果效果。
 
 观时贡献率拐点已复盘至 `projects/valorant-watchtime-contribution-knee/`：纳入实际观时月度拐点、Top-N 覆盖和逐月 0.2% 达标汇总及核心脚本。原始/清洗数据、逐主播月度贡献率和带主播信息的 Excel 未迁移；上游字段口径尚需在新电脑重跑前核对。
@@ -76,7 +78,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 | 周报监控模型 | 55 个文件；最近修改 2026-10-23；8 个 SQL、1 个 Python、25 个 Excel、21 个 CSV；最大工作簿约 291 MB | 核心流程已整理至 `projects/weekly-ecosystem-monitoring/`；其余大型模板、主播明细和未复核周次仍不整体推送 |
 | AI工坊专题 | 已完成核心项目复盘 | 已迁移至 `projects/ai-workshop-commercialization/`；大型缓存、逐用户/主播明细和礼物提示词不放入 Git |
 | 不朽杯弹窗PSM实验 | 已完成核心项目复盘 | 已迁移至 `projects/buxiucup-popup-psm/`；三套最终报告、匿名结果、核心脚本/SQL 和校验已归档；用户级源数据与历史迭代未上传 |
-| 反挖 | 33 个文件；含 8 个 Notebook、8 个 Python；有约 169 MB RAR 和约 21 MB TAR | 压缩包内容未知；先识别归属和必要性，不直接上传 |
+| 反挖 | 已完成核心项目复盘 | 已迁移至 `projects/external-streamer-reverse-poaching/`；保留纯计算脚本、匿名汇总和校验，原始明细、培训视频/RAR、checkpoint、缓存及凭据未上传；`报警邮件` 留作独立项目审查 |
 | 用户画像分析 | 151 个文件；最近修改 2026-05-29；含 3 个 SQL、10 个 CSV；其中一个 CSV 约 36 MB | SQL 和结论材料可优先评估，用户画像明细 CSV 暂不纳入 |
 | 月报_虎牙外部生态DAU | 3 个文件：1 个 SQL、2 个模板工作簿 | 体量小，可优先复核是否纳入模板 |
 | Documents/ChatGPT/异动归因 | 12 个 Python 脚本及输出；含汇总表和带“明细”字样的工作簿；Git 工作区没有提交历史 | 可复盘近期视频号 DAU 归因；逐一确认哪些结果表为汇总、哪些为明细 |
