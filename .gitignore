@@ -1,0 +1,24 @@
+# Local-only paths and plaintext credentials; encrypted vault files are allowed
+local-source-map*.md
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Raw inputs and rebuildable working folders stay outside by default.
+# Curated support artifacts under projects/<slug>/artifacts/ may be included after review.
+data/raw/
+**/data/raw/
+archive/raw-unencrypted/
+exports/raw-unencrypted/
+node_modules/
+**/node_modules/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.db
+*.sqlite
