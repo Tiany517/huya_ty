@@ -34,6 +34,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/external-streamer-reverse-poaching/` | Reverse-poaching heuristic review: Douyu/Bilibili historical predictions, Douyin/Kuaishou model functions, anonymous platform/category summaries, version drift, and known model defects |
 | `projects/kuaishou-honor-of-kings-reverse-poaching/` | Kuaishou Honor of Kings reverse-poaching screen: six-workbook version chain, V1/V2 raw coverage, final V2-15 rule, Huya waist benchmark, anonymous artifacts, and 26 checks |
 | `projects/user-profile-analysis/` | User-profile TGI and KMeans review: device, snooker acquisition, World Championship, and 10-minute-viewer cohorts; includes three SQL files, four historical reports, anonymous TGI/cluster artifacts, source hashes, and 49 checks |
+| `projects/molata-cooperation-acu-review/` | Six-anchor cooperation ACU review: four-window anonymous daily series, group growth, platform benchmarks, 13 reconciliation failures, bilingual workbooks, and 21 checks |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
 | `vault/migration-secrets.aesgcm` | AES-256-GCM encrypted `.env` and data-platform credential bundle; decryption key stored separately |
 | `vault/env-files.aesgcm` | Legacy `.env` bundle retained as a historical copy; use `migration-secrets.aesgcm` on the new computer |

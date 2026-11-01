@@ -1,0 +1,118 @@
+{
+  "project": "molata-cooperation-acu-review",
+  "overall_status": "incomplete",
+  "summary": {
+    "checks": 21,
+    "passed": 19,
+    "known_issues": 1,
+    "not_run": 1,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "check": "Artifact shape: daily_series.csv",
+      "status": "pass",
+      "details": "actual=(123, 20), expected=(123, 20)"
+    },
+    {
+      "check": "Bilingual shape parity: daily_series.csv",
+      "status": "pass",
+      "details": "Chinese=(123, 20), English=(123, 20)"
+    },
+    {
+      "check": "Artifact shape: window_summary.csv",
+      "status": "pass",
+      "details": "actual=(52, 9), expected=(52, 9)"
+    },
+    {
+      "check": "Bilingual shape parity: window_summary.csv",
+      "status": "pass",
+      "details": "Chinese=(52, 9), English=(52, 9)"
+    },
+    {
+      "check": "Artifact shape: growth_comparison.csv",
+      "status": "pass",
+      "details": "actual=(13, 12), expected=(13, 12)"
+    },
+    {
+      "check": "Bilingual shape parity: growth_comparison.csv",
+      "status": "pass",
+      "details": "Chinese=(13, 12), English=(13, 12)"
+    },
+    {
+      "check": "Artifact shape: share_summary.csv",
+      "status": "pass",
+      "details": "actual=(4, 5), expected=(4, 5)"
+    },
+    {
+      "check": "Bilingual shape parity: share_summary.csv",
+      "status": "pass",
+      "details": "Chinese=(4, 5), English=(4, 5)"
+    },
+    {
+      "check": "Artifact shape: reconciliation_failures.csv",
+      "status": "pass",
+      "details": "actual=(13, 4), expected=(13, 4)"
+    },
+    {
+      "check": "Anonymous workbook structure: cooperation-acu-anonymous-en.xlsx",
+      "status": "pass",
+      "details": "sheets=['daily series', 'window summary', 'growth comparison', 'share summary', 'reconciliation failures', 'methodology']"
+    },
+    {
+      "check": "Anonymous workbook structure: cooperation-acu-anonymous-zh.xlsx",
+      "status": "pass",
+      "details": "sheets=['daily series', 'window summary', 'growth comparison', 'share summary', 'reconciliation failures', 'methodology']"
+    },
+    {
+      "check": "No source identifiers or nicknames in retained artifacts",
+      "status": "pass",
+      "details": "No blocked headers or 10+ digit identifier values found"
+    },
+    {
+      "check": "Anchor source grain and coverage",
+      "status": "pass",
+      "details": "rows=608, anchors=6, dates=121, duplicate dt+anchor=0"
+    },
+    {
+      "check": "Market benchmark grain and date parity",
+      "status": "pass",
+      "details": "market daily=123, outlier-adjusted=123, common dates=123"
+    },
+    {
+      "check": "Source manifest hashes",
+      "status": "pass",
+      "details": "files=5, missing=[], hash mismatches=[]"
+    },
+    {
+      "check": "Daily aggregate series reconciliation",
+      "status": "pass",
+      "details": "123 dates compared; maximum group-total difference=0.000000000002"
+    },
+    {
+      "check": "Independent window-average recomputation",
+      "status": "pass",
+      "details": "compared 52 unit-window rows; maximum difference=0.000000000029"
+    },
+    {
+      "check": "Six-anchor growth recomputation",
+      "status": "pass",
+      "details": "pre=4813.5655, post-including=5631.0567, post-excluding=6641.3493"
+    },
+    {
+      "check": "Historical workbook growth values reproduced",
+      "status": "pass",
+      "details": "four group-window growth values compared; maximum difference=0.000030697335"
+    },
+    {
+      "check": "Market-derived six-person total reconciles to source anchor sum",
+      "status": "known_issue",
+      "details": "{\"failure_dates\": 13, \"max_abs_residual\": 4159.7599999999775, \"total_residual\": 14548.029999999988}"
+    },
+    {
+      "check": "Original upstream SQL retained",
+      "status": "not_run",
+      "details": "No source SQL was included in the project folder; market exclusion logic cannot be rerun from the retained materials"
+    }
+  ]
+}

@@ -41,7 +41,7 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 以下候选项目的数量、扩展名和修改时间来自文件系统元数据；除下方列出的已完成项目外，其他候选尚未复盘或复制项目文件。
 
-已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/weekly-ecosystem-monitoring/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`、`projects/external-streamer-reverse-poaching/`、`projects/kuaishou-honor-of-kings-reverse-poaching/`、`projects/user-profile-analysis/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
+已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/weekly-ecosystem-monitoring/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`、`projects/external-streamer-reverse-poaching/`、`projects/kuaishou-honor-of-kings-reverse-poaching/`、`projects/user-profile-analysis/`、`projects/molata-cooperation-acu-review/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
 
 外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。
 
@@ -69,6 +69,8 @@ OB 二路赛事节目化情景已整理至 `projects/valorant-ob-costream-scenar
 
 用户画像 TGI 与聚类已整理至 `projects/user-profile-analysis/`：归档设备三组两两 TGI、斯诺克拉新、世锦赛观看、10 分钟以上观看、设备/观看用户匿名聚类、价格分层、3 份源 SQL、4 份历史报告和 49 项校验。7 份 TGI 表均从固定分母独立复算，最大占比闭合误差和 TGI 算术误差均为 0.05；旧设备报告 12 个聚类均显示 100.0%，已重新计算。源 SQL 另确认 Android 产品枚举拼写、两窗口不等、未定义 CTE、全期求和冒充单日和重复分组标签等缺陷；`watch_duration` 单位仍标为未执行。用户级 CSV、含 `user_ukey` 的 XLSX、132 张重复生成图均未上传，斯诺克 1,086 行处理样本与 1,072 人报告聚类不可勾稽已单列。
 
+六位主播合作前后有效 ACU 已整理至 `projects/molata-cooperation-acu-review/`：保留 123 日匿名序列、13 个统计单位 × 4 个窗口的汇总、合作前后增幅、平台基准、双语文档和结果工作簿。六人自然日日均 ACU 从合作前 `4,813.57` 变为含合作期后 1 月 `5,631.06`、剔合作期后 1 月 `6,641.35`，历史工作簿组级增幅可复算。平台“全量减剔除六人”与源主播日合计有 13 个日期不一致，累计残差 `+14,548.03` ACU、最大单日 `+4,159.76`，且源目录没有底层 SQL，因此相对平台超额增幅标为待验证；21 项校验中 19 通过、1 已知问题、1 未执行、0 失败。
+
 FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归档建事件表 SQL、分层成功率查询和匿名校验基线。事件级主播明细未迁移；成功率仅作为描述性事件统计，不解释为因果效果。
 
 观时贡献率拐点已复盘至 `projects/valorant-watchtime-contribution-knee/`：纳入实际观时月度拐点、Top-N 覆盖和逐月 0.2% 达标汇总及核心脚本。原始/清洗数据、逐主播月度贡献率和带主播信息的 Excel 未迁移；上游字段口径尚需在新电脑重跑前核对。
@@ -85,6 +87,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 | 反挖 | 已完成核心项目复盘 | 已迁移至 `projects/external-streamer-reverse-poaching/`；保留纯计算脚本、匿名汇总和校验，原始明细、培训视频/RAR、checkpoint、缓存及凭据未上传；`报警邮件` 留作独立项目审查 |
 | 快手王者荣耀主播反挖数据 | 已完成项目复盘 | 已迁移至 `projects/kuaishou-honor-of-kings-reverse-poaching/`；保留规则、匿名统计、脚本和 26 项校验，原始 CSV 与 6 个身份/逐人工作簿未上传 |
 | 用户画像分析 | 已完成核心项目复盘 | 已迁移至 `projects/user-profile-analysis/`；保留匿名 TGI/聚类附件、3 份 SQL、4 份报告和 49 项校验；用户级 CSV/XLSX 与重复生成图未上传 |
+| 莫拉塔合作效果分析 | 已完成核心项目复盘 | 已迁移至 `projects/molata-cooperation-acu-review/`；保留匿名日序列、四窗口汇总、双语工作簿和 21 项校验；身份工作簿/脚本未上传，13 日平台勾稽问题待修复 |
 | 月报_虎牙外部生态DAU | 3 个文件：1 个 SQL、2 个模板工作簿 | 体量小，可优先复核是否纳入模板 |
 | Documents/ChatGPT/异动归因 | 12 个 Python 脚本及输出；含汇总表和带“明细”字样的工作簿；Git 工作区没有提交历史 | 可复盘近期视频号 DAU 归因；逐一确认哪些结果表为汇总、哪些为明细 |
 
@@ -92,7 +95,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 
 ## 待办状态
 
-- 继续复盘无畏契约份额增长中的其余独立子项目，再转向其它优先候选。
+- 继续复盘其余候选：因果推断与事件评估、月报/周报附录、王者主播潜力、留存与兴趣、AI 直播间和游戏赛事专题。
 - 迁移清单中的其它项目仍为待复盘，不代表已归档。每完成一项，更新本清单和首页路径地图并检查、推送完整变更。
 - ChatGPT 原始导出目前未归档；需确认当前公司 API 账号是否提供账号级导出，且 API 工作记录可能不属于 ChatGPT 网页账号导出范围。
 

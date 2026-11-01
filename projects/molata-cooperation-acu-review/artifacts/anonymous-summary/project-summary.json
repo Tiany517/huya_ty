@@ -1,0 +1,34 @@
+{
+  "source_files": 5,
+  "anchor_rows": 608,
+  "anchor_count": 6,
+  "source_date_min": "2026-05-01",
+  "source_date_max": "2026-08-31",
+  "review_index_dates": 123,
+  "windows": {
+    "pre_month": [
+      "2026-05-24",
+      "2026-06-23"
+    ],
+    "event_week": [
+      "2026-06-24",
+      "2026-06-30"
+    ],
+    "post_month_including_event": [
+      "2026-06-24",
+      "2026-07-23"
+    ],
+    "post_month_excluding_event": [
+      "2026-07-01",
+      "2026-07-30"
+    ]
+  },
+  "collaboration_anchor_count": 5,
+  "market_reconciliation_failure_dates": 13,
+  "market_reconciliation_max_abs_residual": 4159.7599999999775,
+  "privacy": {
+    "identifiers_written": false,
+    "nicknames_written": false,
+    "source_identity_workbook_copied": false
+  }
+}
