@@ -1,6 +1,6 @@
 # Migration Inventory
 
-Status: as of 2026-11-01, the migration repository has been committed and pushed to the private GitHub repository. Source files remain in place; only reviewed notes, SQL, skills, project scripts, and anonymized results have been organized in the repository. Remaining candidates below still require individual review and are not considered migrated based on folder names alone.
+Status: as of 2026-11-02, the migration repository has been committed and pushed to the private GitHub repository. Source files remain in place; only reviewed notes, SQL, skills, project scripts, and anonymized results have been organized in the repository. Remaining candidates below still require individual review and are not considered migrated based on folder names alone.
 
 ## Working Rules
 
@@ -16,7 +16,7 @@ The attachment matches the AGENTS content shared in this conversation. Compared 
 
 The SQL source contains 240 `.sql` files and 2 SQL-formatted `.txt` files, copied under their original names into `sql/source/`. It also contains 54 CSV files, 22 Excel files, and 25 Python scripts. One FPS project includes seven analysis scripts, and the HuShi/HuXiao ACU-threshold project includes one reusable script. Other result data, scripts, and `content_categories_full.txt` remain queued for project review. Review important results individually; detailed user-level Excel remains out under the original boundary.
 
-The high-priority retention index is at `sql/topics/retention-analytics/`. The recommended external pipeline runs `zty_jingpin_user_activity_di_日跑调度.sql` into `zty_jingpin_用户活动月度流水留存_调度版_1030_v1.sql`, covering Douyu, Bilibili, and Douyin; the current Huya script covers Star Show totals and subcategories. D7/D14/D30 mean natural dates T+6/T+13/T+29. The index documents three material risks: the Huya common-cohort denominator is counted three times, missing target partitions silently become zero retention, and Douyin danmu-source coverage is uncertain.
+The high-priority retention index is at `sql/topics/retention-analytics/`. The recommended external pipeline runs `zty_jingpin_user_activity_di_日跑调度.sql` into `zty_jingpin_用户活动月度流水留存_调度版_1030_v1.sql`, covering Douyu, Bilibili, and Douyin; the current Huya script covers Star Show totals and subcategories. D7/D14/D30 mean natural dates T+6/T+13/T+29. The triple-counted Huya common-cohort denominator is now isolated with a corrected CTE, target-table validation SQL, and anonymous January 2025 through October 2026 overall comparisons under the remediation directory and artifacts. The existing 132-row target table has not been refreshed; inferred corrected rates divide the stored base by three. Before a formal refresh on the new computer, validate source coverage for T+6/T+13/T+29 and recheck Douyin danmu availability.
 
 ## Skills
 

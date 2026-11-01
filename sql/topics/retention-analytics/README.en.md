@@ -37,4 +37,6 @@ Three earlier scripts, [`站外主播用户日活动明细_日跑调度.sql`](..
 
 Source files, hashes, and version roles are listed in [`source-manifest.csv`](source-manifest.csv). Confirm the denominator impact against existing outputs before applying a fix.
 
+The Star Show denominator defect, replacement CTE, target-table validation queries, and anonymous 2025-01 through 2026-10 overall comparison are documented separately under [`remediation/`](remediation/README.en.md). The target table has not yet been refreshed with the corrected logic. Corrected rates in the comparison are inferred by dividing the stored base by three and do not replace a formal refresh.
+
 Chinese documentation: [`README.md`](README.md).

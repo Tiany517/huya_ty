@@ -37,4 +37,6 @@
 
 详细源文件、哈希和版本状态见 [`source-manifest.csv`](source-manifest.csv)。修复前应先对照现有产出确认分母重复问题的影响。
 
+虎牙星秀分母缺陷、替换 CTE、目标表验证查询及 2025-01 至 2026-10 匿名整体对比已单独整理在 [`remediation/`](remediation/README.md)。现存目标表尚未按修复版重跑；对比文件中的修正率是按存储分母除以 3 推断，不应替代正式刷新结果。
+
 英文版见 [`README.en.md`](README.en.md)。
