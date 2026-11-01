@@ -43,6 +43,8 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 OB 二路赛事节目化情景已整理至 `projects/valorant-ob-costream-scenario/`：仅保留公式链和匿名汇总。确认到 21% 成功概率与“5 次中 1 次成功”不一致，另有 11.47 分钟观时差值未进入增量公式；均作为模型限制明示，未将 2.6944% 解释为已实现或因果份额增长。原含主播明细工作簿未复制。
 
+虎视虎啸月日均 ACU 达标盘点已整理至 `projects/huya-douyin-valorant-acu-threshold/`：归档匿名月度阈值人数、池规模和最高值，及生成逻辑脚本；未迁移主播名单和含身份工作簿。`valid_acu` 数据字典缺失且 2026-10 覆盖截止日不明，均已在项目页标注。
+
 FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归档建事件表 SQL、分层成功率查询和匿名校验基线。事件级主播明细未迁移；成功率仅作为描述性事件统计，不解释为因果效果。
 
 观时贡献率拐点已复盘至 `projects/valorant-watchtime-contribution-knee/`：纳入实际观时月度拐点、Top-N 覆盖和逐月 0.2% 达标汇总及核心脚本。原始/清洗数据、逐主播月度贡献率和带主播信息的 Excel 未迁移；上游字段口径尚需在新电脑重跑前核对。

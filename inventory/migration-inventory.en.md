@@ -43,6 +43,8 @@ The external ecosystem DAU report is documented at `projects/monthly-external-ec
 
 The OB co-streaming scenario is documented at `projects/valorant-ob-costream-scenario/` with formulas and anonymized aggregates only. The workbook's 21% success probability differs from its “1 in 5” note, and a listed 11.47-minute watch-time delta is not used in the increment formula. Both are disclosed as model limitations; the 2.6944% scenario is not presented as realized or causal share growth. The source workbook with streamer-level details was excluded.
 
+The HuShi/HuXiao monthly ACU threshold review is documented at `projects/huya-douyin-valorant-acu-threshold/`, with anonymized monthly counts, pool sizes, maxima, and the generating script. Streamer lists and the identity-bearing workbook were excluded. The `valid_acu` dictionary is missing and the October 2026 cutoff is unknown; both are documented on the project page.
+
 The FPS cross-broadcast final compact workflow is documented at `projects/valorant-fps-cross-broadcast/`, with the event-table SQL, tier success-rate query, and anonymized validation baseline. Event-level streamer details were not migrated; success rates are descriptive event statistics, not causal effects.
 
 The watch-time contribution knee review is documented at `projects/valorant-watchtime-contribution-knee/`, with actual-watch-time monthly knees, Top-N coverage, monthly 0.2% qualification aggregates, and core scripts. Raw/cleaned data, streamer-month shares, and workbooks with streamer identities were excluded; verify upstream field definitions before rerunning on the new computer.
