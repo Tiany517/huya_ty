@@ -1,0 +1,7 @@
+scenario,group,record_count,estimated_incremental_watch_min_per_day,industry_avg_daily_watch_min,estimated_share_increment
+primary,internal,8,2820477.3109,91858247.1649,0.0307046716
+primary,external,26,2175311.7192,91858247.1649,0.0236811804
+primary,combined,34,4995789.0302,91858247.1649,0.0543858519
+alternative,internal,7,649952.5671,91858247.1649,0.0070756038
+alternative,external,26,1699462.2807,91858247.1649,0.0185009222
+alternative,combined,33,2349414.8478,91858247.1649,0.0255765260

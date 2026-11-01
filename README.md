@@ -20,6 +20,7 @@
 | `projects/valorant-ob-costream-scenario/` | OB 二路节目化份额情景公式审查和匿名汇总；包含模型假设限制 |
 | `projects/huya-douyin-valorant-acu-threshold/` | 虎视虎啸主播月日均 ACU 阈值盘点的匿名月度结果和复盘说明 |
 | `projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/` | 5937 P50 有效月主播时长测算，以及 FPS 主播时长清洗与分位复盘 |
+| `projects/valorant-big-pot-share-scenario/` | 大锅饭观时份额情景估算；含双情景匿名汇总及样本期、分母和覆盖范围限制 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `vault/env-files.aesgcm` | AES-256-GCM 加密的 `.env` 文件包；解密密钥单独保存 |
 | `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单 |

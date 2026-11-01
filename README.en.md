@@ -20,6 +20,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/valorant-ob-costream-scenario/` | OB co-streaming scenario formula review and anonymized model summary with assumptions |
 | `projects/huya-douyin-valorant-acu-threshold/` | Anonymized monthly results and review of HuShi/HuXiao streamer ACU thresholds |
 | `projects/valorant-5937-p50-live-time/`, `projects/fps-anchor-cleaning/` | 5937 P50 valid-month live-time estimate, and FPS streamer live-time cleaning and quantile review |
+| `projects/valorant-big-pot-share-scenario/` | Big Pot watch-time share scenarios, with anonymized aggregates and period, denominator, and coverage limitations |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
 | `vault/env-files.aesgcm` | AES-256-GCM encrypted `.env` bundle; decryption key stored separately |
 | `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue |

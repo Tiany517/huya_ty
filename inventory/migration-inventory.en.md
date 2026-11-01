@@ -35,15 +35,17 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 
 ### First-Pass File Inventory (Metadata Only)
 
-Counts, extensions, and modification dates for the candidates below come from filesystem metadata. The eight reviews listed above are complete; all other candidates have not been reviewed or copied yet.
+Counts, extensions, and modification dates for the candidates below come from filesystem metadata. The nine reviews listed above are complete; all other candidates have not been reviewed or copied yet.
 
-Reviewed and pushed projects: `projects/valorant-5937-p50-live-time/`, `projects/fps-anchor-cleaning/`, `projects/monthly-external-ecosystem-dau/`, `projects/valorant-fps-cross-broadcast/`, `projects/valorant-watchtime-contribution-knee/`, `projects/valorant-yuezi-event-costream/`, `projects/valorant-ob-costream-scenario/`, and `projects/huya-douyin-valorant-acu-threshold/`. The FPS project includes seven analysis scripts and an anonymized quantile summary CSV; streamer-level attachments were excluded. Its 2.6489% model ratio is documented as a source-workbook value with a category-scope mismatch, not as a share conclusion.
+Reviewed and pushed projects: `projects/valorant-5937-p50-live-time/`, `projects/fps-anchor-cleaning/`, `projects/monthly-external-ecosystem-dau/`, `projects/valorant-fps-cross-broadcast/`, `projects/valorant-watchtime-contribution-knee/`, `projects/valorant-yuezi-event-costream/`, `projects/valorant-ob-costream-scenario/`, `projects/huya-douyin-valorant-acu-threshold/`, and `projects/valorant-big-pot-share-scenario/`. The FPS project includes seven analysis scripts and an anonymized quantile summary CSV; streamer-level attachments were excluded. Its 2.6489% model ratio is documented as a source-workbook value with a category-scope mismatch, not as a share conclusion.
 
 The external ecosystem DAU report is documented at `projects/monthly-external-ecosystem-dau/`: its SQL and anonymized monthly platform aggregates from 2025-07 through 2026-05-18 are retained. Two source workbooks containing streamer IDs, nicknames, contracts, or revenue were excluded.
 
 The OB co-streaming scenario is documented at `projects/valorant-ob-costream-scenario/` with formulas and anonymized aggregates only. The workbook's 21% success probability differs from its “1 in 5” note, and a listed 11.47-minute watch-time delta is not used in the increment formula. Both are disclosed as model limitations; the 2.6944% scenario is not presented as realized or causal share growth. The source workbook with streamer-level details was excluded.
 
 The HuShi/HuXiao monthly ACU threshold review is documented at `projects/huya-douyin-valorant-acu-threshold/`, with anonymized monthly counts, pool sizes, maxima, and the generating script. Streamer lists and the identity-bearing workbook were excluded. The `valid_acu` dictionary is missing and the October 2026 cutoff is unknown; both are documented on the project page.
+
+The Big Pot watch-time share estimate is documented at `projects/valorant-big-pot-share-scenario/`, with anonymized internal/external aggregates for two scenarios. The primary scenario is about 5.4386% and the alternative about 2.5577%; the alternative omits one internal record, the historical source and industry-baseline periods differ, and the denominator category is unspecified. Treat these as unvalidated model scenarios. The identity-bearing workbook was excluded.
 
 The FPS cross-broadcast final compact workflow is documented at `projects/valorant-fps-cross-broadcast/`, with the event-table SQL, tier success-rate query, and anonymized validation baseline. Event-level streamer details were not migrated; success rates are descriptive event statistics, not causal effects.
 
@@ -53,7 +55,7 @@ The single-streamer Huya-affiliated Douyin co-streaming case is documented in de
 
 | Priority candidate | Current size and latest modification | Review focus |
 | --- | --- | --- |
-| 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | The 5937, OB co-streaming, and HuShi/HuXiao ACU-threshold subprojects are documented separately; Big Pot, anti-fraud, and other subprojects still need review |
+| 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | The 5937, OB co-streaming, HuShi/HuXiao ACU-threshold, and Big Pot scenario subprojects are documented separately; anti-fraud, non-Douyin discovery, and others still need review |
 | FPS主播清洗_20261023 | 76 files; latest 2026-10-23; 6 Excel, 28 CSV, 6 NDJSON | Select estimate outputs and scripts; distinguish detailed data from inspection artifacts |
 | 周报监控模型 | 55 files; latest 2026-10-23; 8 SQL, 1 Python, 25 Excel, 21 CSV; largest workbook about 289 MB | Identify templates, data, and reusable monitoring logic; do not push the largest workbook wholesale |
 | AI工坊专题 | 403 files; latest 2026-09-24; includes Python, Excel, CSV, TSV, and PKL | Data-heavy; first identify core project notes, scripts, and aggregate outputs |
@@ -67,7 +69,7 @@ The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workb
 
 ## Remaining Work
 
-- Continue reviewing Big Pot, anti-fraud, non-Douyin streamer discovery, and other distinct subprojects under the Valorant share-growth folder, then move to other priority candidates.
+- Continue reviewing anti-fraud, non-Douyin streamer discovery, and other distinct subprojects under the Valorant share-growth folder, then move to other priority candidates.
 - Other projects in this inventory remain pending review, not archived. For each completed review, update this inventory and the root path map, inspect the full diff, and push the changes.
 - A raw ChatGPT export has not been archived. Confirm whether the company API account offers an account-level export; API work records may not be part of a ChatGPT web-account export.
 
