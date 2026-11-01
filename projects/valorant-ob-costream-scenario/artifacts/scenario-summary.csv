@@ -1,0 +1,11 @@
+metric,value,unit,scope_or_note
+candidate_streamers,9,streamers,Anonymized candidate set
+incremental_watch_time_per_event_day,33942960.13280489,viewer_minutes,Source workbook aggregate
+annual_large_event_days,125,days,Source workbook assumption
+annualized_incremental_watch_time,4242870016.6006117,viewer_minutes_per_year,Per-event-day increment multiplied by 125
+annualized_daily_incremental_watch_time,11785750.04611281,viewer_minutes_per_day,Annual total divided by 360
+five_platform_valorant_daily_watch_time_denominator,91858247.1648836,viewer_minutes_per_day,Valorant-category interval average; no zero-fill
+ratio_before_probability_adjustment,0.1283036679870196,ratio,Annualized daily increment divided by denominator
+success_probability_assumption,0.21,probability,Workbook note says 1 successful case out of 5
+ratio_after_probability_adjustment,0.026943770277274112,ratio,Pre-adjustment ratio multiplied by 0.21
+event_watch_time_delta_listed_but_unused,11.47,minutes,17.79 minus 6.32; not referenced by increment formula

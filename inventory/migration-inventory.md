@@ -39,7 +39,9 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 已完成复盘：`projects/valorant-5937-p50-live-time/` 与 `projects/fps-anchor-cleaning/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
 
-外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。OB 二路赛事节目化估算表含主播级明细和较复杂的假设，暂待进一步复核，不从其文件名直接形成份额结论。
+外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。
+
+OB 二路赛事节目化情景已整理至 `projects/valorant-ob-costream-scenario/`：仅保留公式链和匿名汇总。确认到 21% 成功概率与“5 次中 1 次成功”不一致，另有 11.47 分钟观时差值未进入增量公式；均作为模型限制明示，未将 2.6944% 解释为已实现或因果份额增长。原含主播明细工作簿未复制。
 
 FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归档建事件表 SQL、分层成功率查询和匿名校验基线。事件级主播明细未迁移；成功率仅作为描述性事件统计，不解释为因果效果。
 
