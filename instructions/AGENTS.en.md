@@ -145,6 +145,8 @@ Statistical outputs require three additional hard checks:
 
 Every failed gate must be fixed; a gate not run may not be described as verified. The complete process and delivery format are in `instructions/sql-validation-workflow.en.md`. For every high-risk scenario, state at least one expectation that can disprove the current implementation. If all checks only show that a result “looks plausible,” the validation design is insufficient. The rules below are the minimum requirements for grain, expansion, and retention.
 
+A formal SQL task may be marked complete only when it has a result contract, evidence for every triggered high-risk gate, independent recomputation, and final delivery reconciliation. Static reading, successful execution, or rerunning the CTE under test cannot replace independent validation. If a critical check cannot be executed, mark it `not run` and state which conclusion it affects.
+
 1. Before writing SQL, state the source grain, intermediate grains, final grain, and unique key. For retention, funnel, or multi-window metrics, also state the cohort grain, target-date mapping, and denominator definition.
 2. For every `union all`, pivot/unpivot, one-to-many join, or operation that may multiply rows, document the expected multiplier. After execution, compare row counts before and after expansion and check uniqueness under the expected key; successful SQL execution is not a validation.
 3. In a long-format retention result, never use `sum(flag)` over replicated rows as a common cohort denominator. Deduplicate to the cohort key first, or count the base on exactly one documented `retention_day`. D7/D14/D30 numerators may differ, but their denominator must come from the same cohort.

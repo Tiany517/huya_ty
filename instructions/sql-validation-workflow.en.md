@@ -2,6 +2,22 @@
 
 This workflow raises SQL from “it runs” to “its result can be shown to be correct.” It applies to extraction, aggregation, retention, funnels, event analysis, PSM/DID, exports, and reconciliation. These rules operate alongside `AGENTS.en.md`.
 
+## 0. One-Page Framework
+
+This is not a retention-only checklist. Every SQL query that can affect a business decision follows the same chain of proof; retention is simply one of the scenarios with the strictest requirements for a common cohort, time expansion, and denominator.
+
+| Stage | Question to answer | Required evidence | If it fails |
+| --- | --- | --- | --- |
+| 1. Result contract | What decision does the query support? What does one row represent, and what are the numerator and denominator? | Population, time, grain, unique key, numerator, denominator, joins, and expected row counts | Do not write the query |
+| 2. Data facts | Do the source fields, partitions, units, nulls, and coverage support the contract? | DDL, partitions, coverage, sample rows, uniqueness, and unit checks | Return to the business question and definitions |
+| 3. Risk profile | Where is this query most likely to be wrong? | Mandatory checks triggered by the scenario and at least one falsifiable expectation | Do not begin formal implementation |
+| 4. Implementation and static review | Are CTEs cohesive, and are filters and joins on the correct side? | SQL with grain comments, join cardinality, row-count changes, and boundary checks | Change the SQL |
+| 5. Independent proof | Does a separate path reproduce the critical values? | Independent recomputation, metric invariants, and 3-5 base-unit spot checks | Mark the gate failed and fix it |
+| 6. Delivery reconciliation | Do the query, stage tables, target table, export, and report describe the same result? | Reconciliation of rows, keys, headers, units, encoding, sample counts, and key values | Do not call it verified |
+| 7. Recurrence control | How will this failure trigger a check next time? | Regression SQL, minimal counterexample, related-query scope, and result | The retrospective is incomplete |
+
+Validation always considers nine dimensions: definition, population, grain, relationships, time, units, statistics, delivery, and reproducibility. The risk profile determines which dimensions need deeper evidence; it does not permit skipping definition, grain, independent recomputation, or delivery reconciliation merely because a query looks simple.
+
 ## 1. Define the Result Contract First
 
 Before writing SQL, state:
@@ -77,6 +93,8 @@ After writing the query, do not treat successful execution as the conclusion. Re
 10. Readability and reproducibility: use stable aliases, make material CTEs independently runnable with grain comments, and find implicit casts that can change semantics.
 
 Static review can reveal problems but cannot prove correctness. Every high-risk check still needs an executed result as evidence.
+
+The same mental model must not both implement the query and serve as its only proof. Independent recomputation must start as far as practical from base grain; copying the CTE under test into a second file is not independent. Where the environment permits, a high-risk formal query should be accepted by a separate executor or subagent that did not write the first draft. Regardless of who performs it, the evidence and conclusion belong in the same record.
 
 ### 3.3 Statistical Output and Label Review
 
@@ -206,6 +224,8 @@ A formal SQL delivery includes at least:
 
 SQL without validation evidence is a draft and may not be labeled “verified.”
 
+Definition of done for formal SQL: the result contract is complete; every triggered high-risk gate is `pass`; every unexecuted check states why it was not run and which conclusion it affects; and independent recomputation and delivery reconciliation have no differences. If any condition is unmet, the status is draft, pending verification, or failed, never complete.
+
 ## 7. Failure Pattern Review
 
 When an error occurs, fix more than the immediate SQL. Record:
@@ -219,5 +239,18 @@ When an error occurs, fix more than the immediate SQL. Record:
 Turn the repair into an executable check or minimal example, such as “every window has the same denominator by month after long-format expansion” or “fact-row count cannot change after joining a user dimension.” Adding “check carefully” to the instructions again is not a control; executable evidence is.
 
 When the same class of error recurs, investigate the upstream design: missing field dictionary, aggregation at the wrong grain, treating a join as one-to-one, reusing the same incorrect CTE as a so-called independent check, skipping independent recomputation, or failing to read back the export. Do not respond only by appending a longer prompt.
+
+### 7.1 Recorded Minimal Counterexample: Long-Format Retention Denominator
+
+One user-day cohort belongs to both the danmu and gift populations and is expanded into D7, D14, and D30 rows. The correct expectation is that every horizon's denominator counts that base unit once. Summing the expanded `sum(flag)` directly counts it three times. Only the `retention_day = 7` row can contribute to the D7 numerator, so the erroneous rate is approximately one third of the correct rate.
+
+The regression check must contain and execute at least the following:
+
+1. Build one base cohort unit; after expansion to three rows, every horizon denominator must still equal one.
+2. Map D7/D14/D30 explicitly to natural dates T+6/T+13/T+29 and confirm that each target partition exists.
+3. A numerator no larger than its denominator is only a necessary condition. Independently rebuild the denominator from the base cohort key and reconcile exactly by month, platform, category, and group.
+4. A check that merely shows “the retention rate is below 100%” cannot detect a uniformly multiplied denominator and is not a pass.
+
+This counterexample applies to every retention, funnel, reactivation, pre/post, and multi-period metric that expands one base unit into multiple window rows. When it recurs, inspect expansion order and common-base construction before changing the formula.
 
 Chinese documentation: `sql-validation-workflow.md`.
