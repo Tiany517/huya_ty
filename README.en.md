@@ -18,7 +18,9 @@ This repository hands reusable work materials over to a new computer: working ru
 | `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue |
 | `local-source-map.md` / `local-source-map.en.md` | Chinese / English local machine paths; kept locally and ignored by Git |
 
-These are repository-relative GitHub paths. For example, `instructions/AGENTS.md` maps to `https://github.com/<owner>/<repo>/blob/main/instructions/AGENTS.md`; directories map to `https://github.com/<owner>/<repo>/tree/main/<folder>`. Replace `<owner>/<repo>` with the confirmed private repository URL after it is created.
+GitHub repository: <https://github.com/Tiany517/huya_ty>
+
+These are repository-relative GitHub paths. For example, `instructions/AGENTS.md` maps to <https://github.com/Tiany517/huya_ty/blob/main/instructions/AGENTS.md>; directories map to `https://github.com/Tiany517/huya_ty/tree/main/<folder>`. Codex on the new computer can clone the repository and use this map to locate its contents.
 
 ## Inclusion Rules
 

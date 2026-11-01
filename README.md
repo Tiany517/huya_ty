@@ -18,7 +18,9 @@
 | `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单 |
 | `local-source-map.md` / `local-source-map.en.md` | 中文 / 英文本机路径映射，仅保存在本机并由 Git 忽略 |
 
-以上是 GitHub 仓库内的相对路径。例如，`instructions/AGENTS.md` 对应 `https://github.com/<owner>/<repo>/blob/main/instructions/AGENTS.md`；目录对应 `https://github.com/<owner>/<repo>/tree/main/<folder>`。仓库创建后把 `<owner>/<repo>` 替换成确认过的私有仓库地址。
+GitHub 仓库地址：<https://github.com/Tiany517/huya_ty>
+
+以上是 GitHub 仓库内的相对路径。例如，`instructions/AGENTS.md` 对应 <https://github.com/Tiany517/huya_ty/blob/main/instructions/AGENTS.md>；目录对应 `https://github.com/Tiany517/huya_ty/tree/main/<folder>`。新电脑上的 Codex 克隆仓库后，可按此地图定位内容。
 
 ## 纳入规则
 
