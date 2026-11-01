@@ -1,0 +1,12 @@
+metric,value,status,note
+scope,2026-09;r_category_in_Valorant_and_Valorant_Mobile,pass,Presto
+groups,4,pass,platform_x_category
+danmu_base_mismatch_groups,0,pass,expanded_vs_independent_user_day
+gift_base_mismatch_groups,0,pass,expanded_vs_independent_user_day
+expanded_danmu_base_sum,1779759,pass,equals_independent
+independent_danmu_base_sum,1779759,pass,equals_expanded
+expanded_gift_base_sum,22892,pass,equals_independent
+independent_gift_base_sum,22892,pass,equals_expanded
+invalid_danmu_rows,0,pass,numerator_leq_denominator
+invalid_gift_rows,0,pass,numerator_leq_denominator
+target_table_reconciliation,not_run,not_run,target_table_absent_on_2026-11-02

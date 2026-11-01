@@ -35,6 +35,14 @@
 4. **品类未知值**：站外把缺失品类保留为“未知品类”，没有丢弃或按主播主品类回填；使用结果前必须单独审查该分组。
 5. **日均指标不是完整自然日平均**：月内观时和日活用户只对存在的行求平均；没有来源数据的日期不会被自动补零。
 
+## 2026-11-02 复核记录
+
+- `zty_jingpin月度流水与7日留存_1029_v1.sql` 只有 D7 一个观察窗，没有 D7/D14/D30 长表重复展开；每个 base 用户日以内连接 `available_days` 限定到存在 T+6 的日期，分母直接在该结果上求和。静态逻辑未发现同类三倍分母缺陷。
+- `zty_jingpin_用户活动月度流水留存_调度版_1030_v1.sql` 在 `retention_target` 中展开三个观察日，但在 `retention_flags` 中按 `(base_dt, pcode, r_category, user_id)` 聚成宽表标志，再回连 base 用户日。D7/D14/D30 共用同一分母，静态逻辑与“同一用户日只计一次”一致。
+- 站外源表在 2026-09-01 至 2026-10-29 覆盖 59 天，2026-10-29 分区有 2,684,588 行。2026-09 独立重建的基数见 [`artifacts/external-retention-202609-base-denominators.csv`](artifacts/external-retention-202609-base-denominators.csv)。
+- 当前 Presto 中目标表 `zhgametemp.zty_jingpin_user_activity_monthly_summary_1030_v1` 不存在，因此无法完成“目标表 vs 独立分母”的数据级对账。通用目标表检查已保存为 [`verify-external-retention-denominators.sql`](verify-external-retention-denominators.sql)，状态为**未执行**；在目标表重建并通过对账前，不得把正式目标表写成已验证。
+- 另用 2026-09“无畏契约”和“无畏契约：源能行动”真实数据执行源侧逻辑校验，状态为**通过**：4 个平台×品类组合中，D7/D14/D30 宽表展开后的弹幕分母合计 1,779,759、打赏分母合计 22,892，分别与独立用户日基数完全一致，不一致组为 0；所有分子均不大于分母。SQL 和结果见 [`verify-external-retention-202609-logic.sql`](verify-external-retention-202609-logic.sql) 与 [`artifacts/external-retention-202609-logic-check.csv`](artifacts/external-retention-202609-logic-check.csv)。
+
 详细源文件、哈希和版本状态见 [`source-manifest.csv`](source-manifest.csv)。修复前应先对照现有产出确认分母重复问题的影响。
 
 虎牙星秀分母缺陷、替换 CTE、目标表验证查询及 2025-01 至 2026-10 匿名整体对比已单独整理在 [`remediation/`](remediation/README.md)。现存目标表尚未按修复版重跑；对比文件中的修正率是按存储分母除以 3 推断，不应替代正式刷新结果。

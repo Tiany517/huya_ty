@@ -1,0 +1,154 @@
+# SQL Construction and Validation Workflow
+
+This workflow raises SQL from “it runs” to “its result can be shown to be correct.” It applies to extraction, aggregation, retention, funnels, event analysis, PSM/DID, exports, and reconciliation. These rules operate alongside `AGENTS.en.md`.
+
+## 1. Define the Result Contract First
+
+Before writing SQL, state:
+
+| Item | Required definition |
+| --- | --- |
+| Business question | The decision the result supports, not merely “build a table” |
+| Population | Platform, category, streamer, user, region, eligibility rules |
+| Time definition | Source range, event window, observation window, actual available partitions |
+| Base grain | What one row represents: user-day, streamer-day, user-month, order, etc. |
+| Unique key | For example, `(dt, pcode, category, user_id)` |
+| Output grain | What one final row represents, for example `mth + pcode + category` |
+| Numerator | Exact event, filters, and unit |
+| Denominator | A base measured under the same definition, not merely “total” |
+| Grouping dimensions | Business splits and missing-value handling |
+| Expected scale | Maximum rows, key group counts, approximate denominator size |
+| Known limitations | Missing dictionary, permissions, coverage, unobservable factors |
+
+Do not start implementation while the result contract is incomplete.
+
+## 2. Understand Data and Join Cardinality
+
+1. Inspect source DDL, field meaning, partition format, units, nullability, enum values, and time coverage.
+2. Filter the fact table by partition and business conditions before joining small dimensions.
+3. Validate each join key for uniqueness on both sides; never assume a many-to-many relationship is one-to-one.
+4. Document every join as `1:1`, `N:1`, `1:N`, or `N:N`, including whether row count should change.
+5. Most errors occur when detail rows are multiplied before aggregation, deduplication, or ratio calculation. Settle aggregation versus expansion order first.
+
+## 3. SQL Construction
+
+1. Use CTEs with clear responsibilities: filtering, grain normalization, mapping, expansion, matching, and final aggregation.
+2. Each material CTE should state input grain, output grain, and whether row multiplication is allowed.
+3. Do not calculate business ratios directly on a multiplied detail grain. Produce numerator and denominator components that can be independently reproduced.
+4. Numerator and denominator must share the same business filters and cohort. When different windows share a denominator, state exactly which inputs are common.
+5. For long-format expansion, check the expected multiplier. For long-to-wide conversion, check final-key uniqueness.
+6. Define denominator-zero behavior explicitly: null, zero, or drop the group. Do not leave it to implicit behavior.
+
+## 4. Seven Validation Gates
+
+Every gate must have a query, result, and status: `pass`, `fail`, or `not run`. A failure must be fixed; “not run” must never be reported as “verified.”
+
+### 4.1 Data Availability
+
+- Latest available partition, requested end date, and missing dates.
+- Empty source tables, absent partitions, and tables that exist without the target date.
+- Completeness of event and target observation dates. Distinguish missing partitions from no behavior.
+
+### 4.2 Schema and Semantics
+
+- Field names, types, and units such as minute/hour, yuan/fen, and millisecond/second.
+- Enum values, empty strings, nulls, decimals, negatives, and duplicate events.
+- Stop before interpreting an unknown business field; do not invent a dictionary.
+
+### 4.3 Grain and Uniqueness
+
+- Base rows are unique under the declared key.
+- Final rows are unique under the declared output key.
+- Row counts before and after aggregation or deduplication match the contract.
+- IDs remain strings and do not lose leading zeroes or precision.
+
+### 4.4 Joins and Row Multiplication
+
+- For each join: left row count, right-key uniqueness, match rate, post-join row count, and maximum match count.
+- An `N:1` join should not change fact-row count; any change requires explanation.
+- `1:N`, `N:N`, and pivot/unpivot operations state expected multipliers and unique keys.
+- Risk metrics must rule out double-counted users or events.
+
+### 4.5 Metric Invariants
+
+- Counts are nonnegative and rates are in their valid ranges.
+- Numerator is no larger than denominator; parts do not exceed a total without an explicit overlapping definition.
+- Common denominators across D7/14/30, acquisition/reactivation, or pre/post windows satisfy stated consistency rules.
+- Overall totals reconcile with group totals; means can be reconstructed from numerator and denominator.
+- These are necessary checks, not proof that a denominator is correct.
+
+### 4.6 Independent Recomputation and Reconciliation
+
+- Recompute a key numerator, denominator, or total from base grain through an independent path and compare it exactly with the final result by group.
+- Minimize reuse of the CTE under test so the same error is not repeated twice.
+- Reconcile stage tables, target tables, and exported output on row counts, keys, metrics, and filters.
+- After repairing SQL, preserve the old result, corrected SQL, new result, and difference explanation. A repair is complete only after a successful rebuild and reconciliation.
+
+### 4.7 Boundaries, Sensitivity, and Business Spot Checks
+
+- Inspect minimum and maximum dates, small samples, small denominators, nulls, unknown groups, and extremes.
+- Test whether conclusions depend on arbitrary business thresholds.
+- Manually trace at least three to five base units from source through joins and aggregation. For retention, include at least one retained and one non-retained case.
+- Compare the result direction with business expectations. If it looks implausible, investigate definitions and code before rationalizing the output.
+
+## 5. Copyable Execution Record
+
+Before writing SQL, fill in the task note or delivery document:
+
+```text
+Business question:
+Population and time:
+Source tables and latest partitions:
+Base grain and unique key:
+Intermediate grains:
+Output grain and unique key:
+Numerator definition:
+Denominator definition:
+Join relationships and expected row-count changes:
+Known limitations:
+```
+
+After execution, fill in at least the following record. For evidence, cite a query ID, SQL file, result file, or key result; a bare “checked” is insufficient.
+
+| Validation gate | Check | Evidence | Status | Key figures or differences |
+| --- | --- | --- | --- | --- |
+| Data availability | Partitions, date coverage, empty tables |  | pass/fail/not run |  |
+| Schema and semantics | Fields, types, units, nulls |  | pass/fail/not run |  |
+| Grain and uniqueness | Row counts before/after, unique keys |  | pass/fail/not run |  |
+| Joins and multiplication | Cardinality, match rate, multiplier |  | pass/fail/not run |  |
+| Metric invariants | Numerator/denominator, ranges, totals |  | pass/fail/not run |  |
+| Independent recomputation | Independent reconciliation by group |  | pass/fail/not run |  |
+| Boundaries and spot checks | Date edges, small samples, manual cases |  | pass/fail/not run |  |
+
+Answer five questions before delivery:
+
+1. What does one final row represent, and does it still match the result contract?
+2. Did every join, expansion, or deduplication change the row count as expected?
+3. Was the denominator rebuilt independently from base grain rather than by reusing the logic under test?
+4. Was the output reconciled against the target table, stage tables, and exported file?
+5. Which checks were not run, and which conclusions does each affect?
+
+## 6. Delivery Format
+
+A formal SQL delivery includes at least:
+
+1. Executable SQL.
+2. Independent validation SQL or validation steps.
+3. Result contract and known limitations.
+4. Engine, time range, and output path actually used.
+5. Status and key numbers for each validation gate.
+6. Items that were not executed or could not be verified.
+
+SQL without validation evidence is a draft and may not be labeled “verified.”
+
+## 7. Failure Pattern Review
+
+When an error occurs, fix more than the immediate SQL. Record:
+
+1. Symptom and business impact.
+2. Root cause: requirement, definition, grain, join, expansion, window, type, permission, or implementation.
+3. Which validation gate should have caught it and why it did not fire.
+4. New rule, validation query, or test case added.
+5. Other SQL that may reuse the same failure pattern, including the reviewed scope.
+
+Chinese documentation: `sql-validation-workflow.md`.

@@ -112,6 +112,30 @@ PSM, DID, and PSM-DID SQL must retain:
 
 Keep SQL reproducible; do not return only a final aggregate while dropping key intermediate definitions.
 
+### 4.1 SQL Construction and Validation Workflow
+
+Every formal SQL task must first define a result contract, record a query, result, and `pass`/`fail`/`not run` status for each of the following seven gates, then complete the checks below:
+
+1. Data availability: partitions, time coverage, missing dates, empty target tables.
+2. Schema and semantics: fields, types, units, enums, nulls, and abnormal values.
+3. Grain and uniqueness: unique keys and row counts before and after aggregation at source, intermediate, and output grains.
+4. Joins and row multiplication: cardinality, match rate, multiplier, and duplicate-counting risk for every join.
+5. Metric invariants: numerator not greater than denominator, valid rate ranges, and agreement between totals and grouped totals.
+6. Independent recomputation and reconciliation: rebuild key values from base grain through an independent path and reconcile exactly by group with the final output.
+7. Boundaries and business spot checks: date boundaries, small samples, null/unknown groups, sensitivity, and manual end-to-end checks of at least 3 to 5 base units.
+
+Every failed gate must be fixed; a gate not run may not be described as verified. The complete process and delivery format are in `instructions/sql-validation-workflow.en.md`. The rules below are the minimum requirements for grain, expansion, and retention.
+
+1. Before writing SQL, state the source grain, intermediate grains, final grain, and unique key. For retention, funnel, or multi-window metrics, also state the cohort grain, target-date mapping, and denominator definition.
+2. For every `union all`, pivot/unpivot, one-to-many join, or operation that may multiply rows, document the expected multiplier. After execution, compare row counts before and after expansion and check uniqueness under the expected key; successful SQL execution is not a validation.
+3. In a long-format retention result, never use `sum(flag)` over replicated rows as a common cohort denominator. Deduplicate to the cohort key first, or count the base on exactly one documented `retention_day`. D7/D14/D30 numerators may differ, but their denominator must come from the same cohort.
+4. Recompute the denominator independently from the cohort base grain and reconcile it exactly with the final output by month, platform, category, and grouping. Checking only `numerator <= denominator` or `rate < 100%` is insufficient because an inflated or deflated denominator can still satisfy those checks.
+5. For retention and multi-window output, verify at minimum: every numerator is no larger than its denominator; denominators are identical across windows; rates are in the valid range; `(cohort_key, retention_day)` is unique after expansion; and target-partition coverage is confirmed.
+6. Distinguish “no behavior on the target date” from “the target partition does not exist.” Never silently treat a missing target partition as non-retention. Either exclude cohorts without a complete observation window or stop and report the missing partitions.
+7. For logic prone to long/wide-shape errors, include a counterexample check: construct one cohort and prove that expanding it into N window rows still contributes exactly one base unit to the denominator.
+8. If permissions, data size, or the environment prevent an independent validation run, label the result “validation not executed” and provide the validation SQL. Never describe a result as verified when only syntax or static reading was checked.
+9. When repairing SQL that previously populated a target table, retain the old-defect note, the corrected SQL, and an independent validation query. Mark the result “fixed” only after the target table has been rebuilt and reconciled with the corrected logic.
+
 ## 5. Python and Data Processing
 
 Prefer scripts under the current project’s `scripts/` directory or a user-specified location.
@@ -333,5 +357,8 @@ Before delivery, check:
 15. Do reference SQL, executed SQL, and export headers agree?
 16. For bigdata MCP downloads, are engine, actual extraction range, and output path stated?
 17. Were Chinese filenames, headers, and export encoding checked?
+18. Are source, intermediate, and output grains and unique keys stated, with row-count checks around `union all`, expansion, and many-to-many joins?
+19. For retention, funnels, and multi-window metrics, was the common denominator independently recomputed from base grain and reconciled exactly with the final output?
+20. Was missing target-partition coverage checked rather than silently counted as zero, and were unexecuted data checks labeled explicitly?
 
 Chinese version: `AGENTS.md`.

@@ -8,6 +8,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | --- | --- |
 | `README.md` / `README.en.md` | Chinese / English guide and new-computer bootstrap |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | Chinese / English data-analysis working rules; secret values go in an encrypted vault |
+| `instructions/sql-validation-workflow.md` / `.en.md` | General seven-gate SQL validation framework, result contract, delivery requirements, and failure review |
 | `skills/README.md`, `skills/<source>/<skill-name>/` | Skills archive guide and full snapshots by installation source |
 | `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
 | `sql/topics/retention-analytics/` | Retention SQL index, dependencies, definitions, versions, and known defects for external Douyu/Bilibili/Douyin and Huya Star Show danmu/gift behavior |
@@ -24,6 +25,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/valorant-5937-p50-live-time/`, `projects/fps-anchor-cleaning/` | 5937 P50 valid-month live-time estimate, and FPS streamer live-time cleaning and quantile review |
 | `projects/valorant-big-pot-share-scenario/` | Big Pot watch-time share scenarios, with anonymized aggregates and period, denominator, and coverage limitations |
 | `projects/valorant-anti-fraud-event-review/` | Anonymized anti-fraud ACU, watch-share, and first-stream windows, with event-universe limitations |
+| `projects/non-douyin-valorant-streamer-discovery/` | Non-Douyin Bilibili/Douyu/Kuaishou Valorant head candidates, monthly benchmarks, team-exclusion sensitivity, and anonymized results |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
 | `vault/env-files.aesgcm` | AES-256-GCM encrypted `.env` bundle; decryption key stored separately |
 | `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue |

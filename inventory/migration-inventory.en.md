@@ -12,6 +12,8 @@ Status: as of 2026-11-02, the migration repository has been committed and pushed
 
 The attachment matches the AGENTS content shared in this conversation. Compared with the Desktop version, it adds two rules; one contained a plaintext API credential and has been replaced in the migration copy with a secure-storage instruction.
 
+New SQL validation workflow: `instructions/sql-validation-workflow.en.md`. Every formal SQL task must define a result contract, then validate data availability; schema and semantics; grain and keys; join cardinality and row multiplication; metric invariants; independent recomputation and reconciliation; and boundaries and business spot checks. Failures must be fixed, and an unexecuted data check must never be labeled verified.
+
 ## SQL
 
 The SQL source contains 240 `.sql` files and 2 SQL-formatted `.txt` files, copied under their original names into `sql/source/`. It also contains 54 CSV files, 22 Excel files, and 25 Python scripts. One FPS project includes seven analysis scripts, and the HuShi/HuXiao ACU-threshold project includes one reusable script. Other result data, scripts, and `content_categories_full.txt` remain queued for project review. Review important results individually; detailed user-level Excel remains out under the original boundary.
@@ -39,7 +41,7 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 
 Counts, extensions, and modification dates for the candidates below come from filesystem metadata. The ten reviews listed above are complete; all other candidates have not been reviewed or copied yet.
 
-Reviewed and pushed projects: `projects/valorant-5937-p50-live-time/`, `projects/fps-anchor-cleaning/`, `projects/monthly-external-ecosystem-dau/`, `projects/valorant-fps-cross-broadcast/`, `projects/valorant-watchtime-contribution-knee/`, `projects/valorant-yuezi-event-costream/`, `projects/valorant-ob-costream-scenario/`, `projects/huya-douyin-valorant-acu-threshold/`, `projects/valorant-big-pot-share-scenario/`, and `projects/valorant-anti-fraud-event-review/`. The FPS project includes seven analysis scripts and an anonymized quantile summary CSV; streamer-level attachments were excluded. Its 2.6489% model ratio is documented as a source-workbook value with a category-scope mismatch, not as a share conclusion.
+Reviewed and pushed projects: `projects/valorant-5937-p50-live-time/`, `projects/fps-anchor-cleaning/`, `projects/monthly-external-ecosystem-dau/`, `projects/valorant-fps-cross-broadcast/`, `projects/valorant-watchtime-contribution-knee/`, `projects/valorant-yuezi-event-costream/`, `projects/valorant-ob-costream-scenario/`, `projects/huya-douyin-valorant-acu-threshold/`, `projects/valorant-big-pot-share-scenario/`, `projects/valorant-anti-fraud-event-review/`, and `projects/non-douyin-valorant-streamer-discovery/`. The FPS project includes seven analysis scripts and an anonymized quantile summary CSV; streamer-level attachments were excluded. Its 2.6489% model ratio is documented as a source-workbook value with a category-scope mismatch, not as a share conclusion.
 
 The external ecosystem DAU report is documented at `projects/monthly-external-ecosystem-dau/`: its SQL and anonymized monthly platform aggregates from 2025-07 through 2026-05-18 are retained. Two source workbooks containing streamer IDs, nicknames, contracts, or revenue were excluded.
 
@@ -51,6 +53,8 @@ The Big Pot watch-time share estimate is documented at `projects/valorant-big-po
 
 The anti-fraud review is documented at `projects/valorant-anti-fraud-event-review/`, with anonymized summaries for all events, first-stream 7/14/30-day windows, 30-day strata, and the workbook scenarios. The workbook has at least three inconsistent event universes; the 40% success threshold and target counts are assumptions. Streamer IDs, nicknames, and event-level details were excluded.
 
+The non-Douyin Valorant discovery review is documented at `projects/non-douyin-valorant-streamer-discovery/`: 519 Bilibili/Douyu/Kuaishou streamers cover January through September 2026, with 249 having September data. There are 34 ever-head candidates, 29 assessable candidates, and 11 final selections, all from Bilibili. The review retains four core selection scripts, de-identified summaries, and 64 monthly benchmark rows. The older tier workbook dropped one Bilibili head record and reported 16 head streamers instead of 17. The primary workbook, streamer names, IDs, and streamer-level detail were excluded.
+
 The FPS cross-broadcast final compact workflow is documented at `projects/valorant-fps-cross-broadcast/`, with the event-table SQL, tier success-rate query, and anonymized validation baseline. Event-level streamer details were not migrated; success rates are descriptive event statistics, not causal effects.
 
 The watch-time contribution knee review is documented at `projects/valorant-watchtime-contribution-knee/`, with actual-watch-time monthly knees, Top-N coverage, monthly 0.2% qualification aggregates, and core scripts. Raw/cleaned data, streamer-month shares, and workbooks with streamer identities were excluded; verify upstream field definitions before rerunning on the new computer.
@@ -59,7 +63,7 @@ The single-streamer Huya-affiliated Douyin co-streaming case is documented in de
 
 | Priority candidate | Current size and latest modification | Review focus |
 | --- | --- | --- |
-| 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | The 5937, OB co-streaming, HuShi/HuXiao ACU-threshold, Big Pot, and anti-fraud subprojects are documented separately; non-Douyin discovery and others still need review |
+| 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | The 5937, OB co-streaming, HuShi/HuXiao ACU-threshold, Big Pot, anti-fraud, and non-Douyin discovery subprojects are documented separately; remaining subprojects still need review |
 | FPS主播清洗_20261023 | 76 files; latest 2026-10-23; 6 Excel, 28 CSV, 6 NDJSON | Select estimate outputs and scripts; distinguish detailed data from inspection artifacts |
 | 周报监控模型 | 55 files; latest 2026-10-23; 8 SQL, 1 Python, 25 Excel, 21 CSV; largest workbook about 289 MB | Identify templates, data, and reusable monitoring logic; do not push the largest workbook wholesale |
 | AI工坊专题 | 403 files; latest 2026-09-24; includes Python, Excel, CSV, TSV, and PKL | Data-heavy; first identify core project notes, scripts, and aggregate outputs |
@@ -73,7 +77,7 @@ The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workb
 
 ## Remaining Work
 
-- Continue reviewing non-Douyin streamer discovery and other distinct subprojects under the Valorant share-growth folder, then move to other priority candidates.
+- Continue reviewing the remaining distinct subprojects under the Valorant share-growth folder, then move to other priority candidates.
 - Other projects in this inventory remain pending review, not archived. For each completed review, update this inventory and the root path map, inspect the full diff, and push the changes.
 - A raw ChatGPT export has not been archived. Confirm whether the company API account offers an account-level export; API work records may not be part of a ChatGPT web-account export.
 

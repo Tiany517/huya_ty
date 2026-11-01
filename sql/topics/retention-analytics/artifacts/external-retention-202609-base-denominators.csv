@@ -1,0 +1,5 @@
+mth,pcode,user_day_rows,danmu_base_user_cnt,gift_base_user_cnt,target_status,note
+2026-09,bilibili,31506204,30878734,627470,not_run,target_table_absent_on_2026-11-02
+2026-09,douyin,2680035,0,2680035,not_run,target_table_absent_on_2026-11-02;danmu_source_has_no_douyin_rows
+2026-09,douyu,14054748,9388662,862924,not_run,target_table_absent_on_2026-11-02
+2026-09,all,48240987,40267396,4170429,not_run,independent_source-side_reference_only

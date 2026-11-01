@@ -35,6 +35,14 @@ Three earlier scripts, [`站外主播用户日活动明细_日跑调度.sql`](..
 4. **Unknown category:** external missing categories remain in the explicit `未知品类` group. They are not discarded or backfilled from a streamer main category, and require separate review before interpretation.
 5. **Daily averages exclude absent rows:** monthly watch and daily active-user metrics average over rows that exist. Dates absent from the source are not automatically filled with zero.
 
+## Review Record: 2026-11-02
+
+- `zty_jingpin月度流水与7日留存_1029_v1.sql` has only one D7 observation window, so it does not repeat the D7/D14/D30 long-table expansion. Each base user-day is restricted to a T+6 date present in `available_days`, and the denominator is summed directly on that result. Static review found no equivalent triple-denominator defect.
+- `zty_jingpin_用户活动月度流水留存_调度版_1030_v1.sql` expands three target dates in `retention_target`, but `retention_flags` then aggregates them into wide flags by `(base_dt, pcode, r_category, user_id)` before joining back to base user-days. D7/D14/D30 therefore share one denominator, which is consistent with counting each base user-day once.
+- The external source covers all 59 dates from 2026-09-01 through 2026-10-29; the 2026-10-29 partition contains 2,684,588 rows. See [`artifacts/external-retention-202609-base-denominators.csv`](artifacts/external-retention-202609-base-denominators.csv) for the independently rebuilt September base counts.
+- The target table `zhgametemp.zty_jingpin_user_activity_monthly_summary_1030_v1` does not exist in Presto on 2026-11-02, so target-table reconciliation remains **not run**. The reusable check is [`verify-external-retention-denominators.sql`](verify-external-retention-denominators.sql).
+- A source-only logic check for September 2026 Valorant and Valorant Mobile is **passed**. Across four platform/category groups, D7/D14/D30 wide-state expansion produced 1,779,759 danmu base user-days and 22,892 gift base user-days, exactly matching the independent user-day rebuild with zero mismatched groups; no numerator exceeded its denominator. See [`verify-external-retention-202609-logic.sql`](verify-external-retention-202609-logic.sql) and [`artifacts/external-retention-202609-logic-check.csv`](artifacts/external-retention-202609-logic-check.csv).
+
 Source files, hashes, and version roles are listed in [`source-manifest.csv`](source-manifest.csv). Confirm the denominator impact against existing outputs before applying a fix.
 
 The Star Show denominator defect, replacement CTE, target-table validation queries, and anonymous 2025-01 through 2026-10 overall comparison are documented separately under [`remediation/`](remediation/README.en.md). The target table has not yet been refreshed with the corrected logic. Corrected rates in the comparison are inferred by dividing the stored base by three and do not replace a formal refresh.

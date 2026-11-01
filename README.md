@@ -8,6 +8,7 @@
 | --- | --- |
 | `README.md` / `README.en.md` | 中文 / 英文说明和新电脑启动步骤 |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | 中文 / 英文数据分析工作规则；秘密值放在加密保险包中 |
+| `instructions/sql-validation-workflow.md` / `.en.md` | 通用 SQL 七道验证闸门、结果契约、交付要求和失败复盘框架 |
 | `skills/README.md`、`skills/<source>/<skill-name>/` | Skills 归档说明及按安装来源保留的完整快照 |
 | `sql/README.md`、`sql/source/<file>` | SQL 归档说明和来自现有目录的原名脚本；后续可按主题建立索引 |
 | `sql/topics/retention-analytics/` | 站外斗鱼/B站/抖音及虎牙星秀的弹幕、打赏留存 SQL 索引、依赖、口径、版本和已知缺陷 |
@@ -24,6 +25,7 @@
 | `projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/` | 5937 P50 有效月主播时长测算，以及 FPS 主播时长清洗与分位复盘 |
 | `projects/valorant-big-pot-share-scenario/` | 大锅饭观时份额情景估算；含双情景匿名汇总及样本期、分母和覆盖范围限制 |
 | `projects/valorant-anti-fraud-event-review/` | 反炸鱼主播 ACU、观时份额与首播窗口的匿名分层结果；含多套事件口径限制 |
+| `projects/non-douyin-valorant-streamer-discovery/` | 非抖 B 站/斗鱼/快手无畏主播头部候选、月度基准、战队剔除情景及匿名筛选结果 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `vault/env-files.aesgcm` | AES-256-GCM 加密的 `.env` 文件包；解密密钥单独保存 |
 | `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单 |
