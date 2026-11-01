@@ -116,7 +116,7 @@ Keep SQL reproducible; do not return only a final aggregate while dropping key i
 
 Every formal SQL task must follow this fixed loop. “The SQL ran,” “I reviewed it,” and “the rate is below 100%” are not validation.
 
-1. Define the result contract first: business question, population, time, source/intermediate/output deduplication grains, unique keys, numerator, denominator, join relationships, and expected row-count changes.
+1. Define the result contract first: business question, claim type (descriptive/correlational/causal), population, time, input snapshot, source/intermediate/output deduplication grains, unique keys, numerator, denominator, join relationships, and expected row-count changes.
 2. Inspect data facts next: field dictionary, partitions, date coverage, units, nulls, enums, and a small sample. Stop and revisit the definition if expected scale or key uniqueness does not hold.
 3. Write the risk profile and falsifiable expectations before implementation: identify the most likely failure mode and the evidence that could disprove the planned implementation.
 4. Implement the SQL: state input grain, output grain, filters, and whether multiplication is allowed on material CTEs; build numerator, denominator, and common cohorts separately.
@@ -145,7 +145,9 @@ Statistical outputs require three additional hard checks:
 
 Every failed gate must be fixed; a gate not run may not be described as verified. The complete process and delivery format are in `instructions/sql-validation-workflow.en.md`. For every high-risk scenario, state at least one expectation that can disprove the current implementation. If all checks only show that a result “looks plausible,” the validation design is insufficient. The rules below are the minimum requirements for grain, expansion, and retention.
 
-A formal SQL task may be marked complete only when it has a result contract, evidence for every triggered high-risk gate, independent recomputation, and final delivery reconciliation. Static reading, successful execution, or rerunning the CTE under test cannot replace independent validation. If a critical check cannot be executed, mark it `not run` and state which conclusion it affects.
+A formal SQL task may be marked complete only when it has a result contract, evidence for every triggered high-risk gate, independent recomputation, and final delivery reconciliation. Formal SQL means a query that feeds a target table, export, report, or business decision; formal does not imply that it must run for hours, but it does require reviewable evidence. Static reading, successful execution, or rerunning the CTE under test cannot replace independent validation. If a critical check cannot be executed, mark it `not run` and state which conclusion it affects.
+
+Every formal SQL task must retain a completed validation record based on `instructions/templates/sql-validation-record.en.md` in the project directory. It records the result contract, risk profile, validation evidence, actual run scope, and final status. Without a validation record, the status may only be `draft` or `pending validation`. Lightweight exploratory queries may omit a standalone record, but their output may not support a formal business conclusion.
 
 1. Before writing SQL, state the source grain, intermediate grains, final grain, and unique key. For retention, funnel, or multi-window metrics, also state the cohort grain, target-date mapping, and denominator definition.
 2. For every `union all`, pivot/unpivot, one-to-many join, or operation that may multiply rows, document the expected multiplier. After execution, compare row counts before and after expansion and check uniqueness under the expected key; successful SQL execution is not a validation.

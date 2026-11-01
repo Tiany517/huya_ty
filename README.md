@@ -9,6 +9,7 @@
 | `README.md` / `README.en.md` | 中文 / 英文说明和新电脑启动步骤 |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | 中文 / 英文数据分析工作规则；秘密值放在加密保险包中 |
 | `instructions/sql-validation-workflow.md` / `.en.md` | 通用 SQL 七阶段证明链、静态审查、风险画像、九类校验维度、交付对账和复发控制框架 |
+| `instructions/templates/sql-validation-record.md` / `.en.md` | 每份正式 SQL 必须填写的双语验收卡；记录结果契约、风险画像、八类闸门证据、独立复算、交付对账和完成状态 |
 | `skills/README.md`、`skills/<source>/<skill-name>/` | Skills 归档说明及按安装来源保留的完整快照 |
 | `sql/README.md`、`sql/source/<file>` | SQL 归档说明和来自现有目录的原名脚本；后续可按主题建立索引 |
 | `sql/topics/retention-analytics/` | 站外斗鱼/B站/抖音及虎牙星秀的弹幕、打赏留存 SQL 索引、依赖、口径、版本和已知缺陷 |

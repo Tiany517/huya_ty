@@ -25,8 +25,10 @@ Before writing SQL, state:
 | Item | Required definition |
 | --- | --- |
 | Business question | The decision the result supports, not merely “build a table” |
+| Claim type | Descriptive, correlational, or causal; causal claims must also state the design, identification assumptions, and counterfactual |
 | Population | Platform, category, streamer, user, region, eligibility rules |
 | Time definition | Source range, event window, observation window, actual available partitions |
+| Input snapshot | Tables, latest partition, access time, source-file version or hash, and inputs allowed to change during the run |
 | Base grain | What one row represents: user-day, streamer-day, user-month, order, etc. |
 | Unique key | For example, `(dt, pcode, category, user_id)` |
 | Output grain | What one final row represents, for example `mth + pcode + category` |

@@ -9,6 +9,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `README.md` / `README.en.md` | Chinese / English guide and new-computer bootstrap |
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | Chinese / English data-analysis working rules; secret values go in an encrypted vault |
 | `instructions/sql-validation-workflow.md` / `.en.md` | General seven-stage SQL proof chain, static review, risk profile, nine validation dimensions, delivery reconciliation, and recurrence controls |
+| `instructions/templates/sql-validation-record.md` / `.en.md` | Bilingual delivery card required for every formal SQL task; records the contract, risk profile, eight-gate evidence, independent recomputation, delivery reconciliation, and completion status |
 | `skills/README.md`, `skills/<source>/<skill-name>/` | Skills archive guide and full snapshots by installation source |
 | `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
 | `sql/topics/retention-analytics/` | Retention SQL index, dependencies, definitions, versions, and known defects for external Douyu/Bilibili/Douyin and Huya Star Show danmu/gift behavior |
