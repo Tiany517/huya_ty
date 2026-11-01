@@ -1,0 +1,5 @@
+stratum,acu_range,anchor_count,up_anchor_count,up_anchor_rate,mean_share_change,median_share_change,mean_acu_change
+head,>=2000,3,2,0.6666666667,0.854669,0.314971,0.258534
+waist,100-2000,49,20,0.4081632653,-0.000764,-0.008608,0.315015
+tail,<100,342,156,0.4561403509,0.000825,-0.000205,0.305019
+overall,all,394,178,0.4517766497,0.007129,-0.000246,0.305908

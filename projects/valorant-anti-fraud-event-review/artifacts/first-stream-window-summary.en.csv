@@ -1,0 +1,4 @@
+valid_days_before_and_after,evaluable_anchor_count,mean_acu_growth,reached_40pct_growth_count,success_rate
+7,1132,0.2988464384,200,0.1766784452
+14,685,0.3070314734,109,0.1591240876
+30,394,0.2357757253,69,0.1751269036

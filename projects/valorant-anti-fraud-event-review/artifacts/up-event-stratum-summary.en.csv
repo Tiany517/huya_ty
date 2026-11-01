@@ -1,0 +1,5 @@
+stratum,anchor_count,comparable_anchor_count,up_event_count,up_event_rate,mean_share_increase_up,median_share_increase_up,mean_acu_increase_up_pct
+head,3,3,12,0.5714,0.4353,0.2513,0.2147
+waist,49,48,230,0.5145,0.1158,0.0372,0.2184
+tail,342,337,750,0.5013,0.0164,0.0050,0.5578
+overall,394,388,992,0.5051,0.0445,0.0084,0.4750
