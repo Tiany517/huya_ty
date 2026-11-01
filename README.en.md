@@ -10,7 +10,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `instructions/AGENTS.md` / `instructions/AGENTS.en.md` | Chinese / English data-analysis working rules; secret values go in an encrypted vault |
 | `skills/README.md`, `skills/<source>/<skill-name>/` | Skills archive guide and full snapshots by installation source |
 | `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
-| `projects/<project-slug>/README.md` / `README.en.md` | Project purpose, scope, metric definitions, findings, limitations, and sources |
+| `projects/<project-slug>/README.md` / `README.en.md` | Project purpose, scope, metric definitions, findings, limitations, and sources; first reviewed example: `projects/valorant-5937-p50-live-time/` |
 | `projects/<project-slug>/scripts/` | Reproducible project scripts |
 | `projects/<project-slug>/artifacts/` | Important result files that support understanding or continuing the project |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |

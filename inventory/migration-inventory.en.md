@@ -35,7 +35,9 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 
 ### First-Pass File Inventory (Metadata Only)
 
-Counts, extensions, and modification dates below come from filesystem metadata. Project contents have not been read, and no project files have been copied.
+Counts, extensions, and modification dates for the candidates below come from filesystem metadata. Except for the first reviewed subproject, the other candidates have not been reviewed or copied.
+
+The first reviewed subproject is documented at `projects/valorant-5937-p50-live-time/README.en.md`. It contains anonymous aggregate definitions and values only; streamer-level attachments were excluded.
 
 | Priority candidate | Current size and latest modification | Review focus |
 | --- | --- | --- |
