@@ -16,6 +16,8 @@
 
 当前 SQL 来源有 240 个 `.sql` 和 2 个 SQL 格式 `.txt`，已原名复制到 `sql/source/`。另外有 54 个 CSV、22 个 Excel 和 25 个 Python 脚本；其中 1 个 FPS 项目纳入 7 个分析脚本，虎视虎啸 ACU 阈值项目纳入 1 个复用脚本。其余结果数据、脚本及 `content_categories_full.txt` 仍待按项目复盘决定是否纳入。重要结果文件逐项审核；详细用户级 Excel 暂按原边界不纳入。
 
+已建立高优先级留存主题索引 `sql/topics/retention-analytics/`。站外推荐链路为 `zty_jingpin_user_activity_di_日跑调度.sql` 到 `zty_jingpin_用户活动月度流水留存_调度版_1030_v1.sql`，覆盖斗鱼、B站、抖音；虎牙当前脚本聚焦星秀，输出整体和子类。D7/D14/D30 均为 T+6/T+13/T+29 自然日。已标注虎牙脚本把 D7/D14/D30 三行共同 cohort 分母重复计数三次、目标分区缺失会静默计零，以及抖音弹幕源覆盖不确定等风险。
+
 ## Skills
 
 Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。已按来源复制 1,182 个源文件；仓库跟踪 1,088 个 skill 文件，保留同名副本及引用资源。另有 94 个被源 `.gitignore` 排除的文件未推送，其中 `douyin-playwright` 有 Excel、脚本、图片和临时 JSON，可能属于项目结果，待复盘决定是否纳入项目目录。常见密钥格式扫描未命中；测试 token 和环境变量示例保留原样。

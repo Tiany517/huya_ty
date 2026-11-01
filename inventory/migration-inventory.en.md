@@ -16,6 +16,8 @@ The attachment matches the AGENTS content shared in this conversation. Compared 
 
 The SQL source contains 240 `.sql` files and 2 SQL-formatted `.txt` files, copied under their original names into `sql/source/`. It also contains 54 CSV files, 22 Excel files, and 25 Python scripts. One FPS project includes seven analysis scripts, and the HuShi/HuXiao ACU-threshold project includes one reusable script. Other result data, scripts, and `content_categories_full.txt` remain queued for project review. Review important results individually; detailed user-level Excel remains out under the original boundary.
 
+The high-priority retention index is at `sql/topics/retention-analytics/`. The recommended external pipeline runs `zty_jingpin_user_activity_di_日跑调度.sql` into `zty_jingpin_用户活动月度流水留存_调度版_1030_v1.sql`, covering Douyu, Bilibili, and Douyin; the current Huya script covers Star Show totals and subcategories. D7/D14/D30 mean natural dates T+6/T+13/T+29. The index documents three material risks: the Huya common-cohort denominator is counted three times, missing target partitions silently become zero retention, and Douyin danmu-source coverage is uncertain.
+
 ## Skills
 
 There are 155 skill folders across Codex, Claude, and shared-agent configuration roots. A total of 1,182 source files were copied by source; 1,088 skill files are tracked in the repository, retaining same-named copies and references. Another 94 files ignored by source `.gitignore` files were not pushed. The `douyin-playwright` folder has Excel files, scripts, images, and temporary JSON that may be project results; review whether to include them under a project directory. Common credential formats were not found; test tokens and environment-variable examples remain unchanged.
