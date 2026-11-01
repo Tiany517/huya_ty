@@ -1,0 +1,5 @@
+﻿user_group,cluster_name,cluster_users,within_group_share_pct,cluster_sample_users,average_age,male_share_pct,average_wealth_score,average_device_price,top_app_level_1,top_game_preference
+,华为视频3号派,22609,45.22,50000,33.53,98.42,0.999,3653.8,视频,游戏周边
+,IPHONE视频派,6076,12.15,50000,31.52,88.74,1.148,7787.3,音乐,竞技
+,华为视频派,15870,31.74,50000,29.55,99.94,2.849,3534.5,音乐,竞技
+,华为未知派,5445,10.89,50000,31.54,0.0,1.581,3448.3,音乐,竞技

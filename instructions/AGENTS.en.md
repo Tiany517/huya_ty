@@ -143,6 +143,12 @@ Statistical outputs require three additional hard checks:
 2. For PSM/DID/PSM-DID, reconcile treatment and control definitions, pre/post-match counts, pairing method, match rate, maximum SMD, pre/post windows, parallel-trend evidence, DID, p-values, and confidence intervals. Balance does not replace identification assumptions, and `SMD < 0.1` never means the difference was entirely caused by treatment.
 3. Reconcile report, XLSX, CSV, stage tables, and script output. A mismatch in sample count, metric name, effect, p-value, unit, or label prevents the result set from being labeled verified.
 
+Profile, TGI, segmentation, clustering, and general aggregate-share outputs require three more hard checks:
+
+1. Within each dimension, category counts must return to a fixed cohort denominator and each group's shares must close to 100%. State the sample size and sampling key for every sampled result; never present a cluster share from a 50,000-user sample as a population share.
+2. Recompute cluster shares as cluster count / actual cluster sample size. Check cluster totals, share totals, unique keys, and duplicate identifiers. Disclose low silhouette scores and high unknown shares, and never treat a cluster nickname as a stable population definition.
+3. Reconcile report totals, dimension shares, cluster counts, and sample sizes against aggregate and label tables. If retained SQL cannot generate the retained CSV, or a historical processing file cannot reproduce the report clustering, mark the result `unreconciled/pending validation`; opening a file is not reproduction.
+
 Every failed gate must be fixed; a gate not run may not be described as verified. The complete process and delivery format are in `instructions/sql-validation-workflow.en.md`. For every high-risk scenario, state at least one expectation that can disprove the current implementation. If all checks only show that a result “looks plausible,” the validation design is insufficient. The rules below are the minimum requirements for grain, expansion, and retention.
 
 A formal SQL task may be marked complete only when it has a result contract, evidence for every triggered high-risk gate, independent recomputation, and final delivery reconciliation. Formal SQL means a query that feeds a target table, export, report, or business decision; formal does not imply that it must run for hours, but it does require reviewable evidence. Static reading, successful execution, or rerunning the CTE under test cannot replace independent validation. If a critical check cannot be executed, mark it `not run` and state which conclusion it affects.
@@ -387,5 +393,6 @@ Before delivery, check:
 21. Were filter placement, null-versus-zero semantics, closed time boundaries, window frames, `union all` column order, and hardcoded dates reviewed?
 22. Were the execution engine, runtime or material performance risk, output paths, stage/target/export reconciliation, and the impact of failed or unrun checks recorded?
 23. Were significance labels generated programmatically from p-values, effect direction, and one threshold, then reconciled across report, XLSX, CSV, and script output? For PSM/DID, were pre/post-match counts, pairing method, maximum SMD, parallel-trend status, and unrun checks retained?
+24. For profiles, TGI, clustering, or general aggregate shares, were fixed denominators, within-dimension share closure, sample size, unique keys, cluster shares, report totals, and the reproducibility relationship between SQL and CSV checked?
 
 Chinese version: `AGENTS.md`.

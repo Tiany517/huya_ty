@@ -75,6 +75,7 @@ Do not apply one generic checklist with equal weight to every query. Before impl
 | `union all` or expansion | Source grain, output grain, expected multiplier | Rows per branch, unique keys, multiplier before/after expansion |
 | PSM, DID, or PSM-DID | Eligibility, treatment time, matching features, pairing method, pre/post windows, and identification assumptions | Counts before/after matching, match rate, maximum SMD, parallel-trend evidence, DID/p-values/confidence intervals, and report-to-result reconciliation; list unverified items separately |
 | Significance labels and statistical conclusions | p-value threshold, effect direction, test type, wording, and units | Generate labels from one result object; check p-value, DID sign, stars, significant/not-significant text, percentages, and percentage points together |
+| Profiles, TGI, clustering, or sampling | Fixed cohort denominator, sampling key, actual cluster sample size, unique identifiers, silhouette score, and unknown group | Within-dimension count and share closure, cluster shares recomputed from the actual sample, duplicate-identifier and count-total checks, and SQL/CSV/report count reconciliation |
 | Excel or CSV export | Field names, row count, encoding, ID type, sample count, and labels | Multi-way reconciliation across report, XLSX, CSV, script output, and query result; read-back checks for Chinese text, long IDs, and units |
 
 Retain the risk profile and result contract in the execution record. If a matched scenario lacks evidence, its status is `not run`, never `verified`.

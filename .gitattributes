@@ -1,2 +1,5 @@
 # Exported CSV snapshots retain source-cell spacing; CSV validation is executable in project scripts.
 *.csv -whitespace
+
+# Archived SQL snapshots must remain byte-identical to their source for hash validation.
+projects/user-profile-analysis/sql/*.sql -whitespace

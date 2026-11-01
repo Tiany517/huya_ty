@@ -41,7 +41,7 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 以下候选项目的数量、扩展名和修改时间来自文件系统元数据；除下方列出的已完成项目外，其他候选尚未复盘或复制项目文件。
 
-已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/weekly-ecosystem-monitoring/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`、`projects/external-streamer-reverse-poaching/`、`projects/kuaishou-honor-of-kings-reverse-poaching/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
+已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/weekly-ecosystem-monitoring/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`、`projects/external-streamer-reverse-poaching/`、`projects/kuaishou-honor-of-kings-reverse-poaching/`、`projects/user-profile-analysis/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
 
 外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。
 
@@ -67,6 +67,8 @@ OB 二路赛事节目化情景已整理至 `projects/valorant-ob-costream-scenar
 
 快手《王者荣耀》反挖筛选已整理至 `projects/kuaishou-honor-of-kings-reverse-poaching/`：V1 原始 CSV 有 453,551 行、327,768 个主播，V2 有 579,868 行、402,290 个主播；V2 新增主要来自 2026-04，5–8 月共同月份指标一致。6 个工作簿候选数为 `53/43/15/15/15/8`。旧版 43 人文件名声称连续下降，但独立重算显示其精确等于“ACU>100 + 相邻开播比例>=80%”，只有 15 人真正下降；V2 最终 15 人规则和四个月 50% 情景 8 人均精确复现。保留匿名月度画像、虎牙腰部对照、源哈希和 26 项校验；原始 CSV、含主播 ID/昵称/owner 的工作簿和逐人预测未上传。
 
+用户画像 TGI 与聚类已整理至 `projects/user-profile-analysis/`：归档设备三组两两 TGI、斯诺克拉新、世锦赛观看、10 分钟以上观看、设备/观看用户匿名聚类、价格分层、3 份源 SQL、4 份历史报告和 49 项校验。7 份 TGI 表均从固定分母独立复算，最大占比闭合误差和 TGI 算术误差均为 0.05；旧设备报告 12 个聚类均显示 100.0%，已重新计算。源 SQL 另确认 Android 产品枚举拼写、两窗口不等、未定义 CTE、全期求和冒充单日和重复分组标签等缺陷；`watch_duration` 单位仍标为未执行。用户级 CSV、含 `user_ukey` 的 XLSX、132 张重复生成图均未上传，斯诺克 1,086 行处理样本与 1,072 人报告聚类不可勾稽已单列。
+
 FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归档建事件表 SQL、分层成功率查询和匿名校验基线。事件级主播明细未迁移；成功率仅作为描述性事件统计，不解释为因果效果。
 
 观时贡献率拐点已复盘至 `projects/valorant-watchtime-contribution-knee/`：纳入实际观时月度拐点、Top-N 覆盖和逐月 0.2% 达标汇总及核心脚本。原始/清洗数据、逐主播月度贡献率和带主播信息的 Excel 未迁移；上游字段口径尚需在新电脑重跑前核对。
@@ -82,7 +84,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 | 不朽杯弹窗PSM实验 | 已完成核心项目复盘 | 已迁移至 `projects/buxiucup-popup-psm/`；三套最终报告、匿名结果、核心脚本/SQL 和校验已归档；用户级源数据与历史迭代未上传 |
 | 反挖 | 已完成核心项目复盘 | 已迁移至 `projects/external-streamer-reverse-poaching/`；保留纯计算脚本、匿名汇总和校验，原始明细、培训视频/RAR、checkpoint、缓存及凭据未上传；`报警邮件` 留作独立项目审查 |
 | 快手王者荣耀主播反挖数据 | 已完成项目复盘 | 已迁移至 `projects/kuaishou-honor-of-kings-reverse-poaching/`；保留规则、匿名统计、脚本和 26 项校验，原始 CSV 与 6 个身份/逐人工作簿未上传 |
-| 用户画像分析 | 151 个文件；最近修改 2026-05-29；含 3 个 SQL、10 个 CSV；其中一个 CSV 约 36 MB | SQL 和结论材料可优先评估，用户画像明细 CSV 暂不纳入 |
+| 用户画像分析 | 已完成核心项目复盘 | 已迁移至 `projects/user-profile-analysis/`；保留匿名 TGI/聚类附件、3 份 SQL、4 份报告和 49 项校验；用户级 CSV/XLSX 与重复生成图未上传 |
 | 月报_虎牙外部生态DAU | 3 个文件：1 个 SQL、2 个模板工作簿 | 体量小，可优先复核是否纳入模板 |
 | Documents/ChatGPT/异动归因 | 12 个 Python 脚本及输出；含汇总表和带“明细”字样的工作簿；Git 工作区没有提交历史 | 可复盘近期视频号 DAU 归因；逐一确认哪些结果表为汇总、哪些为明细 |
 

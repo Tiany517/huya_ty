@@ -55,6 +55,7 @@ Mark the result `verified` only when every triggered high-risk gate passes and b
 | Deduplication, ordering, or latest record |  |  | Tie keys, row counts before and after |  |
 | `union all`, reshape, or expansion |  |  | Expected multiplier, unique key |  |
 | PSM, DID, or PSM-DID |  |  | Sample, matching, balance, parallel trends, effect, and units |  |
+| Profiles, TGI, clustering, or sampling |  |  | Fixed denominator, share closure, sampling key, actual cluster sample, unique identifiers, silhouette score, and report-count reconciliation |  |
 | Reports, XLSX, CSV, or charts |  |  | Headers, rows, encoding, ID types, values, and labels |  |
 
 For each scenario not triggered, write `not applicable` and give the reason. A query looking simple is not a risk assessment.

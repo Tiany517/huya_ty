@@ -1,0 +1,108 @@
+{
+  "project": "user-profile-analysis",
+  "tgi_tables": [
+    {
+      "source": "苹果安卓鸿蒙用户用户画像\\tgi_all_pairs.csv",
+      "repository_path_cn": "projects/user-profile-analysis/tgi/device-all-pairs.csv",
+      "repository_path_en": "projects/user-profile-analysis/tgi/device-all-pairs.en.csv",
+      "rows": 578,
+      "columns": 10,
+      "sha256": "d4fc0f3e0e550e37fc288d0a42d369b833d63f3b44df2ac3ee564153736a2ceb"
+    },
+    {
+      "source": "苹果安卓鸿蒙用户用户画像\\tgi_hm_vs_pg.csv",
+      "repository_path_cn": "projects/user-profile-analysis/tgi/device-harmony-vs-ios.csv",
+      "repository_path_en": "projects/user-profile-analysis/tgi/device-harmony-vs-ios.en.csv",
+      "rows": 190,
+      "columns": 8,
+      "sha256": "c2f29b46d979437ac9547540fe37d68b25c7a0050bef19d12687edb4917a6b96"
+    },
+    {
+      "source": "苹果安卓鸿蒙用户用户画像\\tgi_hm_vs_az.csv",
+      "repository_path_cn": "projects/user-profile-analysis/tgi/device-harmony-vs-android.csv",
+      "repository_path_en": "projects/user-profile-analysis/tgi/device-harmony-vs-android.en.csv",
+      "rows": 195,
+      "columns": 8,
+      "sha256": "ce8e25a3b5c22a0019d52ac19d5f9b982ea485c57a49358e9c470bd03ac94a2e"
+    },
+    {
+      "source": "苹果安卓鸿蒙用户用户画像\\tgi_az_vs_pg.csv",
+      "repository_path_cn": "projects/user-profile-analysis/tgi/device-android-vs-ios.csv",
+      "repository_path_en": "projects/user-profile-analysis/tgi/device-android-vs-ios.en.csv",
+      "rows": 193,
+      "columns": 8,
+      "sha256": "30d0dbf87dee76b4bc60d027c77ffe2944923700e51aa6e89308940cdf4682bf"
+    },
+    {
+      "source": "snooker_tgi_analysis_v2\\tgi_full.csv",
+      "repository_path_cn": "projects/user-profile-analysis/tgi/snooker-watchers-v2.csv",
+      "repository_path_en": "projects/user-profile-analysis/tgi/snooker-watchers-v2.en.csv",
+      "rows": 151,
+      "columns": 7,
+      "sha256": "8ec5fc731aa3c64de5fb4e211729bac925ea44a257f007cee53043168b7fa970"
+    },
+    {
+      "source": "世锦赛观看用户画像分析\\tgi_full.csv",
+      "repository_path_cn": "projects/user-profile-analysis/tgi/world-championship-watchers.csv",
+      "repository_path_en": "projects/user-profile-analysis/tgi/world-championship-watchers.en.csv",
+      "rows": 257,
+      "columns": 7,
+      "sha256": "be3b1ff117149fac01e628bf27fecbd94f8fc2ef97a894c3c2b4c19f73b4e143"
+    },
+    {
+      "source": "wc_10min_user_profile_analysis\\tgi_full.csv",
+      "repository_path_cn": "projects/user-profile-analysis/tgi/world-championship-viewers-10min.csv",
+      "repository_path_en": "projects/user-profile-analysis/tgi/world-championship-viewers-10min.en.csv",
+      "rows": 255,
+      "columns": 7,
+      "sha256": "51d863a0e1b89520e0f791d30a6479181029628dad54667760ce76554bbdde24"
+    }
+  ],
+  "cohorts": {
+    "device": {
+      "harmony": 172312,
+      "android": 390718,
+      "ios": 145179
+    },
+    "snooker_watchers_v2": {
+      "target": 1072,
+      "control": 2676
+    },
+    "world_championship_watchers": {
+      "target": 208206,
+      "control": 366543
+    },
+    "world_championship_viewers_10min": {
+      "target": 192764,
+      "control": 395788
+    }
+  },
+  "device_samples": {
+    "鸿蒙": {
+      "rows": 50000,
+      "unique_users": 50000
+    },
+    "安卓": {
+      "rows": 50000,
+      "unique_users": 50000
+    },
+    "苹果": {
+      "rows": 50000,
+      "unique_users": 50000
+    }
+  },
+  "world_championship_10min_sample": {
+    "rows": 50000,
+    "unique_users": 50000
+  },
+  "snooker_processed": {
+    "rows": 1086,
+    "unique_identifiers": 1074,
+    "cluster_rows": 4
+  },
+  "privacy": {
+    "raw_user_identifier_values_exported": false,
+    "raw_user_level_rows_exported": false,
+    "aggregate_only": true
+  }
+}

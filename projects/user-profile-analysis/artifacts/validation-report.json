@@ -1,0 +1,258 @@
+{
+  "project": "user-profile-analysis",
+  "overall_status": "incomplete",
+  "summary": {
+    "checks": 49,
+    "passed": 41,
+    "known_issues": 7,
+    "not_run": 1,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "check": "TGI dimension denominators: tgi/device-all-pairs.csv",
+      "status": "pass",
+      "details": "Every dimension sums to three pairwise denominators: True"
+    },
+    {
+      "check": "TGI percentage closure: tgi/device-all-pairs.csv",
+      "status": "pass",
+      "details": "Maximum per-dimension 100% closure error is 0.0400 pp"
+    },
+    {
+      "check": "TGI arithmetic: tgi/device-all-pairs.csv",
+      "status": "pass",
+      "details": "Maximum rounded-percentage arithmetic difference is 0.0500"
+    },
+    {
+      "check": "TGI dimension denominators: tgi/device-harmony-vs-ios.csv",
+      "status": "pass",
+      "details": "Every dimension sums to 172,312/145,179: True"
+    },
+    {
+      "check": "TGI percentage closure: tgi/device-harmony-vs-ios.csv",
+      "status": "pass",
+      "details": "Maximum per-dimension 100% closure error is 0.0400 pp"
+    },
+    {
+      "check": "TGI arithmetic: tgi/device-harmony-vs-ios.csv",
+      "status": "pass",
+      "details": "Maximum rounded-percentage arithmetic difference is 0.0500"
+    },
+    {
+      "check": "TGI dimension denominators: tgi/device-harmony-vs-android.csv",
+      "status": "pass",
+      "details": "Every dimension sums to 172,312/390,718: True"
+    },
+    {
+      "check": "TGI percentage closure: tgi/device-harmony-vs-android.csv",
+      "status": "pass",
+      "details": "Maximum per-dimension 100% closure error is 0.0400 pp"
+    },
+    {
+      "check": "TGI arithmetic: tgi/device-harmony-vs-android.csv",
+      "status": "pass",
+      "details": "Maximum rounded-percentage arithmetic difference is 0.0500"
+    },
+    {
+      "check": "TGI dimension denominators: tgi/device-android-vs-ios.csv",
+      "status": "pass",
+      "details": "Every dimension sums to 390,718/145,179: True"
+    },
+    {
+      "check": "TGI percentage closure: tgi/device-android-vs-ios.csv",
+      "status": "pass",
+      "details": "Maximum per-dimension 100% closure error is 0.0200 pp"
+    },
+    {
+      "check": "TGI arithmetic: tgi/device-android-vs-ios.csv",
+      "status": "pass",
+      "details": "Maximum rounded-percentage arithmetic difference is 0.0500"
+    },
+    {
+      "check": "TGI dimension denominators: tgi/snooker-watchers-v2.csv",
+      "status": "pass",
+      "details": "Every dimension sums to 1,072/2,676: True"
+    },
+    {
+      "check": "TGI percentage closure: tgi/snooker-watchers-v2.csv",
+      "status": "pass",
+      "details": "Maximum per-dimension 100% closure error is 0.0200 pp"
+    },
+    {
+      "check": "TGI arithmetic: tgi/snooker-watchers-v2.csv",
+      "status": "pass",
+      "details": "Maximum rounded-percentage arithmetic difference is 0.0498"
+    },
+    {
+      "check": "TGI dimension denominators: tgi/world-championship-watchers.csv",
+      "status": "pass",
+      "details": "Every dimension sums to 208,206/366,543: True"
+    },
+    {
+      "check": "TGI percentage closure: tgi/world-championship-watchers.csv",
+      "status": "pass",
+      "details": "Maximum per-dimension 100% closure error is 0.0500 pp"
+    },
+    {
+      "check": "TGI arithmetic: tgi/world-championship-watchers.csv",
+      "status": "pass",
+      "details": "Maximum rounded-percentage arithmetic difference is 0.0494"
+    },
+    {
+      "check": "TGI dimension denominators: tgi/world-championship-viewers-10min.csv",
+      "status": "pass",
+      "details": "Every dimension sums to 192,764/395,788: True"
+    },
+    {
+      "check": "TGI percentage closure: tgi/world-championship-viewers-10min.csv",
+      "status": "pass",
+      "details": "Maximum per-dimension 100% closure error is 0.0300 pp"
+    },
+    {
+      "check": "TGI arithmetic: tgi/world-championship-viewers-10min.csv",
+      "status": "pass",
+      "details": "Maximum rounded-percentage arithmetic difference is 0.0500"
+    },
+    {
+      "check": "Bilingual TGI pair: device-all-pairs.csv",
+      "status": "pass",
+      "details": "Chinese (578, 10); English (578, 10)"
+    },
+    {
+      "check": "Bilingual TGI pair: device-android-vs-ios.csv",
+      "status": "pass",
+      "details": "Chinese (193, 8); English (193, 8)"
+    },
+    {
+      "check": "Bilingual TGI pair: device-harmony-vs-android.csv",
+      "status": "pass",
+      "details": "Chinese (195, 8); English (195, 8)"
+    },
+    {
+      "check": "Bilingual TGI pair: device-harmony-vs-ios.csv",
+      "status": "pass",
+      "details": "Chinese (190, 8); English (190, 8)"
+    },
+    {
+      "check": "Bilingual TGI pair: snooker-watchers-v2.csv",
+      "status": "pass",
+      "details": "Chinese (151, 7); English (151, 7)"
+    },
+    {
+      "check": "Bilingual TGI pair: world-championship-viewers-10min.csv",
+      "status": "pass",
+      "details": "Chinese (255, 7); English (255, 7)"
+    },
+    {
+      "check": "Bilingual TGI pair: world-championship-watchers.csv",
+      "status": "pass",
+      "details": "Chinese (257, 7); English (257, 7)"
+    },
+    {
+      "check": "Device cluster sample shares",
+      "status": "pass",
+      "details": "Three groups, four clusters each, 50,000 sampled users per group"
+    },
+    {
+      "check": "World-championship 10-minute cluster sample shares",
+      "status": "pass",
+      "details": "Cluster total 50,000; share sum 100.00%"
+    },
+    {
+      "check": "Unreconciled snooker cluster generation is labelled",
+      "status": "pass",
+      "details": "1,086 rows, 1,074 unique identifiers, separate from the report's 1,072-user clustering"
+    },
+    {
+      "check": "Snooker report clustering reproducible from retained files",
+      "status": "known_issue",
+      "details": "The retained processed sample has 1,086 rows and 1,074 unique identifiers, while the report says n=1,072; cluster labels also differ"
+    },
+    {
+      "check": "World-championship 10-minute K=4 evaluation",
+      "status": "pass",
+      "details": "K=4 silhouette coefficient is 0.1434 (weak structure)"
+    },
+    {
+      "check": "World-championship device-price tier denominators",
+      "status": "pass",
+      "details": "Tier totals reconcile to 192,764/395,788"
+    },
+    {
+      "check": "No user identifier values in committed text artifacts",
+      "status": "pass",
+      "details": "No identifier-like values or user_ukey CSV headers found"
+    },
+    {
+      "check": "No user identifier values embedded in retained DOCX files",
+      "status": "pass",
+      "details": "No mobile/hash user identifiers found in report XML"
+    },
+    {
+      "check": "Static SQL audit coverage",
+      "status": "pass",
+      "details": "8 checks: 7 expected defects and 1 unit-semantic check"
+    },
+    {
+      "check": "Critical SQL defect patterns are explicitly recorded",
+      "status": "pass",
+      "details": "Present: CTE 定义, 产品枚举拼写, 分组标签, 指标定义, 比较窗口, 用户级画像归属"
+    },
+    {
+      "check": "watch_duration unit and event source semantics confirmed",
+      "status": "not_run",
+      "details": "The source table lacks a retained field dictionary; no size, product-day sum or unit rule is assumed"
+    },
+    {
+      "check": "Source-manifest coverage and hashes",
+      "status": "pass",
+      "details": "Manifest rows 151; missing 0; hash mismatches 0"
+    },
+    {
+      "check": "Source classification counts",
+      "status": "pass",
+      "details": "{\"excluded_duplicate\": 1, \"excluded_generated_chart\": 132, \"excluded_user_level\": 2, \"excluded_workbook\": 2, \"included_aggregate\": 7, \"included_report\": 4, \"included_sql\": 3}"
+    },
+    {
+      "check": "SQL copies match source files",
+      "status": "pass",
+      "details": "Retained SQL files: 观看过世锦赛且单日观看时长最长的用户.sql, 观看过世锦赛和未观看过世锦赛的画像.sql, 鸿蒙安卓和苹果用户的画像.sql"
+    },
+    {
+      "check": "Raw device CSV cannot reproduce the three-group source snapshot",
+      "status": "known_issue",
+      "details": "{\"duplicate_rows\": 188, \"os_counts\": {\"Android\": 20, \"IOS\": 178412}, \"rows\": 178432, \"unique_users\": 178244}"
+    },
+    {
+      "check": "Snooker processed sample grain differs from report",
+      "status": "known_issue",
+      "details": "1,086 rows, 1,074 unique identifiers, 12 duplicate identifier rows; report n=1,072"
+    },
+    {
+      "check": "Cluster-label sample uniqueness",
+      "status": "pass",
+      "details": "Rows {'鸿蒙聚类标签': 50000, '安卓聚类标签': 50000, '苹果聚类标签': 50000, '目标组聚类标签': 50000}; duplicate identifier rows {'鸿蒙聚类标签': 0, '安卓聚类标签': 0, '苹果聚类标签': 0, '目标组聚类标签': 0}"
+    },
+    {
+      "check": "Legacy device report cluster-share defect detected",
+      "status": "known_issue",
+      "details": "Twelve sampled clusters are printed as 100.0%; corrected shares are retained in the anonymous cluster table"
+    },
+    {
+      "check": "Snooker report record-count inconsistency detected",
+      "status": "known_issue",
+      "details": "Report says 3,767 records, while retained TGI denominators total 3,748 users"
+    },
+    {
+      "check": "Snooker report App-share inconsistency detected",
+      "status": "known_issue",
+      "details": "The retained TGI table shows music 56.25%; another report narrative says 63.1%"
+    },
+    {
+      "check": "World-championship report confuses 10-minute viewers with new users",
+      "status": "known_issue",
+      "details": "192,764 is the 10-minute-viewer cohort, not a new-user cohort"
+    }
+  ]
+}

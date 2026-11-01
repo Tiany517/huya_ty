@@ -33,6 +33,7 @@
 | `projects/valorant-streamer-potential-analysis/` | 无畏契约主播潜力复盘：虎牙站内互动筛选、抖音 v1/v2 持续领先方法对比、2026-09 外部平台人才池及匿名校验结果 |
 | `projects/external-streamer-reverse-poaching/` | 反挖启发式估算复盘：斗鱼/B站历史预测表、抖音/快手模型、匿名平台与品类汇总、版本漂移和已知模型缺陷 |
 | `projects/kuaishou-honor-of-kings-reverse-poaching/` | 快手《王者荣耀》反挖筛选复盘：6 个工作簿版本链、V1/V2 原始覆盖、V2 最终 15 人规则、虎牙腰部基准、匿名附件和 26 项校验 |
+| `projects/user-profile-analysis/` | 用户画像 TGI 与 KMeans 复盘：设备三组、斯诺克拉新、世锦赛观看和 10 分钟以上观看队列；含 3 份 SQL、4 份历史报告、匿名 TGI/聚类附件、源清单和 49 项校验 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `vault/migration-secrets.aesgcm` | AES-256-GCM 加密的 `.env` 与数据平台凭据包；解密密钥单独保存 |
 | `vault/env-files.aesgcm` | 旧版 `.env` 加密包，保留作历史副本；新电脑优先使用 `migration-secrets.aesgcm` |
