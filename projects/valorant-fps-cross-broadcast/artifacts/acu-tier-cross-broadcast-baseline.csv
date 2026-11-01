@@ -1,0 +1,5 @@
+acu_tier,streamer_count,cross_broadcast_event_count,successful_event_count,success_rate_pct,successful_event_mean_weighted_acu_growth_pct
+top,4,8,3,37.50,93.82
+mid,3,7,3,42.86,442.56
+bottom,597,860,277,32.21,43.68
+all_fps,604,875,283,32.34,48.44

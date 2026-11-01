@@ -41,6 +41,8 @@ Reviewed projects: `projects/valorant-5937-p50-live-time/` and `projects/fps-anc
 
 The external ecosystem DAU report is documented at `projects/monthly-external-ecosystem-dau/`: its SQL and anonymized monthly platform aggregates from 2025-07 through 2026-05-18 are retained. Two source workbooks containing streamer IDs, nicknames, contracts, or revenue were excluded. The OB co-streaming scenario workbook contains streamer-level details and assumptions that need further review; no share conclusion is inferred from its filename.
 
+The FPS cross-broadcast final compact workflow is documented at `projects/valorant-fps-cross-broadcast/`, with the event-table SQL, tier success-rate query, and anonymized validation baseline. Event-level streamer details were not migrated; success rates are descriptive event statistics, not causal effects.
+
 | Priority candidate | Current size and latest modification | Review focus |
 | --- | --- | --- |
 | 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | Recent work with code and results; identify key aggregate workbooks and reproducible scripts before copying |
