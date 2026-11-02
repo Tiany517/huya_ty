@@ -1,0 +1,8 @@
+﻿finding_id,severity,finding,impact
+Q01,medium,Category DAU is a seven-month hard-coded input; no source query or dashboard extract is present in the project folder.,Category-level ratios and month-over-month changes cannot be independently traced beyond the copied values.
+Q02,medium,Anchor-level DAU values are summed across anchors and may double-count viewers who watched multiple anchors.,The anchor DAU sum is not a deduplicated category DAU.
+Q03,medium,"Field dictionaries for dau and user_pro are absent, and user_pro is summed before division by category DAU.",Interest-index units and the business meaning of summed user_pro/category DAU require owner confirmation.
+Q04,low,One anchor has missing user_pro in all seven months; the historical June-July change workbook treats missing interest as zero.,"The archived status and hypothesis results reproduce that convention, while monthly sums use observed non-null values."
+Q05,low,The hypothesis-validation workbook has no retained generation script.,The migration rebuilds its aggregate classifications and confirms the recorded counts and sums from the retained source CSV.
+Q06,low,"Two July source rows have no game_name; all other 22,829 rows are labelled Xingxiu.",The missing labels do not affect this project because game_name is not used for grouping.
+Q07,medium,"The streamer-level user_pro/dau ratio has a heavy tail: 33 of 22,831 rows exceed 100 and the maximum is about 4,271.61.",The ratio units require owner confirmation; aggregate outputs therefore report medians rather than relying only on the mean.

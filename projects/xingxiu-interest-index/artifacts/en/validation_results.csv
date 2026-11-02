@@ -1,0 +1,35 @@
+﻿check_id,status,detail
+V01,PASS,All eight core bilingual CSV files exist
+V02,PASS,"Source has 22,831 rows"
+V03,PASS,"Source has 8,394 unique streamers"
+V04,PASS,Source covers January through July 2026
+V05,PASS,month + luid is unique
+V06,PASS,Both monthly summaries have seven rows
+V07,PASS,"Monthly anchor counts, DAU sums, and interest sums reproduce from source"
+V08,PASS,Category DAU matches the documented hard-coded input
+V09,PASS,English monthly DAU matches the Chinese version
+V10,PASS,"Stock, new/returning, and churned counts reproduce from the June-July outer join"
+V11,PASS,"Status groups cover all 4,496 June-July streamers"
+V12,PASS,Status-group DAU changes sum to the net change
+V13,PASS,Status-group interest changes sum to the net change
+V14,PASS,Chinese and English status counts agree
+V15,PASS,July DAU has ten deciles
+V16,PASS,Decile counts sum to the July streamer count
+V17,PASS,Decile DAU sums equal the July DAU total
+V18,PASS,Decile interest sums equal the July interest total
+V19,PASS,Both decile share columns close to 100%
+V20,PASS,Decile streamer counts differ by no more than one
+V21,PASS,Chinese and English decile counts agree
+V22,PASS,All eleven hypothesis-group counts reproduce from the precedence rules
+V23,PASS,"Hypothesis groups cover all 4,496 streamers"
+V24,PASS,Hypothesis-group DAU changes sum to the net change
+V25,PASS,Hypothesis-group interest changes sum to the net change
+V26,PASS,Chinese and English hypothesis-group counts agree
+V27,PASS,No anonymous CSV contains streamer-ID or nickname columns
+V28,PASS,Neither anonymous workbook contains streamer-ID or nickname columns
+V29,PASS,Neither anonymous workbook contains Excel formula errors
+V34,PASS,"Chinese text uses KaiTi, numbers/English use Calibri, and month-over-month fields use percent formats"
+V30,PASS,The source CSV SHA-256 is recorded and verifies
+V31,PASS,Migration monthly aggregates match the historical workbook
+V32,PASS,Migration DAU deciles match the historical workbook
+V33,PASS,Migration hypothesis-group counts and interest changes match the historical workbook

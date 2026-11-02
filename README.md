@@ -36,6 +36,7 @@
 | `projects/external-streamer-reverse-poaching/` | 反挖启发式估算复盘：斗鱼/B站历史预测表、抖音/快手模型、匿名平台与品类汇总、版本漂移和已知模型缺陷 |
 | `projects/kuaishou-honor-of-kings-reverse-poaching/` | 快手《王者荣耀》反挖筛选复盘：6 个工作簿版本链、V1/V2 原始覆盖、V2 最终 15 人规则、虎牙腰部基准、匿名附件和 26 项校验 |
 | `projects/user-profile-analysis/` | 用户画像 TGI 与 KMeans 复盘：设备三组、斯诺克拉新、世锦赛观看和 10 分钟以上观看队列；含 3 份 SQL、4 份历史报告、匿名 TGI/聚类附件、源清单和 49 项校验 |
+| `projects/xingxiu-interest-index/` | 星秀兴趣指数 2026 年 1–7 月复盘：月度 DAU/兴趣指数、主播状态、7 月 DAU 十分位、11 个假设分组、中英文匿名结果和 34 项校验 |
 | `projects/molata-cooperation-acu-review/` | 六位主播合作前后有效 ACU 复盘：四窗口匿名日序列、组内增长、平台基准、13 日勾稽残差、双语文档/结果工作簿和 21 项校验 |
 | `projects/ai-live-room-operations/` | AI 直播间 2026-07 至 2026-09 月度快照：运行版/注释版 SQL、匿名主播×品类汇总、跨月覆盖、13 项 SQL 静态风险、双语文档/结果工作簿和 21 项校验 |
 | `projects/causal-inference-handbook/` | PSM/SCM 教学手册：5 个源版本、74 个可编辑代码块、11 项方法风险、正式项目复用清单、源哈希和中英文校验报告 |

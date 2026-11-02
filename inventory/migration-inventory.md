@@ -37,7 +37,7 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 | 因果和赛事活动评估 | 不朽杯弹窗PSM实验；游戏主播跨播带来的影响（用户明确跳过）；莫拉塔合作效果分析 |
 | 视频号 DAU 和周期报告 | 月报_虎牙外部生态DAU；月报_附录；周报_附录（用户明确跳过）；周报监控模型 |
 | 主播价值、增长和反挖 | 反挖；快手王者荣耀主播反挖数据；无畏契约份额增长；王者主播潜力分析（用户明确跳过）；斗鱼潜力主播挖掘（用户明确跳过） |
-| 用户行为和留存 | 用户画像分析；各类留存率取数（用户明确跳过）；社区评估；星秀兴趣指数分析；兴趣指数 |
+| 用户行为和留存 | 用户画像分析；各类留存率取数（用户明确跳过）；社区评估；星秀兴趣指数分析（已完成）；兴趣指数 |
 | AI 工坊 | AI工具说明（其余 AI 工坊与直播间项目已完成复盘） |
 | 游戏和赛事专题 | 世界杯专题；斯诺克专题；王者下跌和吕德华离开影响；主机游戏需求；赛事总结 |
 
@@ -45,7 +45,7 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 以下候选项目的数量、扩展名和修改时间来自文件系统元数据；除下方列出的已完成项目外，其他候选尚未复盘或复制项目文件。
 
-已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/monthly-report-appendix/`、`projects/weekly-ecosystem-monitoring/`、`projects/wechat-channel-dau-attribution/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`、`projects/external-streamer-reverse-poaching/`、`projects/kuaishou-honor-of-kings-reverse-poaching/`、`projects/user-profile-analysis/`、`projects/molata-cooperation-acu-review/`、`projects/ai-live-room-operations/`、`projects/causal-inference-handbook/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
+已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/monthly-report-appendix/`、`projects/weekly-ecosystem-monitoring/`、`projects/wechat-channel-dau-attribution/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`、`projects/external-streamer-reverse-poaching/`、`projects/kuaishou-honor-of-kings-reverse-poaching/`、`projects/user-profile-analysis/`、`projects/xingxiu-interest-index/`、`projects/molata-cooperation-acu-review/`、`projects/ai-live-room-operations/`、`projects/causal-inference-handbook/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
 
 外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。
 
@@ -77,6 +77,8 @@ OB 二路赛事节目化情景已整理至 `projects/valorant-ob-costream-scenar
 
 用户画像 TGI 与聚类已整理至 `projects/user-profile-analysis/`：归档设备三组两两 TGI、斯诺克拉新、世锦赛观看、10 分钟以上观看、设备/观看用户匿名聚类、价格分层、3 份源 SQL、4 份历史报告和 49 项校验。7 份 TGI 表均从固定分母独立复算，最大占比闭合误差和 TGI 算术误差均为 0.05；旧设备报告 12 个聚类均显示 100.0%，已重新计算。源 SQL 另确认 Android 产品枚举拼写、两窗口不等、未定义 CTE、全期求和冒充单日和重复分组标签等缺陷；`watch_duration` 单位仍标为未执行。用户级 CSV、含 `user_ukey` 的 XLSX、132 张重复生成图均未上传，斯诺克 1,086 行处理样本与 1,072 人报告聚类不可勾稽已单列。
 
+星秀兴趣指数分析已整理至 `projects/xingxiu-interest-index/`：2026-01 至 2026-07 源 CSV 共 22,831 行、8,394 个唯一主播；保留中英文月度汇总、存量/新增回归/流失拆解、7 月 DAU 十分位、11 个假设分组、生成/校验脚本和 34 项校验。2026-07 对比 2026-06，主播 DAU 加总增 `0.671%`、兴趣指数加总增 `11.272%`，同期硬编码品类 DAU 降 `4.113%`；7 月 D10 占主播 DAU 加总约 `88.07%`、兴趣指数加总约 `91.72%`。品类 DAU 无源查询、主播 DAU 跨主播加总可能重复用户、1 个主播兴趣指数连续 7 个月缺失且历史规则按 0 处理等限制已披露。原 CSV、3 份含 luid/昵称/Top 榜工作簿和逐主播结果未上传。
+
 六位主播合作前后有效 ACU 已整理至 `projects/molata-cooperation-acu-review/`：保留 123 日匿名序列、13 个统计单位 × 4 个窗口的汇总、合作前后增幅、平台基准、双语文档和结果工作簿。六人自然日日均 ACU 从合作前 `4,813.57` 变为含合作期后 1 月 `5,631.06`、剔合作期后 1 月 `6,641.35`，历史工作簿组级增幅可复算。平台“全量减剔除六人”与源主播日合计有 13 个日期不一致，累计残差 `+14,548.03` ACU、最大单日 `+4,159.76`，且源目录没有底层 SQL，因此相对平台超额增幅标为待验证；21 项校验中 19 通过、1 已知问题、1 未执行、0 失败。
 
 AI 直播间月度运营快照已整理至 `projects/ai-live-room-operations/`：三份导出分别包含 2026-07、08、09 月数据，原始名单共 48 行；`1009` 快照的 18 行对应 18 个唯一主播×品类键和 12 位主播，4 位主播跨多个品类，不能把重复 UID 直接判为重复行。三个月共同出现主播 5 位，并集 28 位；全部导出可见记录均为 ACU 100–1,000 的腰部。保留运行版和注释版 SQL、匿名总览/品类/分层/覆盖汇总、双语文档/工作簿、13 项 SQL 静态风险和 21 项独立校验。当前 20 项通过、0 失败、1 项 SQL 正式执行未运行，整体状态为 `incomplete`；`LEFT JOIN` 后过滤其他直播、按 UID+昵称分组、30 天分母注释不一致、端口范围差异和硬编码月份等风险均待正式刷新前处理。原始 UID、昵称和 CSV/XLSX 未上传。
@@ -102,6 +104,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 | 反挖 | 已完成核心项目复盘 | 已迁移至 `projects/external-streamer-reverse-poaching/`；保留纯计算脚本、匿名汇总和校验，原始明细、培训视频/RAR、checkpoint、缓存及凭据未上传；`报警邮件` 留作独立项目审查 |
 | 快手王者荣耀主播反挖数据 | 已完成项目复盘 | 已迁移至 `projects/kuaishou-honor-of-kings-reverse-poaching/`；保留规则、匿名统计、脚本和 26 项校验，原始 CSV 与 6 个身份/逐人工作簿未上传 |
 | 用户画像分析 | 已完成核心项目复盘 | 已迁移至 `projects/user-profile-analysis/`；保留匿名 TGI/聚类附件、3 份 SQL、4 份报告和 49 项校验；用户级 CSV/XLSX 与重复生成图未上传 |
+| 星秀兴趣指数分析 | 已完成项目复盘 | 已迁移至 `projects/xingxiu-interest-index/`；保留双语月度/状态/十分位/假设分组匿名结果、脚本和 34 项校验；原始主播 CSV 与 3 份身份工作簿未上传 |
 | 莫拉塔合作效果分析 | 已完成核心项目复盘 | 已迁移至 `projects/molata-cooperation-acu-review/`；保留匿名日序列、四窗口汇总、双语工作簿和 21 项校验；身份工作簿/脚本未上传，13 日平台勾稽问题待修复 |
 | 月报_附录 | 27 个文件：4 个 SQL、5 个 XLSX、1 个 CSV、17 个 PPTX | 已完成核心项目复盘并迁移至 `projects/monthly-report-appendix/`；保留匿名聚合、4 份 SQL、源哈希和校验，身份/合同/收入明细工作簿与全部 PPT 原稿未上传 |
 | 月报_虎牙外部生态DAU | 3 个文件：1 个 SQL、2 个模板工作簿 | 体量小，可优先复核是否纳入模板 |

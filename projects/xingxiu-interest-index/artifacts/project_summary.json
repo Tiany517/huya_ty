@@ -1,0 +1,27 @@
+{
+  "source_rows": 22831,
+  "unique_streamers": 8394,
+  "months": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07"
+  ],
+  "june_to_july": {
+    "anchor_dau_change": 12566.719890589127,
+    "anchor_dau_change_pct": 0.006709045342576214,
+    "interest_change": 1208786.2970569115,
+    "interest_change_pct": 0.1127152061764285,
+    "category_dau_change_pct": -0.04112988704864984
+  },
+  "status_counts": {
+    "存量": 2425,
+    "新增/回归": 956,
+    "流失": 1115
+  },
+  "july_top_decile_dau_share": 0.8807090334897776,
+  "july_top_decile_interest_share": 0.9171872975610197
+}

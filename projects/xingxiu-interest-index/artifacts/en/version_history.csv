@@ -1,0 +1,3 @@
+﻿version,change
+2026-11-02,"Migration review rebuilt aggregates from the local source CSV, removed streamer identifiers, and separated Chinese and English outputs"
+2026-08-03,Original analysis workbooks created locally; per-streamer sheets and top lists were not migrated
