@@ -1,0 +1,71 @@
+{
+  "project": "AI live-room monthly snapshot review",
+  "snapshot_count": 3,
+  "total_rows": 48,
+  "unique_anchor_snapshot_pairs": 42,
+  "privacy": {
+    "excluded": [
+      "streamer UID",
+      "streamer nickname",
+      "raw CSV/XLSX snapshots"
+    ],
+    "identity_values_used_in_memory_only": true
+  },
+  "sql_validation_status": "incomplete-static-review-only",
+  "sql_risk_count": 13,
+  "snapshots": {
+    "2026-08-07": {
+      "rows": 12,
+      "unique_anchors": 12,
+      "anchor_category_keys": 12
+    },
+    "2026-09-04": {
+      "rows": 18,
+      "unique_anchors": 18,
+      "anchor_category_keys": 18
+    },
+    "2026-10-09": {
+      "rows": 18,
+      "unique_anchors": 12,
+      "anchor_category_keys": 18
+    }
+  },
+  "overlaps": [
+    {
+      "comparison": "2026-07 vs 2026-08",
+      "left_anchors": 12,
+      "right_anchors": 18,
+      "intersection": 8,
+      "left_only": 4,
+      "right_only": 10,
+      "jaccard": "0.3636"
+    },
+    {
+      "comparison": "2026-08 vs 2026-09",
+      "left_anchors": 18,
+      "right_anchors": 12,
+      "intersection": 6,
+      "left_only": 12,
+      "right_only": 6,
+      "jaccard": "0.25"
+    },
+    {
+      "comparison": "2026-07 vs 2026-09",
+      "left_anchors": 12,
+      "right_anchors": 12,
+      "intersection": 5,
+      "left_only": 7,
+      "right_only": 7,
+      "jaccard": "0.2632"
+    },
+    {
+      "comparison": "2026-07 vs 2026-08 vs 2026-09",
+      "left_anchors": 28,
+      "right_anchors": "",
+      "intersection": 5,
+      "left_only": 23,
+      "right_only": "",
+      "jaccard": "0.1786"
+    }
+  ]
+}

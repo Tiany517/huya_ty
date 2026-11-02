@@ -1,0 +1,5 @@
+﻿comparison,left_anchors,right_anchors,intersection,left_only,right_only,jaccard
+2026-07 vs 2026-08,12,18,8,4,10,0.3636
+2026-08 vs 2026-09,18,12,6,12,6,0.25
+2026-07 vs 2026-09,12,12,5,7,7,0.2632
+2026-07 vs 2026-08 vs 2026-09,28,,5,23,,0.1786

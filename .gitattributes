@@ -3,3 +3,6 @@
 
 # Archived SQL snapshots must remain byte-identical to their source for hash validation.
 projects/user-profile-analysis/sql/*.sql -whitespace
+
+# AI live-room SQL copies are hash-checked against their local sources.
+projects/ai-live-room-operations/scripts/*.sql -text -whitespace

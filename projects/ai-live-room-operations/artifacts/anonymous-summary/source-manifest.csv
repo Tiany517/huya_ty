@@ -1,0 +1,7 @@
+﻿snapshot_date,source_id,local_relative_path,size_bytes,sha256,role,inclusion
+2026-08-07,0807,Desktop/AI直播间信息/AI直播间信息_0807.csv,1536,17819f284b736a3983e893550062b1f98dc41dfa90bfdab425a255ad21a88403,canonical August snapshot,parsed; identity fields excluded
+2026-08-07,0807-copy,Desktop/AI直播间监控UID/AI直播间信息_0807.csv,1536,17819f284b736a3983e893550062b1f98dc41dfa90bfdab425a255ad21a88403,duplicate August snapshot,byte-identical copy; parsed only for hash check
+2026-09-04,0904,Desktop/AI直播间监控UID/AI主播直播信息_0904.xlsx,13499,4dc6d4dd6895a80f5923cb687f8badbafb2f0130e0f3da2b1bac1acea67e6666,canonical September snapshot,parsed; identity fields excluded
+2026-10-09,1009,Desktop/AI直播间监控UID/AI主播直播信息_1009.xlsx,12015,d9ecd1c4c026e5e76f2999c90a1b87fe9fe16ed438cd6001cccd5d3b8c0d979a,canonical October snapshot,parsed; identity fields excluded
+,sql,Desktop/AI直播间监控UID/AI直播间监控_每月的腰部颈部主播表现.sql,9662,c5402dc75cec4ccd5a5b303d5569f6167e3cfe6089323153dc63eaa63164e1ef,monthly waist/neck anchor tiering SQL,copied verbatim
+,sql-annotated,Desktop/SQL/腰部AI直播间_月度ACU_DAU_观时_By主播_改正版_20261009.sql,14982,6abf222b850c9c69aef6c2e7fddc2306a12da615126b2e1f68443b15ffa86956,annotated corrected SQL with validation queries,copied verbatim

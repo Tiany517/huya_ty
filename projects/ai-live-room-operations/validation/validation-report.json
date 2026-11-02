@@ -1,0 +1,265 @@
+{
+  "project": "AI live-room monthly snapshot review",
+  "overall_status": "incomplete",
+  "summary": {
+    "total": 21,
+    "passed": 20,
+    "failed": 0,
+    "not_run": 1,
+    "review": 0
+  },
+  "checks": [
+    {
+      "check_id": "source_readability",
+      "status": "PASS",
+      "zh": {
+        "title": "源快照可读且表头可识别",
+        "evidence": "字段数：{'2026-08-07': 13, '2026-09-04': 11, '2026-10-09': 11}"
+      },
+      "en": {
+        "title": "Source snapshots are readable with recognizable headers",
+        "evidence": "Column counts: {'2026-08-07': 13, '2026-09-04': 11, '2026-10-09': 11}"
+      }
+    },
+    {
+      "check_id": "duplicate_0807_hash",
+      "status": "PASS",
+      "zh": {
+        "title": "两份 0807 CSV 完全一致",
+        "evidence": "SHA-256 一致"
+      },
+      "en": {
+        "title": "The two 0807 CSV copies are identical",
+        "evidence": "SHA-256 matches"
+      }
+    },
+    {
+      "check_id": "source_manifest_hashes",
+      "status": "PASS",
+      "zh": {
+        "title": "源文件清单大小与哈希一致",
+        "evidence": "6 个源文件；异常=[]"
+      },
+      "en": {
+        "title": "Source manifest sizes and hashes match",
+        "evidence": "6 source files; mismatches=[]"
+      }
+    },
+    {
+      "check_id": "sql_verbatim_copies",
+      "status": "PASS",
+      "zh": {
+        "title": "两份 SQL 与源文件逐字节一致",
+        "evidence": "运行版=True; 注释版=True"
+      },
+      "en": {
+        "title": "Both SQL files are byte-identical to their sources",
+        "evidence": "runtime=True; annotated=True"
+      }
+    },
+    {
+      "check_id": "snapshot_2026-08-07_grain_month",
+      "status": "PASS",
+      "zh": {
+        "title": "2026-08-07 快照粒度与月份",
+        "evidence": "行=12; 唯一主播×品类=12; 重复键=0; 数据月=['2026-07']"
+      },
+      "en": {
+        "title": "Snapshot 2026-08-07 grain and month",
+        "evidence": "rows=12; unique anchor-category=12; duplicate keys=0; data month=['2026-07']"
+      }
+    },
+    {
+      "check_id": "snapshot_2026-09-04_grain_month",
+      "status": "PASS",
+      "zh": {
+        "title": "2026-09-04 快照粒度与月份",
+        "evidence": "行=18; 唯一主播×品类=18; 重复键=0; 数据月=['2026-08']"
+      },
+      "en": {
+        "title": "Snapshot 2026-09-04 grain and month",
+        "evidence": "rows=18; unique anchor-category=18; duplicate keys=0; data month=['2026-08']"
+      }
+    },
+    {
+      "check_id": "snapshot_2026-10-09_grain_month",
+      "status": "PASS",
+      "zh": {
+        "title": "2026-10-09 快照粒度与月份",
+        "evidence": "行=18; 唯一主播×品类=18; 重复键=0; 数据月=['2026-09']"
+      },
+      "en": {
+        "title": "Snapshot 2026-10-09 grain and month",
+        "evidence": "rows=18; unique anchor-category=18; duplicate keys=0; data month=['2026-09']"
+      }
+    },
+    {
+      "check_id": "october_multi_category",
+      "status": "PASS",
+      "zh": {
+        "title": "1009 重复 UID 是多品类主播",
+        "evidence": "12 个主播形成 18 个主播×品类键；跨多个品类主播 4 个"
+      },
+      "en": {
+        "title": "Repeated October UIDs represent multi-category anchors",
+        "evidence": "12 anchors form 18 anchor-category keys; 4 anchors span multiple categories"
+      }
+    },
+    {
+      "check_id": "overview_recompute",
+      "status": "PASS",
+      "zh": {
+        "title": "快照总览独立复算",
+        "evidence": "3 rows and all fields match"
+      },
+      "en": {
+        "title": "Snapshot overview independently recomputed",
+        "evidence": "3 rows and all fields match"
+      }
+    },
+    {
+      "check_id": "category_recompute",
+      "status": "PASS",
+      "zh": {
+        "title": "category 汇总独立复算",
+        "evidence": "16 rows and all fields match"
+      },
+      "en": {
+        "title": "category summary independently recomputed",
+        "evidence": "16 rows and all fields match"
+      }
+    },
+    {
+      "check_id": "tier_recompute",
+      "status": "PASS",
+      "zh": {
+        "title": "tier 汇总独立复算",
+        "evidence": "3 rows and all fields match"
+      },
+      "en": {
+        "title": "tier summary independently recomputed",
+        "evidence": "3 rows and all fields match"
+      }
+    },
+    {
+      "check_id": "overlap_recompute",
+      "status": "PASS",
+      "zh": {
+        "title": "跨快照主播覆盖独立复算",
+        "evidence": "4 rows and all fields match"
+      },
+      "en": {
+        "title": "Cross-snapshot anchor overlap independently recomputed",
+        "evidence": "4 rows and all fields match"
+      }
+    },
+    {
+      "check_id": "snapshot_quality_failures",
+      "status": "PASS",
+      "zh": {
+        "title": "快照质量检查无失败项",
+        "evidence": "22 项；失败=[]"
+      },
+      "en": {
+        "title": "Snapshot quality checks have no failures",
+        "evidence": "22 checks; failures=[]"
+      }
+    },
+    {
+      "check_id": "sql_risk_inventory",
+      "status": "PASS",
+      "zh": {
+        "title": "中英文 SQL 风险清单完整对应",
+        "evidence": "英文 13 项；中文 13 项；编号一致=True"
+      },
+      "en": {
+        "title": "Bilingual SQL risk inventories match",
+        "evidence": "English=13; Chinese=13; IDs match=True"
+      }
+    },
+    {
+      "check_id": "sql_core_structure",
+      "status": "PASS",
+      "zh": {
+        "title": "SQL 核心表、日期和指标结构存在",
+        "evidence": "缺失=[]"
+      },
+      "en": {
+        "title": "Core SQL tables, dates, and metric structures are present",
+        "evidence": "missing=[]"
+      }
+    },
+    {
+      "check_id": "sql_date_padding",
+      "status": "PASS",
+      "zh": {
+        "title": "SQL 日期字符串已补零",
+        "evidence": "未出现 2026-9-30；存在 2026-09-30"
+      },
+      "en": {
+        "title": "SQL date strings are zero-padded",
+        "evidence": "2026-9-30 is absent; 2026-09-30 is present"
+      }
+    },
+    {
+      "check_id": "sql_product_scope_risk_recorded",
+      "status": "PASS",
+      "zh": {
+        "title": "有效日与 DAU 端口差异已记录",
+        "evidence": "涉及 hmos_kiwi 的编号 SQL-07 已列入；hmos_kiwi 缺失=False"
+      },
+      "en": {
+        "title": "Product-scope difference between eligibility and DAU is recorded",
+        "evidence": "SQL-07 is recorded; hmos_kiwi absent from runtime SQL=False"
+      }
+    },
+    {
+      "check_id": "privacy_identity_scan",
+      "status": "PASS",
+      "zh": {
+        "title": "生成交付物不含源 UID 或昵称",
+        "evidence": "no source UID or nickname found in generated deliverables"
+      },
+      "en": {
+        "title": "Generated deliverables contain no source UID or nickname",
+        "evidence": "no source UID or nickname found in generated deliverables"
+      }
+    },
+    {
+      "check_id": "bilingual_workbook_structure",
+      "status": "PASS",
+      "zh": {
+        "title": "中英文结果工作簿结构一致",
+        "evidence": "ai-live-room-snapshot-review-zh.xlsx=['快照总览', '品类汇总', 'ACU分层汇总', '主播覆盖重叠', '数据质量', 'SQL静态审查', '方法说明']; ai-live-room-snapshot-review-en.xlsx=['Snapshot overview', 'Category summary', 'Tier summary', 'Anchor overlap', 'Data quality', 'SQL static review', 'Method']"
+      },
+      "en": {
+        "title": "Bilingual workbooks have the expected structure",
+        "evidence": "ai-live-room-snapshot-review-zh.xlsx=['快照总览', '品类汇总', 'ACU分层汇总', '主播覆盖重叠', '数据质量', 'SQL静态审查', '方法说明']; ai-live-room-snapshot-review-en.xlsx=['Snapshot overview', 'Category summary', 'Tier summary', 'Anchor overlap', 'Data quality', 'SQL static review', 'Method']"
+      }
+    },
+    {
+      "check_id": "bilingual_documentation",
+      "status": "PASS",
+      "zh": {
+        "title": "中英文项目文档齐全",
+        "evidence": "缺失=[]"
+      },
+      "en": {
+        "title": "Bilingual project documentation is present",
+        "evidence": "missing=[]"
+      }
+    },
+    {
+      "check_id": "sql_execution_status",
+      "status": "NOT_RUN",
+      "zh": {
+        "title": "SQL 正式执行和最终指标对账",
+        "evidence": "未执行项=['SQL-11']；当前结果只能标记为静态审查"
+      },
+      "en": {
+        "title": "Formal SQL execution and final-metric reconciliation",
+        "evidence": "not run=['SQL-11']; results remain static-review only"
+      }
+    }
+  ]
+}

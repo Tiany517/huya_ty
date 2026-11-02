@@ -1,0 +1,23 @@
+﻿snapshot_date,check_id,status,observed,expected
+2026-08-07,header_schema,PASS,13 columns; header row 1,"UID, category, tier, and six metrics recognized"
+2026-08-07,blank_identity_or_category,PASS,blank_uid=0; blank_category=0,0
+2026-08-07,duplicate_uid_category,PASS,0,0 under anchor x category grain
+2026-08-07,negative_metric,PASS,0,0
+2026-08-07,tier_vocabulary,PASS,0,all values in head/neck/waist/tail vocabulary
+2026-08-07,month_label,PASS,2026-07,one monthly label per snapshot
+2026-08-07,snapshot_month_alignment,PASS,2026-07,export 2026-08-07 contains 2026-07
+2026-09-04,header_schema,PASS,11 columns; header row 1,"UID, category, tier, and six metrics recognized"
+2026-09-04,blank_identity_or_category,PASS,blank_uid=0; blank_category=0,0
+2026-09-04,duplicate_uid_category,PASS,0,0 under anchor x category grain
+2026-09-04,negative_metric,PASS,0,0
+2026-09-04,tier_vocabulary,PASS,0,all values in head/neck/waist/tail vocabulary
+2026-09-04,month_label,PASS,2026-08,one monthly label per snapshot
+2026-09-04,snapshot_month_alignment,PASS,2026-08,export 2026-09-04 contains 2026-08
+2026-10-09,header_schema,PASS,11 columns; header row 1,"UID, category, tier, and six metrics recognized"
+2026-10-09,blank_identity_or_category,PASS,blank_uid=0; blank_category=0,0
+2026-10-09,duplicate_uid_category,PASS,0,0 under anchor x category grain
+2026-10-09,negative_metric,PASS,0,0
+2026-10-09,tier_vocabulary,PASS,0,all values in head/neck/waist/tail vocabulary
+2026-10-09,month_label,PASS,2026-09,one monthly label per snapshot
+2026-10-09,snapshot_month_alignment,PASS,2026-09,export 2026-10-09 contains 2026-09
+2026-08-07,duplicate_0807_copies,PASS,identical SHA-256,the two 0807 copies are identical

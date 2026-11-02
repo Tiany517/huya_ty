@@ -1,0 +1,4 @@
+﻿snapshot_date,source_format,data_month,rows,unique_anchors,anchor_category_keys,multi_category_anchors,categories,acu_mean,acu_median,acu_max,pcu_max,live_hours_mean,app_dau_mean,view_hours_mean,per_cap_view_min_mean,tiers,blank_metric_cells
+2026-08-07,csv,2026-07,12,12,12,0,3,193.25,144.5,529,4947,14.75,16022.6667,965.6667,4.0833,腰部,0
+2026-09-04,xlsx,2026-08,18,18,18,0,6,215.4147,145.9988,731.4567,7170,14.8148,15086.7403,737.1621,5.1802,腰部,0
+2026-10-09,xlsx,2026-09,18,12,18,4,7,202.2742,168.8593,439.0139,1509,13.7585,8632.353,1672.8058,12.343,腰部,0
