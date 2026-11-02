@@ -46,8 +46,8 @@
 | `projects/causal-inference-handbook/` | PSM/SCM 教学手册：5 个源版本、74 个可编辑代码块、11 项方法风险、正式项目复用清单、源哈希和中英文校验报告 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `mcp/bigdata/README.md` / `.en.md`、`config.example.toml`、`tool-catalog.json` | bigdata MCP 的网关配置模板、11 个工具的调用契约、Presto/Spark/下载规范和故障排查；不含账号或 API secret |
-| `vault/migration-secrets.aesgcm` | AES-256-GCM 加密的 `.env` 与数据平台凭据包；解密密钥单独保存 |
-| `vault/env-files.aesgcm` | 旧版 `.env` 加密包，保留作历史副本；新电脑优先使用 `migration-secrets.aesgcm` |
+| `vault/migration-secrets-v2.aesgcm` | AES-256-GCM 加密的 `.env`、数据平台凭据和原告警脚本凭据副本；解密密钥单独保存 |
+| `vault/migration-secrets.aesgcm`、`vault/env-files.aesgcm` | 前两版加密包，保留作历史副本；新电脑优先使用 `migration-secrets-v2.aesgcm` |
 | `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单；明确跳过的项目只在此登记状态，不生成项目的 GitHub 路径 |
 | `local-source-map.md` / `local-source-map.en.md` | 中文 / 英文本机路径映射，仅保存在本机并由 Git 忽略 |
 
@@ -69,7 +69,7 @@ GitHub 仓库地址：<https://github.com/Tiany517/huya_ty>
 2. 阅读 `instructions/AGENTS.md` 和 `inventory/migration-inventory.md`。
 3. 从 `skills/` 恢复 skills，并查看来源和版本说明。
 4. 按 `mcp/bigdata/README.md` 合并 MCP 配置模板，重启 Codex 并确认 bigdata 工具出现。
-5. 参考 `local-source-map.md` 重建本机路径；将仓库外单独保存的 `huya_ty-env-files.key` 安全转移到新电脑，再用 `vault/decrypt-env-files.mjs` 解密 `vault/migration-secrets.aesgcm` 到暂存目录并逐项恢复。
+5. 参考 `local-source-map.md` 重建本机路径；将仓库外单独保存的 `huya_ty-env-files.key` 安全转移到新电脑，再用 `vault/decrypt-env-files.mjs` 解密 `vault/migration-secrets-v2.aesgcm` 到暂存目录并逐项恢复。
 6. 阅读 `projects/` 中的项目背景和结果附件，再继续相关工作。
 7. 重新连接获准的数据服务，并在运行 SQL 前验证权限。
 

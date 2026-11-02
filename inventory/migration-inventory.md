@@ -26,7 +26,7 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 
 ## bigdata MCP
 
-已归档 `mcp/bigdata/`：Codex 的 MCP 网关配置模板、11 个工具的参数契约、Presto/Spark 选择、单语句提交、长查询轮询、结果大小限制、分区检查、数据血缘、故障排查和新电脑恢复步骤。当前 MCP 是公司维护的远程网关，本机没有可独立打包的服务端源码；仓库因此保存客户端连接模板，而不是服务端程序。真实 `app_id`、`passport`、`X-BIGDATA-SECRET`、Cookie 和签名 URL 不在 Git 中，虎牙数据平台账号/API 凭据只保存在 `vault/migration-secrets.aesgcm`。
+已归档 `mcp/bigdata/`：Codex 的 MCP 网关配置模板、11 个工具的参数契约、Presto/Spark 选择、单语句提交、长查询轮询、结果大小限制、分区检查、数据血缘、故障排查和新电脑恢复步骤。当前 MCP 是公司维护的远程网关，本机没有可独立打包的服务端源码；仓库因此保存客户端连接模板，而不是服务端程序。真实 `app_id`、`passport`、`X-BIGDATA-SECRET`、Cookie 和签名 URL 不在 Git 中，虎牙数据平台账号/API 凭据只保存在 `vault/migration-secrets-v2.aesgcm`。
 
 ## 项目复盘候选
 
@@ -114,7 +114,8 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 | AI直播间信息；AI直播间监控UID | 已完成核心项目复盘 | 已迁移至 `projects/ai-live-room-operations/`；保留匿名汇总、两份 SQL、双语文档和校验；原始 UID/昵称快照未上传，正式 SQL 执行仍标记未运行 |
 | 因果推断实操 | 项目复盘完成 | 已迁移至 `projects/causal-inference-handbook/`；5 个源版本、11 项方法风险、双语文档和 12 项校验齐全；明确教学示例不能作为真实因果证据 |
 | 不朽杯弹窗PSM实验 | 已完成核心项目复盘 | 已迁移至 `projects/buxiucup-popup-psm/`；三套最终报告、匿名结果、核心脚本/SQL 和校验已归档；用户级源数据与历史迭代未上传 |
-| 反挖 | 已完成核心项目复盘 | 已迁移至 `projects/external-streamer-reverse-poaching/`；保留纯计算脚本、匿名汇总和校验，原始明细、培训视频/RAR、checkpoint、缓存及凭据未上传；`报警邮件` 留作独立项目审查 |
+| 反挖 | 已完成核心项目复盘 | 已迁移至 `projects/external-streamer-reverse-poaching/`；保留纯计算脚本、匿名汇总和校验，原始明细、培训视频/RAR、checkpoint、缓存及凭据未上传 |
+| 报警邮件 | 原压缩包约 12.1 MB、11,916 个文件；含日报自动化脚本、逐日运行输出和明文凭据 | 用户于 2026-11-02 明确跳过；判断后续复查概率很低，继续生成项目页、脱敏脚本和匿名附件不划算。未提交项目页、脚本、运行结果或校验产物；已完成加密的跨项目凭据副本单独保留在 `vault/migration-secrets-v2.aesgcm` |
 | 快手王者荣耀主播反挖数据 | 已完成项目复盘 | 已迁移至 `projects/kuaishou-honor-of-kings-reverse-poaching/`；保留规则、匿名统计、脚本和 26 项校验，原始 CSV 与 6 个身份/逐人工作簿未上传 |
 | 用户画像分析 | 已完成核心项目复盘 | 已迁移至 `projects/user-profile-analysis/`；保留匿名 TGI/聚类附件、3 份 SQL、4 份报告和 49 项校验；用户级 CSV/XLSX 与重复生成图未上传 |
 | 星秀兴趣指数分析 | 已完成项目复盘 | 已迁移至 `projects/xingxiu-interest-index/`；保留双语月度/状态/十分位/假设分组匿名结果、脚本和 34 项校验；原始主播 CSV 与 3 份身份工作簿未上传 |
@@ -150,6 +151,6 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 
 ## 凭据
 
-已在 `vault/migration-secrets.aesgcm` 中加密归档用户目录下发现的 4 个实际 `.env` 文件，以及从 AGENTS 附件核对的虎牙数据平台账号/API 凭据；`.env.example`、示例模板和快捷方式不重复打包。旧版 `vault/env-files.aesgcm` 保留为历史副本。密钥保存在仓库外的本机 Documents 目录，由当前 Windows 用户单独转移到新电脑。仓库不保存明文凭据。聊天或明文规则文件中暴露过的 GitHub 密码和 API 凭据应立即轮换，轮换后重新加密更新保险包。
+已在 `vault/migration-secrets-v2.aesgcm` 中加密归档用户目录下发现的 4 个实际 `.env` 文件、从 AGENTS 附件核对的虎牙数据平台账号/API 凭据，以及原告警脚本中的 SMTP、企业微信 webhook、HDFS 身份和内部收件路由；`.env.example`、示例模板和快捷方式不重复打包。`vault/migration-secrets.aesgcm` 与 `vault/env-files.aesgcm` 保留为历史副本。密钥保存在仓库外的本机 Documents 目录，由当前 Windows 用户单独转移到新电脑。仓库不保存明文凭据。聊天或明文规则文件中暴露过的 GitHub 密码、数据平台 API 凭据、SMTP 密码和企业微信 webhook 应立即轮换，轮换后重新加密更新保险包。
 
 英文版见 `migration-inventory.en.md`。

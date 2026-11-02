@@ -46,8 +46,8 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/causal-inference-handbook/` | PSM/SCM teaching handbook: five source editions, 74 editable code blocks, eleven method risks, a production checklist, source hashes, and bilingual validation reports |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
 | `mcp/bigdata/README.md` / `.en.md`, `config.example.toml`, `tool-catalog.json` | Bigdata MCP gateway template, 11-tool contract, Presto/Spark/download rules, and troubleshooting; no account or API secret |
-| `vault/migration-secrets.aesgcm` | AES-256-GCM encrypted `.env` and data-platform credential bundle; decryption key stored separately |
-| `vault/env-files.aesgcm` | Legacy `.env` bundle retained as a historical copy; use `migration-secrets.aesgcm` on the new computer |
+| `vault/migration-secrets-v2.aesgcm` | AES-256-GCM encrypted `.env`, data-platform credential, and legacy alert-script credential copy for this migration; decryption key stored separately |
+| `vault/migration-secrets.aesgcm`, `vault/env-files.aesgcm` | Prior encrypted bundles retained as historical copies; use `migration-secrets-v2.aesgcm` on the new computer |
 | `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue; explicitly skipped projects are recorded here with no project GitHub path |
 | `local-source-map.md` / `local-source-map.en.md` | Chinese / English local machine paths; kept locally and ignored by Git |
 
@@ -69,7 +69,7 @@ These are repository-relative GitHub paths. For example, `instructions/AGENTS.md
 2. Read `instructions/AGENTS.en.md` and `inventory/migration-inventory.en.md` (Chinese versions are available at the corresponding paths without `.en`).
 3. Restore skills from `skills/` and read their source and version notes.
 4. Follow `mcp/bigdata/README.en.md` to merge the MCP configuration template, restart Codex, and confirm the bigdata tools appear.
-5. Recreate local paths using `local-source-map.md`; transfer `huya_ty-env-files.key` from outside the repository to the new computer through a secure channel, then use `vault/decrypt-env-files.mjs` to decrypt `vault/migration-secrets.aesgcm` into a staging directory and restore files individually.
+5. Recreate local paths using `local-source-map.md`; transfer `huya_ty-env-files.key` from outside the repository to the new computer through a secure channel, then use `vault/decrypt-env-files.mjs` to decrypt `vault/migration-secrets-v2.aesgcm` into a staging directory and restore files individually.
 6. Read project context and result artifacts under `projects/` before continuing work.
 7. Reconnect approved data services and validate access before running saved SQL.
 
