@@ -1,0 +1,299 @@
+{
+  "status": "pass_with_known_issues",
+  "checked_at_local_timezone": "Asia/Shanghai",
+  "check_count": 40,
+  "passed": 40,
+  "failed": 0,
+  "known_issues": [
+    {
+      "id": "stale_derived_text_and_old_script_date_filter",
+      "detail": "The historical text result says ten W2-absent anchors, while the current source and final workbook have seven. The historical scripts also compare ISO dates and fail against the current slash-formatted source unless dates are normalized.",
+      "handling": "The stale text result was excluded. The migrated build normalizes both date formats and independently reproduces seven W2-absent anchors."
+    },
+    {
+      "id": "summed_audience_not_platform_unique_dau",
+      "detail": "audiencecnt is summed across anchors, so the same viewer can be counted in more than one room.",
+      "handling": "Artifacts and documentation call this an audience-count sum, not unique cross-anchor DAU."
+    },
+    {
+      "id": "manual_content_classification",
+      "detail": "The qipai and boundary groups came from an explicit source-project streamer classification, not a platform content taxonomy.",
+      "handling": "Only the anonymous category assignment is committed; classification results are treated as a scenario, not an official taxonomy."
+    },
+    {
+      "id": "legacy_two_factor_components_do_not_close",
+      "detail": "The historical workbook printed scale -303,828, efficiency 706,983, and interaction -33,270 per day, but those three values sum to 369,885 rather than the reported 403,155 change.",
+      "handling": "The migrated calculation uses efficiency at fixed W1 anchor-days, so scale, efficiency, and interaction sum exactly to the reported change."
+    }
+  ],
+  "checks": [
+    {
+      "id": "source_manifest_single_row",
+      "status": "pass",
+      "evidence": {
+        "rows": 1
+      }
+    },
+    {
+      "id": "source_hash_matches_verified_snapshot",
+      "status": "pass",
+      "evidence": "17d4e89ad0413fd705b93f63dc37b5aed4e8d0e579055fd44ef9bd2f87e3e261"
+    },
+    {
+      "id": "source_live_row_count",
+      "status": "pass",
+      "evidence": 2067
+    },
+    {
+      "id": "source_date_coverage",
+      "status": "pass",
+      "evidence": {
+        "date_min": "2026-09-01",
+        "date_max": "2026-09-28",
+        "unique_date_count": "28"
+      }
+    },
+    {
+      "id": "anonymous_source_has_no_identity_columns",
+      "status": "pass",
+      "evidence": []
+    },
+    {
+      "id": "anonymous_source_unique_dt_anchor",
+      "status": "pass",
+      "evidence": {
+        "rows": 2067,
+        "max_key_count": 1
+      }
+    },
+    {
+      "id": "anonymous_alias_count",
+      "status": "pass",
+      "evidence": 110
+    },
+    {
+      "id": "anonymous_source_unique_date_count",
+      "status": "pass",
+      "evidence": 28
+    },
+    {
+      "id": "anchor_day_headline_recompute",
+      "status": "pass",
+      "evidence": {
+        "w1_daily": 6760166.0,
+        "w2_daily": 7163321.428571428,
+        "w1_days": 534,
+        "w2_days": 510
+      }
+    },
+    {
+      "id": "all_values_finite",
+      "status": "pass",
+      "evidence": "audience_count and online_hours are finite"
+    },
+    {
+      "id": "headline_w1",
+      "status": "pass",
+      "evidence": 6760166.0
+    },
+    {
+      "id": "headline_w2",
+      "status": "pass",
+      "evidence": 7163321.428571428
+    },
+    {
+      "id": "headline_change",
+      "status": "pass",
+      "evidence": 403155.4285714286
+    },
+    {
+      "id": "two_factor_closure",
+      "status": "pass",
+      "evidence": {
+        "components": [
+          -303827.68539325846,
+          740252.9075630252,
+          -33269.79359833821
+        ],
+        "sum": 403155.4285714286,
+        "reported": 403155.4285714286
+      }
+    },
+    {
+      "id": "activity_anchor_count",
+      "status": "pass",
+      "evidence": 107
+    },
+    {
+      "id": "activity_counts_final",
+      "status": "pass",
+      "evidence": {
+        "persistent": 97,
+        "new_or_returning_w2": 3,
+        "absent_w2": 7
+      }
+    },
+    {
+      "id": "anchor_day_activity_recompute",
+      "status": "pass",
+      "evidence": {
+        "persistent": 97,
+        "absent_w2": 7,
+        "new_or_returning_w2": 3
+      }
+    },
+    {
+      "id": "activity_w1_closure",
+      "status": "pass",
+      "evidence": 47321162.0
+    },
+    {
+      "id": "activity_w2_closure",
+      "status": "pass",
+      "evidence": 50143250.0
+    },
+    {
+      "id": "content_anchor_closure",
+      "status": "pass",
+      "evidence": {
+        "qipai_main": 29,
+        "non_qipai": 81,
+        "all_source": 110
+      }
+    },
+    {
+      "id": "content_daily_change_closure",
+      "status": "pass",
+      "evidence": 403155.4285714286
+    },
+    {
+      "id": "content_w1_closure",
+      "status": "pass",
+      "evidence": 6760166.0
+    },
+    {
+      "id": "content_w2_closure",
+      "status": "pass",
+      "evidence": 7163321.428571428
+    },
+    {
+      "id": "qipai_subgroup_closure",
+      "status": "pass",
+      "evidence": {
+        "subgroup_sum": 564583.0,
+        "reported": 564583.0
+      }
+    },
+    {
+      "id": "anchor_day_content_recompute",
+      "status": "pass",
+      "evidence": {
+        "qipai_daily_change": 564583.0
+      }
+    },
+    {
+      "id": "three_factor_closure_all_source",
+      "status": "pass",
+      "evidence": {
+        "components_sum": 2822088.0,
+        "reported": 2822088.0
+      }
+    },
+    {
+      "id": "three_factor_closure_qipai_main",
+      "status": "pass",
+      "evidence": {
+        "components_sum": 3952080.999999997,
+        "reported": 3952080.999999997
+      }
+    },
+    {
+      "id": "three_factor_closure_non_qipai",
+      "status": "pass",
+      "evidence": {
+        "components_sum": -1129992.999999999,
+        "reported": -1129992.999999999
+      }
+    },
+    {
+      "id": "decomposition_all_matches_headline",
+      "status": "pass",
+      "evidence": 403155.4285714286
+    },
+    {
+      "id": "decomposition_qipai_matches_content",
+      "status": "pass",
+      "evidence": 564582.9999999997
+    },
+    {
+      "id": "decomposition_non_qipai_matches_content",
+      "status": "pass",
+      "evidence": -161427.5714285713
+    },
+    {
+      "id": "top3_sensitivity",
+      "status": "pass",
+      "evidence": "-0.21184747930971115"
+    },
+    {
+      "id": "persistent_sample",
+      "status": "pass",
+      "evidence": 83.0
+    },
+    {
+      "id": "persistent_median",
+      "status": "pass",
+      "evidence": 0.0013966928881039564
+    },
+    {
+      "id": "workbook_sheets",
+      "status": "pass",
+      "evidence": [
+        "summary",
+        "daily",
+        "anchor-two-week",
+        "activity-groups",
+        "content-groups",
+        "content-subgroups",
+        "three-factor",
+        "contrib-top20",
+        "definitions"
+      ]
+    },
+    {
+      "id": "workbook_daily_rows",
+      "status": "pass",
+      "evidence": 29
+    },
+    {
+      "id": "workbook_anchor_rows",
+      "status": "pass",
+      "evidence": 108
+    },
+    {
+      "id": "workbook_summary_matches_csv",
+      "status": "pass",
+      "evidence": {
+        "w1": 6760166,
+        "w2": 7163321,
+        "daily_change": 403155
+      }
+    },
+    {
+      "id": "workbook_content_matches_csv",
+      "status": "pass",
+      "evidence": {
+        "qipai_change": 564583,
+        "non_qipai_change": -161427.5714285714
+      }
+    },
+    {
+      "id": "workbook_activity_matches_csv",
+      "status": "pass",
+      "evidence": {
+        "persistent": 97,
+        "absent_w2": 7
+      }
+    }
+  ]
+}

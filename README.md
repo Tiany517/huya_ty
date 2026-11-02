@@ -20,6 +20,7 @@
 | `projects/monthly-external-ecosystem-dau/` | 外部生态 DAU 月报的取数口径、SQL 说明和匿名月度聚合附件 |
 | `projects/monthly-report-appendix/` | 月报附录：视频号单/双播日与月 DAU、端外平台月 DAU、抖音 MCN 品类 DAU、APP 次月留存和游戏独占；含匿名附件、4 份 SQL、源哈希及已知缺陷 |
 | `projects/weekly-ecosystem-monitoring/` | 周报生态监控：日级品类与主播下钻 SQL、6 周匿名快照、平台 DAU、展示模板结构和可重复校验 |
+| `projects/wechat-channel-dau-attribution/` | 视频号两周观众数变化归因：完整去标识主播×日底表、两因子修复、活动/内容/时长拆分、匿名工作簿、路径地图和 40 项校验 |
 | `projects/ai-workshop-commercialization/` | AI 工坊商业化价值：PSM7/PSM8、DID、付费留存、版本转换、礼物人工打标、匿名品类/ACU 汇总、最终单页和可重复校验 |
 | `projects/buxiucup-popup-psm/` | 不朽杯三套独立 PSM/DID 复盘：打卡活动、当天 DOTA2 曝光、4 月兴趣曝光；含最终报告、匿名结果、核心 SQL/脚本、错误复盘和自动校验 |
 | `projects/valorant-fps-cross-broadcast/` | FPS 主播跨播事件表、ACU 分层成功率 SQL 和匿名校验基线 |

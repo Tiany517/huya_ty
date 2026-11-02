@@ -1,0 +1,16 @@
+﻿metric,value,unit
+w1_daily_audience_sum,6760166.0,audience_count sum / calendar day
+w2_daily_audience_sum,7163321.428571428,audience_count sum / calendar day
+daily_audience_change,403155.4285714286,audience_count sum / calendar day
+change_rate,0.05963691255087955,ratio
+w1_anchor_live_days,534,anchor-day
+w2_anchor_live_days,510,anchor-day
+avg_audience_per_anchor_live_day_w1,88616.40823970038,audience_count / anchor-day
+avg_audience_per_anchor_live_day_w2,98320.09803921569,audience_count / anchor-day
+two_factor_scale_daily,-303827.68539325846,audience_count sum / calendar day
+two_factor_efficiency_daily,740252.9075630252,audience_count sum / calendar day
+two_factor_interaction_daily,-33269.79359833821,audience_count sum / calendar day
+positive_week_contribution,21118498.0,week audience_count sum
+negative_week_contribution,-18296410.0,week audience_count sum
+persistent_anchor_count_ge3_days_each_week,83,anchor
+persistent_anchor_change_rate_median,0.0013966928881039564,ratio
