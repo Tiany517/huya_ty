@@ -37,7 +37,7 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 | Causal and event evaluation | 不朽杯弹窗PSM实验; 游戏主播跨播带来的影响 (explicitly skipped by the user); 莫拉塔合作效果分析 |
 | Video-channel DAU and recurring reports | 月报_虎牙外部生态DAU; 月报_附录; 周报_附录 (explicitly skipped by the user); 周报监控模型 |
 | Streamer value, growth, and anti-fraud | 反挖; 快手王者荣耀主播反挖数据; 无畏契约份额增长; 王者主播潜力分析 (explicitly skipped by the user); 斗鱼潜力主播挖掘 (explicitly skipped by the user) |
-| User behavior and retention | 用户画像分析; 各类留存率取数 (explicitly skipped by the user); 社区评估; 星秀兴趣指数分析 (reviewed); 兴趣指数 (explicitly skipped by the user) |
+| User behavior and retention | 用户画像分析; 各类留存率取数 (explicitly skipped by the user); 社区评估 (explicitly skipped by the user); 星秀兴趣指数分析 (reviewed); 兴趣指数 (explicitly skipped by the user) |
 | AI workshop | AI工具说明; other AI Workshop and live-room projects are reviewed |
 | Game and event topics | 世界杯专题; 斯诺克专题; 王者下跌和吕德华离开影响; 主机游戏需求; 赛事总结 |
 
@@ -106,6 +106,7 @@ The single-streamer Huya-affiliated Douyin co-streaming case is documented in de
 | 快手王者荣耀主播反挖数据 | Project review complete | Documented at `projects/kuaishou-honor-of-kings-reverse-poaching/`; rules, anonymous statistics, scripts, and 26 checks are retained, while raw CSVs and six identity/streamer-level workbooks were excluded |
 | User-profile analysis | Core project review complete | Migrated to `projects/user-profile-analysis/`; anonymous TGI/cluster artifacts, three SQL files, four reports, and 49 checks retained; user-level CSV/XLSX and duplicate charts excluded |
 | Xingxiu interest-index analysis | Project review complete | Migrated to `projects/xingxiu-interest-index/`; bilingual anonymous monthly/status/decile/group outputs, scripts, and 34 checks retained; raw streamer CSV and three identity workbooks excluded |
+| Community-evaluation settlement | Explicitly skipped by the user | No project page, anonymous result, SQL, or validation artifact was committed; the local partial draft was moved outside the migration repository and retained locally |
 | Molata cooperation ACU review | Core project review complete | Migrated to `projects/molata-cooperation-acu-review/`; anonymous daily series, four-window summaries, bilingual workbooks, and 21 checks retained; identity workbook/script excluded and 13 platform reconciliation failures remain |
 | 月报_附录 | 27 files: 4 SQL, 5 XLSX, 1 CSV, and 17 PPTX | Core review complete at `projects/monthly-report-appendix/`; anonymous aggregates, four SQL files, source hashes, and validation retained, while identity/contract/revenue workbooks and all source decks were excluded |
 | 月报_虎牙外部生态DAU | 3 files: 1 SQL and 2 template workbooks | Small footprint; review templates for inclusion |
@@ -116,6 +117,7 @@ The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workb
 ## Remaining Work
 
 - Continue with the remaining candidates: causal/event reviews, retention and interest indexes, AI tool documentation, and game/event topics. `Documents/ChatGPT/异动归因` is complete.
+- `社区评估` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further review would not justify the time. No project page, anonymous result, SQL, or validation artifact was committed; the local partial draft was moved outside the migration repository and retained locally.
 - `王者主播潜力分析` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further review would not justify the time. No project page, anonymized result, validation artifact, raw CSV, or identity-bearing workbook was committed.
 - `斗鱼潜力主播挖掘` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further review would not justify the time. No project page, SQL, anonymized result, or validation artifact was committed; the local partial draft was moved outside the migration repository and retained locally.
 - `游戏主播跨播带来的影响` was explicitly skipped by the user on 2026-11-02. No project page, script, or result was committed; the local draft was moved outside the repository and the temporary matched-data cache was deleted.
