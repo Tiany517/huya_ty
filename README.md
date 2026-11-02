@@ -38,6 +38,7 @@
 | `projects/ai-live-room-operations/` | AI 直播间 2026-07 至 2026-09 月度快照：运行版/注释版 SQL、匿名主播×品类汇总、跨月覆盖、13 项 SQL 静态风险、双语文档/结果工作簿和 21 项校验 |
 | `projects/causal-inference-handbook/` | PSM/SCM 教学手册：5 个源版本、74 个可编辑代码块、11 项方法风险、正式项目复用清单、源哈希和中英文校验报告 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
+| `mcp/bigdata/README.md` / `.en.md`、`config.example.toml`、`tool-catalog.json` | bigdata MCP 的网关配置模板、11 个工具的调用契约、Presto/Spark/下载规范和故障排查；不含账号或 API secret |
 | `vault/migration-secrets.aesgcm` | AES-256-GCM 加密的 `.env` 与数据平台凭据包；解密密钥单独保存 |
 | `vault/env-files.aesgcm` | 旧版 `.env` 加密包，保留作历史副本；新电脑优先使用 `migration-secrets.aesgcm` |
 | `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单 |
@@ -60,9 +61,10 @@ GitHub 仓库地址：<https://github.com/Tiany517/huya_ty>
 1. 登录 GitHub 后克隆本仓库。
 2. 阅读 `instructions/AGENTS.md` 和 `inventory/migration-inventory.md`。
 3. 从 `skills/` 恢复 skills，并查看来源和版本说明。
-4. 参考 `local-source-map.md` 重建本机路径；将仓库外单独保存的 `huya_ty-env-files.key` 安全转移到新电脑，再用 `vault/decrypt-env-files.mjs` 解密 `vault/migration-secrets.aesgcm` 到暂存目录并逐项恢复。
-5. 阅读 `projects/` 中的项目背景和结果附件，再继续相关工作。
-6. 重新连接获准的数据服务，并在运行 SQL 前验证权限。
+4. 按 `mcp/bigdata/README.md` 合并 MCP 配置模板，重启 Codex 并确认 bigdata 工具出现。
+5. 参考 `local-source-map.md` 重建本机路径；将仓库外单独保存的 `huya_ty-env-files.key` 安全转移到新电脑，再用 `vault/decrypt-env-files.mjs` 解密 `vault/migration-secrets.aesgcm` 到暂存目录并逐项恢复。
+6. 阅读 `projects/` 中的项目背景和结果附件，再继续相关工作。
+7. 重新连接获准的数据服务，并在运行 SQL 前验证权限。
 
 ## 后续工作同步
 

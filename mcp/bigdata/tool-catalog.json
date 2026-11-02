@@ -1,0 +1,100 @@
+{
+  "server": "bigdata",
+  "archived_at": "2026-11-02",
+  "server_source_available_locally": false,
+  "authentication": {
+    "credential_storage": "vault/migration-secrets.aesgcm#credentials/bigdata-platform.txt",
+    "plaintext_in_repository": false,
+    "runtime_headers_redacted": [
+      "X-BIGDATA-APP",
+      "X-BIGDATA-SECRET"
+    ]
+  },
+  "defaults": {
+    "engine": "presto",
+    "fallback_engine": "spark",
+    "environment": "domestic",
+    "one_statement_per_request": true,
+    "result_download_tool": "get_query_result",
+    "default_result_size_limit_mb": 500
+  },
+  "tools": [
+    {
+      "name": "execute_sql",
+      "purpose": "Execute one Presto or Spark SQL statement.",
+      "required_arguments": ["sql"],
+      "optional_arguments": ["engine", "env", "timeout", "wait_for_result", "app_id", "passport"],
+      "safety": "Record rid for long jobs. Do not retry by submitting a duplicate before checking status."
+    },
+    {
+      "name": "get_query_status",
+      "purpose": "Check a query's state and progress by rid.",
+      "required_arguments": ["rid"],
+      "optional_arguments": ["engine", "env", "app_id", "passport"],
+      "safety": "Status polling is not a result download."
+    },
+    {
+      "name": "get_query_result",
+      "purpose": "Download a query result after checking its size.",
+      "required_arguments": ["rid"],
+      "optional_arguments": ["engine", "env", "max_size_mb", "app_id", "passport"],
+      "safety": "Preferred download tool; default cap is 500 MB."
+    },
+    {
+      "name": "download_query_result_raw",
+      "purpose": "Download a result without size checking.",
+      "required_arguments": ["rid"],
+      "optional_arguments": ["engine", "env", "app_id", "passport"],
+      "safety": "Only for known-size, explicitly authorized downloads; memory and timeout risk."
+    },
+    {
+      "name": "get_download_url",
+      "purpose": "Generate a short-lived authenticated download URL.",
+      "required_arguments": ["rid"],
+      "optional_arguments": ["engine", "env", "filename", "ttl"],
+      "safety": "Do not persist signed URLs or returned authentication headers."
+    },
+    {
+      "name": "get_latest_partitions",
+      "purpose": "Inspect the latest partitions for a table.",
+      "required_arguments": ["db", "table"],
+      "optional_arguments": ["limit", "region"],
+      "safety": "Actual coverage must be checked before time-window conclusions."
+    },
+    {
+      "name": "get_table_ddl",
+      "purpose": "Inspect DDL and catalog identity.",
+      "required_arguments": ["db", "table"],
+      "optional_arguments": ["region"],
+      "safety": "Use the returned full_name in SQL instead of guessing the catalog."
+    },
+    {
+      "name": "get_table_metadata",
+      "purpose": "Inspect DataMap table column metadata.",
+      "required_arguments": ["db_table_name"],
+      "optional_arguments": ["env", "app_id", "passport"],
+      "safety": "Metadata is semantic evidence, not proof of current units or coverage."
+    },
+    {
+      "name": "query_data_lineage",
+      "purpose": "Query upstream or downstream Lighthouse lineage.",
+      "required_arguments": ["table_name"],
+      "optional_arguments": ["direction", "content_filter", "username_filter", "env"],
+      "safety": "Use lineage as relationship evidence, not as field-definition proof."
+    },
+    {
+      "name": "get_task_detail",
+      "purpose": "Inspect a Lighthouse task and its read/write dependencies.",
+      "required_arguments": ["task_id"],
+      "optional_arguments": ["env"],
+      "safety": "Read-only inspection; do not modify production jobs."
+    },
+    {
+      "name": "query_event_data",
+      "purpose": "Inspect Doris event-tracking definitions by product or event.",
+      "required_arguments": [],
+      "optional_arguments": ["product_id", "event_id", "event_name", "event_name_fuzzy"],
+      "safety": "Confirm event scope; this is a definition lookup, not a user-level behavior extraction."
+    }
+  ]
+}

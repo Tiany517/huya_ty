@@ -1,0 +1,13 @@
+# Merge this block into %USERPROFILE%\.codex\config.toml.
+# The gateway URL is connection metadata and contains no account or API secret.
+# Supply app credentials through the organization's secure credential store or
+# the gateway-required runtime headers. Never commit those values here.
+
+[mcp_servers.bigdata]
+url = "https://mcp-gateway.huya.info/bigdata/bigdata/mcp/s/nu2rs0bitqvcdzzl"
+
+[mcp_servers.bigdata.tools.get_query_status]
+approval_mode = "approve"
+
+[mcp_servers.bigdata.tools.get_query_result]
+approval_mode = "approve"

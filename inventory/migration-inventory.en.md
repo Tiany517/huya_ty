@@ -24,13 +24,17 @@ The high-priority retention index is at `sql/topics/retention-analytics/`. The r
 
 There are 155 skill folders across Codex, Claude, and shared-agent configuration roots. A total of 1,182 source files were copied by source; 1,088 skill files are tracked in the repository, retaining same-named copies and references. Another 94 files ignored by source `.gitignore` files were not pushed. The `douyin-playwright` folder has Excel files, scripts, images, and temporary JSON that may be project results; review whether to include them under a project directory. Common credential formats were not found; test tokens and environment-variable examples remain unchanged.
 
+## Bigdata MCP
+
+`mcp/bigdata/` archives the Codex MCP gateway template, argument contracts for 11 tools, Presto/Spark selection, one-statement execution, long-query polling, result-size controls, partition checks, data lineage, troubleshooting, and new-computer recovery steps. The MCP is a company-managed remote gateway, so there is no standalone server source on this machine to upload; the repository stores the client connection template. Live `app_id`, `passport`, `X-BIGDATA-SECRET`, cookies, and signed URLs are not in Git. The Huya data-platform account/API credential exists only in `vault/migration-secrets.aesgcm`.
+
 ## Project Review Candidates
 
 These candidates are based only on Desktop folder names. Do not copy entire folders without review.
 
 | Topic | Candidate folders |
 | --- | --- |
-| Causal and event evaluation | 不朽杯弹窗PSM实验; 游戏主播跨播带来的影响; 莫拉塔合作效果分析 |
+| Causal and event evaluation | 不朽杯弹窗PSM实验; 游戏主播跨播带来的影响 (explicitly skipped by the user); 莫拉塔合作效果分析 |
 | Video-channel DAU and recurring reports | 月报_虎牙外部生态DAU; 月报_附录; 周报_附录; 周报监控模型 |
 | Streamer value, growth, and anti-fraud | 反挖; 快手王者荣耀主播反挖数据; 无畏契约份额增长; 王者主播潜力分析; 斗鱼潜力主播挖掘 |
 | User behavior and retention | 用户画像分析; 各类留存率取数; 社区评估; 星秀兴趣指数分析; 兴趣指数 |
@@ -102,6 +106,7 @@ The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workb
 ## Remaining Work
 
 - Continue with the remaining candidates: causal/event reviews, monthly/weekly appendices, Honor of Kings streamer potential, retention and interest indexes, AI tool documentation, and game/event topics.
+- `游戏主播跨播带来的影响` was explicitly skipped by the user on 2026-11-02. No project page, script, or result was committed; the local draft was moved outside the repository and the temporary matched-data cache was deleted.
 - Other projects in this inventory remain pending review, not archived. For each completed review, update this inventory and the root path map, inspect the full diff, and push the changes.
 - A raw ChatGPT export has not been archived. Confirm whether the company API account offers an account-level export; API work records may not be part of a ChatGPT web-account export.
 
