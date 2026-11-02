@@ -1,6 +1,6 @@
 # Migration Inventory
 
-Status: as of 2026-11-02, the migration repository has been committed and pushed to the private GitHub repository. Source files remain in place; only reviewed notes, SQL, skills, project scripts, and anonymized results have been organized in the repository. Remaining candidates below still require individual review and are not considered migrated based on folder names alone.
+Status: as of 2026-11-02, the migration repository has been committed and pushed to the private GitHub repository. Source files remain in place; only reviewed notes, SQL, skills, project scripts, anonymized results, and encrypted work history have been organized in the repository. The tables below record item-by-item status; folder names alone do not establish migration scope.
 
 ## Working Rules
 
@@ -140,13 +140,15 @@ The four Top 10 video-analysis XLSX files that the source `.gitignore` excluded 
 - `王者下跌和吕德华离开影响` was explicitly skipped by the user on 2026-11-02 because a later re-check is unlikely and further work on the deck, workbooks, and migration artifacts would consume too much time. No project page, script, anonymized result, validation artifact, raw workbook, deck, or user/streamer-level detail was committed; the source directory remains unchanged.
 - `世界杯专题` was explicitly skipped by the user on 2026-11-02 because a later re-check is unlikely and further work on the approximately 38 GB collection of historical reports, user-level data, search tagging, and PSM intermediates would consume too much time. No partial package exists in the repository; no project page, script, anonymized result, validation artifact, report, deck, SQL, user-level detail, or raw data was committed, and the source directory remains unchanged.
 - `主机游戏需求` was explicitly skipped by the user on 2026-11-02 because a later re-check is unlikely and continued auditing and migration would not justify the time. No project page, script, anonymized result, validation artifact, or raw workbook was committed; no partial repository package exists, and the source directory remains unchanged.
-- The only separate open item is the raw ChatGPT conversation export. Confirm whether the company API/workspace offers an account-level export; API work records may not be part of a ChatGPT web-account export.
+- ChatGPT history has an alternative backup from local Codex data: no official ChatGPT export archive was found, and a company API account cannot be assumed to have a web-account export. `archive/codex-work-history/codex-work-history-20261102.aesgcm` retains 300 threads, 3,453 user requests, 6,962 final/unspecified-phase replies, and 45 memory files; all 49 decrypted file hashes matched.
 
 For each selected project, record purpose, population, metric definitions, time windows, known findings, open questions, and links to code and deliverables. Include important artifacts that support findings or follow-up work. Detailed user-level Excel remains excluded under the original requirement unless the user explicitly changes that boundary.
 
 ## ChatGPT Conversation History
 
-Request an account data export if the account or workspace offers it, then review the conversations and project history. Keep a complete encrypted archive when useful. API-based conversations may be stored by the calling application or company system and may not appear in a ChatGPT account export.
+No official ChatGPT `conversations.json`, `chat.html`, or export archive was found locally. The current company API account cannot be assumed to have the data-export capability of a normal ChatGPT web account; even a workspace export may omit API calls and local Codex threads.
+
+An encrypted digest was generated from the local Codex database at `archive/codex-work-history/codex-work-history-20261102.aesgcm`. It retains user requests, assistant final/unspecified-phase replies, a thread catalog, local memory summaries, and export metadata. Reasoning, commentary, tool arguments/results, command traces, image binaries, file diffs, the complete SQLite databases, and approximately 933 MB of raw session/archived-session files stay out of Git. The repeatable exporter is `archive/codex-work-history/export_local_history.py`.
 
 ## Credentials
 

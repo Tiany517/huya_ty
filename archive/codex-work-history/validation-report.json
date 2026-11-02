@@ -1,0 +1,19 @@
+{
+  "archive": "archive/codex-work-history/codex-work-history-20261102.aesgcm",
+  "bytes": 7055026,
+  "sha256": "2e93a69235388c4e016b575cdc7fdcabcd1412a629c1f5420dbab0e4997a4126",
+  "encrypted": true,
+  "algorithm": "AES-256-GCM",
+  "decrypted_files": 49,
+  "hash_mismatches": 0,
+  "threads": 300,
+  "user_messages": 3453,
+  "assistant_messages": 6962,
+  "source_turns": 3853,
+  "source_user_messages": 3772,
+  "source_assistant_messages": 12069,
+  "excluded_internal_observer_messages": 319,
+  "memory_files": 45,
+  "plaintext_staging_removed": true,
+  "status": "passed"
+}

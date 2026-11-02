@@ -45,7 +45,7 @@
 | `projects/event-summary-review/` | LPL、KPL、FISSURE、BLAST 赛事总结：16 个赛事组的 DAU/拉新/回流、同比与阶段比较、11 个赛事的平台份额、原发布值与去重更正版、20 条重复行和 LPL Final 页错位审计；中英文分开，25 项校验 |
 | `projects/snooker-event-review/` | 斯诺克与世锦赛专题：89 个最终交付快照、61 份 SQL、世锦赛拉新/付费/视频直播覆盖、五个赛事到世锦赛留存、视频偏好、匿名画像、7 项质量风险和 36 项校验；中英文分开并附 GitHub 路径地图 |
 | `projects/causal-inference-handbook/` | PSM/SCM 教学手册：5 个源版本、74 个可编辑代码块、11 项方法风险、正式项目复用清单、源哈希和中英文校验报告 |
-| `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
+| `archive/codex-work-history/` | Codex 本地工作记录与记忆摘要：300 个线程、3,453 条用户请求、6,962 条最终/无阶段答复；AES-256-GCM 加密，附导出脚本和校验记录 |
 | `mcp/bigdata/README.md` / `.en.md`、`config.example.toml`、`tool-catalog.json` | bigdata MCP 的网关配置模板、11 个工具的调用契约、Presto/Spark/下载规范和故障排查；不含账号或 API secret |
 | `vault/migration-secrets-v2.aesgcm` | AES-256-GCM 加密的 `.env`、数据平台凭据和原告警脚本凭据副本；解密密钥单独保存 |
 | `vault/migration-secrets.aesgcm`、`vault/env-files.aesgcm` | 前两版加密包，保留作历史副本；新电脑优先使用 `migration-secrets-v2.aesgcm` |
