@@ -39,7 +39,7 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 | Streamer value, growth, and anti-fraud | 反挖; 快手王者荣耀主播反挖数据; 无畏契约份额增长; 王者主播潜力分析 (explicitly skipped by the user); 斗鱼潜力主播挖掘 (explicitly skipped by the user) |
 | User behavior and retention | 用户画像分析; 各类留存率取数 (explicitly skipped by the user); 社区评估 (explicitly skipped by the user); 星秀兴趣指数分析 (reviewed); 兴趣指数 (explicitly skipped by the user) |
 | AI workshop | AI工具说明 (reviewed); other AI Workshop and live-room projects are reviewed |
-| Game and event topics | 世界杯专题; 斯诺克专题; 王者下跌和吕德华离开影响; 主机游戏需求; 赛事总结 (reviewed and migrated) |
+| Game and event topics | 世界杯专题; 斯诺克专题; 王者下跌和吕德华离开影响; 主机游戏需求 (explicitly skipped by the user); 赛事总结 (reviewed and migrated) |
 
 ### First-Pass File Inventory (Metadata Only)
 
@@ -105,6 +105,7 @@ The single-streamer Huya-affiliated Douyin co-streaming case is documented in de
 | AI工坊专题 | Core review complete | Documented at `projects/ai-workshop-commercialization/`; large caches, user/streamer detail, and gift prompts stay out of Git |
 | AI工具说明 | One Markdown note plus the mav-slidecraft-skill and HyperFrames v0.1.2 plugin | Review complete at `projects/ai-tool-guide/`; separate Chinese/English pages, the original Chinese note, the mav skill, the 69-file HyperFrames plugin snapshot, SHA-256 ledger, and 12 checks are retained |
 | 赛事总结 | Two XLSX files (main about 1.32 MB, consolidated about 17 KB) and one 516 KB PPTX; contains UID, nickname, streamer-level ACU, and named-broadcaster narratives | Review complete at `projects/event-summary-review/`; bilingual anonymous DAU/comparison/share/duplication/quality/provenance/validation artifacts, build scripts, and 25 checks retained; raw workbooks and deck excluded |
+| 主机游戏需求 | Three XLSX files totaling about 10.1 MB; latest modification on 2026-06-25; contains streamer UIDs, nicknames, streamer-level revenue, and tipping-process data | Explicitly skipped by the user on 2026-11-02 because a later re-check is unlikely and further review would not justify the time. No project page, script, anonymized result, validation artifact, or raw workbook was committed |
 | AI直播间信息; AI直播间监控UID | Core review complete | Documented at `projects/ai-live-room-operations/`; anonymous summaries, both SQL files, bilingual documentation, and validation are retained, while raw UID/nickname snapshots were excluded and formal SQL execution remains not run |
 | 因果推断实操 | Project review complete | Documented at `projects/causal-inference-handbook/`; five source editions, eleven method risks, bilingual documentation, and twelve checks are retained, with the teaching examples explicitly barred from use as real causal evidence |
 | 不朽杯弹窗PSM实验 | Core review complete | Documented at `projects/buxiucup-popup-psm/`; three final reports, anonymous results, core scripts/SQL, and validation are archived; user-level sources and historical iterations were excluded |
@@ -130,6 +131,7 @@ The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workb
 - `周报_附录` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low. No project page, script, or result was committed; the completed `projects/weekly-ecosystem-monitoring/` remains valid.
 - `各类留存率取数` (snooker event retention) was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low. No project page, SQL copy, anonymized result, or validation artifact was committed; the local partial draft remains outside the repository.
 - `兴趣指数` (user-evaluation and LightGBM pipeline) was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further parsing of its models, training scripts, and 2,141 historical logs would not justify the time. No partial repository package exists; no project page, de-identified script, model summary, anonymized run aggregate, or validation certificate was committed, and the source directory remains unchanged.
+- `主机游戏需求` was explicitly skipped by the user on 2026-11-02 because a later re-check is unlikely and continued auditing and migration would not justify the time. No project page, script, anonymized result, validation artifact, or raw workbook was committed; no partial repository package exists, and the source directory remains unchanged.
 - Other projects in this inventory remain pending review, not archived. For each completed review, update this inventory and the root path map, inspect the full diff, and push the changes.
 - A raw ChatGPT export has not been archived. Confirm whether the company API account offers an account-level export; API work records may not be part of a ChatGPT web-account export.
 
