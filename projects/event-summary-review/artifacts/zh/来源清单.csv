@@ -1,0 +1,4 @@
+﻿source_artifact,bytes,sha256,expected_sha256,hash_matches_recorded,disposition,reason
+0914_赛事总结.xlsx,1315505,8fa1c7c2f3d8c21582c76413729423302f22030184097ab8eb583c220b066b6e,8fa1c7c2f3d8c21582c76413729423302f22030184097ab8eb583c220b066b6e,True,retain-derived-only,"Main workbook contains UID, nickname, and streamer-level ACU rows; raw workbook excluded, anonymous aggregates retained"
+0914_赛事总结_汇总.xlsx,16983,01fc2b36ee2ec9aa4b46daa5ae5999656f7f5ebb5b43a9ca50d20a2eb3408b00,01fc2b36ee2ec9aa4b46daa5ae5999656f7f5ebb5b43a9ca50d20a2eb3408b00,True,retain-derived-only,"Consolidated workbook contains named streamer contribution blocks; raw workbook excluded, anonymous aggregates retained"
+版权赛事V1_0921.pptx,516263,218809bb42a13796fad2745d80c8bef48ef624ca08d9305265f0bb6bf3860e56,218809bb42a13796fad2745d80c8bef48ef624ca08d9305265f0bb6bf3860e56,True,exclude,Two-slide deck contains named broadcasters and streamer-level narratives; excluded from Git

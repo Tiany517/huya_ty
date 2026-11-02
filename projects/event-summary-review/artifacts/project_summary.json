@@ -1,0 +1,18 @@
+{
+  "project": "event-summary-review",
+  "source_package_date": "2026-09-14",
+  "source_cutoff": "2026-09-13",
+  "event_count": 16,
+  "event_groups": [
+    "BLAST",
+    "FISSURE",
+    "KPL",
+    "LPL"
+  ],
+  "platform_share_events": 11,
+  "duplicate_extra_rows": 20,
+  "quality_findings": 6,
+  "raw_workbooks_included": false,
+  "presentation_included": false,
+  "status": "reviewed_with_documented_source_quality_issues"
+}

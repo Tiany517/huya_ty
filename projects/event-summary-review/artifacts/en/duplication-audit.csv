@@ -1,0 +1,4 @@
+﻿source_group,source_sheet,valid_rows,unique_keys,duplicate_groups,extra_rows,exact_duplicate_groups,differing_metric_groups,extra_effective_acu,extra_streamer_acu
+LPL,LPL份额数据源,2385,2383,2,2,2,0,27077.630553345392,45013.102500125715
+KPL,KPL_赛事份额_by主播,4258,4242,16,16,16,0,192137.11049933176,79729.76641721508
+BLAST,BLAST波尔图份额数据,1796,1794,2,2,2,0,119303.25447751235,115422.89285859547
