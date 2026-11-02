@@ -1,0 +1,6 @@
+source_id,source_path,size_bytes,sha256,role,content_relationship
+CI-SRC-00,sources/zero-hand-calculation.md,39511,9ff99d6abda772c4965305bbbfdc58eb01ec322c4b7c8a4d595fcc51a7d7646f,standalone deep-dive of the six-person hand calculation,normalized text is included verbatim in CI-SRC-03
+CI-SRC-01,sources/causal-inference-handbook-base.docx,34010,e2d01b5841d3dfb8601419915976cb2eee64f59b8b72af978ee0cd91004f7847,earlier DOCX edition with 871 paragraphs and 4 tables,not byte-identical to the optimized edition
+CI-SRC-02,sources/causal-inference-handbook-optimized.html,133438,dda7b9d8986d6a03b2e3db6e995e11ee94ed6f0eee6947464685b2b0e14e6e7b,optimized browser-readable edition,contains the same core PSM and SCM topics as CI-SRC-03
+CI-SRC-03,sources/causal-inference-handbook-optimized.md,85852,e170846ed5fd2205f6b6858b9686211ee9171a2a31d76ec5c69856fb38dbb528,canonical editable optimized edition,contains CI-SRC-00 and has 74 fenced code blocks
+CI-SRC-04,sources/causal-inference-handbook-optimized.pdf,1706583,83147b30bd81057d2cff79020fdb1472196814c00ee36a0c4329bb7bef7352f2,155-page optimized print edition,contains the same core PSM and SCM topics as CI-SRC-03

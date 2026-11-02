@@ -1,0 +1,3078 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>因果推断实操手册：PSM与SCM零基础落地指南</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 2.2cm;
+    @top-center {
+      font-size: 9pt;
+      color: #999;
+      content: "因果推断实操手册：PSM与SCM零基础落地指南";
+    }
+    @bottom-center {
+      font-size: 9pt;
+      color: #999;
+      content: "— " counter(page) " —";
+    }
+  }
+
+  body {
+    font-family: "Microsoft YaHei", "SimHei", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-size: 11pt;
+    line-height: 1.8;
+    color: #2c3e50;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 22pt;
+    font-weight: bold;
+    color: #1a1a2e;
+    text-align: center;
+    margin: 30px 0 10px 0;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #2c3e50;
+    page-break-before: avoid;
+  }
+
+  /* Code-section h1 markers — make them look like code labels, not page titles */
+  h1 ~ h1 {
+    font-size: 9pt;
+    font-weight: normal;
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
+    color: #5c6370;
+    text-align: left;
+    margin: 8px 0 4px 0;
+    padding: 4px 8px;
+    border-bottom: none;
+    background: #f5f6f8;
+    border-radius: 4px;
+    page-break-before: avoid;
+  }
+
+  h2 {
+    font-size: 16pt;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 28px 0 14px 0;
+    padding: 8px 0;
+    border-bottom: 2px solid #3498db;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 13pt;
+    font-weight: bold;
+    color: #34495e;
+    margin: 22px 0 10px 0;
+    page-break-after: avoid;
+  }
+
+  h4 {
+    font-size: 11.5pt;
+    font-weight: bold;
+    color: #555;
+    margin: 16px 0 8px 0;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin: 8px 0;
+    text-align: justify;
+  }
+
+  /* ============================================================
+     Feishu-style Code Blocks
+     ============================================================ */
+  .code-block {
+    margin: 16px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e6ed;
+    background: #ffffff;
+    page-break-inside: avoid;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .code-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 36px;
+    background: #f5f6f8;
+    border-bottom: 1px solid #e2e6ed;
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-size: 12px;
+    color: #646a73;
+    user-select: none;
+  }
+
+  .code-block-lang {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+
+  .code-block-lang::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+  }
+
+  /* Language-specific icons using emoji */
+  .code-block-lang.python::before { content: "🐍"; }
+  .code-block-lang.bash::before   { content: "⬢"; }
+  .code-block-lang.sql::before    { content: "🗄"; }
+  .code-block-lang.r::before      { content: "📊"; }
+  .code-block-lang.text::before   { content: "📝"; }
+  .code-block-lang.markdown::before { content: "📋"; }
+
+  .code-block-copy {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: 1px solid #d0d5dd;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #646a73;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .code-block-copy:hover {
+    background: #f0f1f3;
+    border-color: #b0b5bd;
+  }
+
+  .code-block-copy.copied {
+    background: #e8f8ee;
+    border-color: #34c759;
+    color: #34c759;
+  }
+
+  .code-block pre {
+    margin: 0;
+    padding: 16px 20px;
+    background: #1e1f22;
+    color: #e6e8eb;
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", "Courier New", "Source Code Pro", monospace;
+    font-size: 9pt;
+    line-height: 1.65;
+    overflow-x: auto;
+    white-space: pre;
+    word-break: normal;
+    border: none;
+    border-radius: 0;
+    tab-size: 4;
+    -moz-tab-size: 4;
+  }
+
+  .code-block pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+    font-family: inherit;
+  }
+
+  /* Syntax highlighting - light touch for key patterns */
+  .code-block pre .kw  { color: #c678dd; }  /* keyword */
+  .code-block pre .fn  { color: #61afef; }  /* function */
+  .code-block pre .str { color: #98c379; }  /* string */
+  .code-block pre .num { color: #d19a66; }  /* number */
+  .code-block pre .cm  { color: #5c6370; font-style: italic; }  /* comment */
+  .code-block pre .imp { color: #e06c75; }  /* import/include */
+  .code-block pre .decorator { color: #e5c07b; }  /* decorator */
+
+  /* Inline code */
+  code {
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", "Courier New", monospace;
+    font-size: 9pt;
+    background: #f2f3f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #e74c3c;
+    border: 1px solid #e8eaed;
+  }
+
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+  }
+
+  /* Legacy pre fallback (for any not wrapped by JS) */
+  pre:not(.code-block pre) {
+    background: #1e1f22;
+    color: #e6e8eb;
+    font-family: "JetBrains Mono", "Cascadia Code", "Consolas", "Courier New", monospace;
+    font-size: 9pt;
+    line-height: 1.6;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: normal;
+    margin: 12px 0;
+    border: 1px solid #333;
+    page-break-inside: avoid;
+  }
+
+  pre:not(.code-block pre) code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+
+  th {
+    background: #2c3e50;
+    color: white;
+    font-weight: bold;
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid #2c3e50;
+  }
+
+  td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+
+  tr:nth-child(even) {
+    background: #f8f9fa;
+  }
+
+  tr:hover {
+    background: #e8f4fd;
+  }
+
+  /* Blockquotes */
+  blockquote {
+    background: #f0f7ff;
+    border-left: 4px solid #3498db;
+    margin: 14px 0;
+    padding: 12px 16px;
+    color: #2c3e50;
+    font-style: italic;
+    page-break-inside: avoid;
+  }
+
+  blockquote p {
+    margin: 4px 0;
+  }
+
+  /* Horizontal rules */
+  hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 30px 0;
+  }
+
+  /* Lists */
+  ul, ol {
+    margin: 8px 0;
+    padding-left: 24px;
+  }
+
+  li {
+    margin: 4px 0;
+  }
+
+  /* Strong / bold */
+  strong {
+    color: #1a1a2e;
+  }
+
+  /* Links */
+  a {
+    color: #3498db;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* Emoji / special characters */
+  .emoji {
+    font-style: normal;
+  }
+
+  /* Page break before major sections */
+  h1 + p,
+  hr + h1,
+  hr + h2 {
+    page-break-before: avoid;
+  }
+
+  /* Ensure code blocks and pre don't overflow */
+  img {
+    max-width: 100%;
+  }
+
+  /* Print optimizations */
+  @media print {
+    body {
+      font-size: 10.5pt;
+    }
+    pre {
+      font-size: 8pt;
+    }
+    h1 {
+      page-break-before: always;
+    }
+    h1:first-child {
+      page-break-before: avoid;
+    }
+    table {
+      font-size: 9pt;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>因果推断实操手册：PSM与SCM零基础落地指南</h1>
+<h2>倾向得分匹配 &amp; 合成控制法 — 从概念到代码，手把手教会你</h2>
+<p><strong>2026年5月 | 零基础友好 | 所有代码可直接复制运行 | 含中文详细注释</strong></p>
+<hr>
+<h2>目录</h2>
+<h3>第零部分：极简手算全链路（新增！先理解底层）</h3>
+<ul>
+<li>0.0 场景与样本</li>
+<li>0.1 逻辑回归系数拟合：极简手算（3轮迭代）</li>
+<li>0.2 倾向得分手算</li>
+<li>0.3 手动1:1 PSM最近邻匹配</li>
+<li>0.4 匹配前后SMD手工计算</li>
+<li>0.5 业务效果测算</li>
+<li>0.6 LightGBM 极简迭代模拟</li>
+</ul>
+<h3>第一部分 PSM（倾向得分匹配）— 代码实现</h3>
+<ul>
+<li>1.1 大白话理解</li>
+<li>1.2 业务场景</li>
+<li>1.3 估计倾向得分的三种方法（逻辑回归 / 随机森林 / GBDT）</li>
+<li>1.4 完整可运行代码（带详细中文注释）</li>
+<li>1.5 核心评估指标</li>
+<li>1.6 调参指南</li>
+</ul>
+<h3>第二部分 SCM（合成控制方法）— 代码实现</h3>
+<ul>
+<li>2.1 大白话理解</li>
+<li>2.2 业务场景</li>
+<li>2.3 完整可运行代码（带详细中文注释）</li>
+<li>2.4 核心评估指标</li>
+<li>2.5 调参指南</li>
+</ul>
+<h3>第三部分 PSM vs SCM：选哪个？</h3>
+<h3>附录 环境配置 &amp; 常见报错</h3>
+<hr>
+<h1>第零部分：极简手算全链路 —— 先吃透底层逻辑，再写代码</h1>
+<blockquote>
+<p><strong>学习建议</strong>：本章用6条极简样本、纯加减乘除，带你手工走完逻辑回归→倾向得分→PSM匹配→SMD检验→效果评估的完整链路。<strong>拿一支笔、一个计算器，跟着每一步亲手算一遍</strong>，算完你就真正懂了PSM的底层。</p>
+<p>算完本章再看第一部分的Python代码，你会发现代码只是把手算过程自动化了而已。</p>
+</blockquote>
+<hr>
+<h2>0.0 场景与样本：固定下来，全程不换</h2>
+<h3>业务场景</h3>
+<p>你是某电商平台的数据分析师。公司推出了&quot;PLUS会员&quot;，你想评估：<strong>开通PLUS会员是否真的提高了月消费？</strong></p>
+<h3>极简样本（6个用户）</h3>
+<p>为了能用手算走完全流程，我们只取 <strong>6个用户、2个特征</strong>，所有数字都取整：</p>
+<table>
+<thead>
+<tr>
+<th align="left">用户</th>
+<th align="center">age（年龄）</th>
+<th align="center">past_purchase（过去3月消费/元）</th>
+<th align="center">is_member（是否会员）</th>
+<th align="center">monthly_spend（当月消费/元）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">小赵</td>
+<td align="center">25</td>
+<td align="center">200</td>
+<td align="center">0</td>
+<td align="center">800</td>
+</tr>
+<tr>
+<td align="left">小钱</td>
+<td align="center">30</td>
+<td align="center">300</td>
+<td align="center">0</td>
+<td align="center">1000</td>
+</tr>
+<tr>
+<td align="left">小孙</td>
+<td align="center">35</td>
+<td align="center">500</td>
+<td align="center">1</td>
+<td align="center">1500</td>
+</tr>
+<tr>
+<td align="left">小李</td>
+<td align="center">40</td>
+<td align="center">550</td>
+<td align="center">1</td>
+<td align="center">1800</td>
+</tr>
+<tr>
+<td align="left">小周</td>
+<td align="center">28</td>
+<td align="center">250</td>
+<td align="center">0</td>
+<td align="center">900</td>
+</tr>
+<tr>
+<td align="left">小吴</td>
+<td align="center">32</td>
+<td align="center">480</td>
+<td align="center">1</td>
+<td align="center">1600</td>
+</tr>
+</tbody></table>
+<p><strong>看一眼就知道存在选择偏差</strong>：3个会员（小孙、小李、小吴）年龄偏大、过去消费偏高；3个非会员（小赵、小钱、小周）年龄偏小、过去消费偏低。直接比较两组月消费，一定会高估会员的效果——因为他们即使不开会员，本来也会花更多钱。</p>
+<ul>
+<li>会员平均月消费：(1500 + 1800 + 1600) / 3 = <strong>1633 元</strong></li>
+<li>非会员平均月消费：(800 + 1000 + 900) / 3 = <strong>900 元</strong></li>
+<li>简单差值：1633 - 900 = <strong>733 元</strong></li>
+</ul>
+<p>但我们知道这个733元不全是会员带来的，很大一部分是&quot;会员本身就有钱、爱花钱&quot;造成的。<strong>PSM的目的就是修正这个偏差。</strong></p>
+<hr>
+<h2>0.1 逻辑回归系数拟合：极简手算（3轮完整迭代）</h2>
+<h3>大白话理解：逻辑回归到底在干什么？</h3>
+<p>逻辑回归就像一个<strong>自动调参的打分机</strong>：</p>
+<ul>
+<li>输入：一个人的年龄、过去消费</li>
+<li>输出：一个0到1之间的分数——这个人成为会员的概率</li>
+<li>怎么调参：先瞎猜一个分数，看猜得准不准；猜错了就调一下参数，让下次猜得更准；反复调几次，就越来越准了</li>
+</ul>
+<h3>Step 1：特征标准化（让不同尺度可比）</h3>
+<p>年龄是20-40的范围，消费是200-550的范围，尺度不一样。我们先标准化，让两者在同一尺度上。</p>
+<p><strong>标准化公式</strong>：<code>标准化值 = (原始值 − 均值) ÷ 标准差</code></p>
+<h4>计算 age 的均值和标准差</h4>
+<pre><code>age原始值: 25, 30, 35, 40, 28, 32
+
+均值 = (25 + 30 + 35 + 40 + 28 + 32) ÷ 6
+     = 190 ÷ 6
+     = 31.667
+</code></pre>
+<pre><code>方差 = [(25-31.667)² + (30-31.667)² + (35-31.667)² + (40-31.667)² + (28-31.667)² + (32-31.667)²] ÷ 6
+
+逐项计算：
+(25-31.667)² = (-6.667)² = 44.449
+(30-31.667)² = (-1.667)² =  2.779
+(35-31.667)² = ( 3.333)² = 11.109
+(40-31.667)² = ( 8.333)² = 69.439
+(28-31.667)² = (-3.667)² = 13.447
+(32-31.667)² = ( 0.333)² =  0.111
+
+求和 = 44.449 + 2.779 + 11.109 + 69.439 + 13.447 + 0.111 = 141.334
+方差 = 141.334 ÷ 6 = 23.556
+</code></pre>
+<pre><code>标准差 = √23.556 ≈ 4.854
+</code></pre>
+<h4>计算 past_purchase 的均值和标准差</h4>
+<pre><code>past_purchase原始值: 200, 300, 500, 550, 250, 480
+
+均值 = (200 + 300 + 500 + 550 + 250 + 480) ÷ 6
+     = 2280 ÷ 6
+     = 380
+</code></pre>
+<pre><code>方差 = [(200-380)² + (300-380)² + (500-380)² + (550-380)² + (250-380)² + (480-380)²] ÷ 6
+
+逐项计算：
+(200-380)² = (-180)² = 32400
+(300-380)² = ( -80)² =  6400
+(500-380)² = ( 120)² = 14400
+(550-380)² = ( 170)² = 28900
+(250-380)² = (-130)² = 16900
+(480-380)² = ( 100)² = 10000
+
+求和 = 32400 + 6400 + 14400 + 28900 + 16900 + 10000 = 109000
+方差 = 109000 ÷ 6 = 18166.667
+</code></pre>
+<pre><code>标准差 = √18166.667 ≈ 134.784
+</code></pre>
+<h4>逐行计算标准化值</h4>
+<pre><code>age_std:
+小赵: (25 - 31.667) ÷ 4.854 = -6.667 ÷ 4.854 = -1.374
+小钱: (30 - 31.667) ÷ 4.854 = -1.667 ÷ 4.854 = -0.343
+小孙: (35 - 31.667) ÷ 4.854 =  3.333 ÷ 4.854 =  0.687
+小李: (40 - 31.667) ÷ 4.854 =  8.333 ÷ 4.854 =  1.717
+小周: (28 - 31.667) ÷ 4.854 = -3.667 ÷ 4.854 = -0.756
+小吴: (32 - 31.667) ÷ 4.854 =  0.333 ÷ 4.854 =  0.069
+
+past_purchase_std:
+小赵: (200 - 380) ÷ 134.784 = -180 ÷ 134.784 = -1.335
+小钱: (300 - 380) ÷ 134.784 =  -80 ÷ 134.784 = -0.594
+小孙: (500 - 380) ÷ 134.784 =  120 ÷ 134.784 =  0.890
+小李: (550 - 380) ÷ 134.784 =  170 ÷ 134.784 =  1.261
+小周: (250 - 380) ÷ 134.784 = -130 ÷ 134.784 = -0.964
+小吴: (480 - 380) ÷ 134.784 =  100 ÷ 134.784 =  0.742
+</code></pre>
+<p>汇总标准化后的数据表：</p>
+<table>
+<thead>
+<tr>
+<th align="left">用户</th>
+<th align="center">age_std</th>
+<th align="center">purchase_std</th>
+<th align="center">is_member</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">小赵</td>
+<td align="center">−1.374</td>
+<td align="center">−1.335</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="left">小钱</td>
+<td align="center">−0.343</td>
+<td align="center">−0.594</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="left">小孙</td>
+<td align="center">+0.687</td>
+<td align="center">+0.890</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="left">小李</td>
+<td align="center">+1.717</td>
+<td align="center">+1.261</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="left">小周</td>
+<td align="center">−0.756</td>
+<td align="center">−0.964</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="left">小吴</td>
+<td align="center">+0.069</td>
+<td align="center">+0.742</td>
+<td align="center">1</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>有了这6行数据，下面开始训练逻辑回归模型。</p>
+</blockquote>
+<hr>
+<h3>Step 2：初始化系数 —— 从零开始</h3>
+<p>逻辑回归的核心公式只有两步：</p>
+<pre><code>① z = b₀ + b₁ × age_std + b₂ × purchase_std    （线性组合）
+② p = 1 ÷ (1 + e^(-z))                           （Sigmoid：把z映射到0-1之间）
+</code></pre>
+<p>其中：</p>
+<ul>
+<li><strong>b₀</strong>：截距（基础偏差，不管特征如何都有的基础概率）</li>
+<li><strong>b₁</strong>：年龄的权重（年龄对&quot;是否成为会员&quot;的影响）</li>
+<li><strong>b₂</strong>：过去消费的权重（消费对&quot;是否成为会员&quot;的影响）</li>
+<li><strong>z</strong>：线性预测值（可以是任何实数）</li>
+<li><strong>p</strong>：倾向得分（0到1之间的概率）</li>
+<li><strong>e</strong>：自然常数 ≈ 2.71828</li>
+</ul>
+<p><strong>初始状态</strong>：训练开始时，我们什么都不知道，所有系数设为0。</p>
+<pre><code>b₀ = 0,  b₁ = 0,  b₂ = 0
+</code></pre>
+<p><strong>学习率</strong>设为 0.1。学习率控制每次调整的幅度——太大跳过头，太小进步慢。0.1是一个适中的起点。</p>
+<hr>
+<h3>Step 3：第1轮迭代 —— 从全0开始</h3>
+<h4>3.1 用初始系数计算预测值</h4>
+<p>因为 b₀=b₁=b₂=0，所有人的 z 都是 0：</p>
+<pre><code>每个人的 z = 0 + 0×age_std + 0×purchase_std = 0
+每个人的 p = 1 ÷ (1 + e^(-0)) = 1 ÷ (1 + 1) = 1 ÷ 2 = 0.5
+</code></pre>
+<blockquote>
+<p><strong>关键理解</strong>：当模型什么都不知道时，它对每个人都猜0.5——&quot;一半可能是会员，一半可能不是&quot;。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">用户</th>
+<th align="center">z</th>
+<th align="center">p（预测概率）</th>
+<th align="center">实际 is_member</th>
+<th align="center">误差 = 实际 − 预测</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">小赵</td>
+<td align="center">0</td>
+<td align="center">0.5</td>
+<td align="center">0</td>
+<td align="center">−0.5</td>
+</tr>
+<tr>
+<td align="left">小钱</td>
+<td align="center">0</td>
+<td align="center">0.5</td>
+<td align="center">0</td>
+<td align="center">−0.5</td>
+</tr>
+<tr>
+<td align="left">小孙</td>
+<td align="center">0</td>
+<td align="center">0.5</td>
+<td align="center">1</td>
+<td align="center">+0.5</td>
+</tr>
+<tr>
+<td align="left">小李</td>
+<td align="center">0</td>
+<td align="center">0.5</td>
+<td align="center">1</td>
+<td align="center">+0.5</td>
+</tr>
+<tr>
+<td align="left">小周</td>
+<td align="center">0</td>
+<td align="center">0.5</td>
+<td align="center">0</td>
+<td align="center">−0.5</td>
+</tr>
+<tr>
+<td align="left">小吴</td>
+<td align="center">0</td>
+<td align="center">0.5</td>
+<td align="center">1</td>
+<td align="center">+0.5</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>误差的含义</strong>：</p>
+<ul>
+<li>非会员（实际=0），预测0.5 → 误差=−0.5 → <strong>模型高估了</strong></li>
+<li>会员（实际=1），预测0.5 → 误差=+0.5 → <strong>模型低估了</strong></li>
+</ul>
+</blockquote>
+<h4>3.2 用误差来更新系数</h4>
+<p><strong>更新规则（纯算术版）</strong>：</p>
+<pre><code>新bⱼ = 旧bⱼ + 学习率 × 平均(误差 × 特征值ⱼ)
+</code></pre>
+<p>这个规则的含义：<strong>如果误差和特征值同方向（都正或都负），就加大这个特征的系数；如果反方向，就减小。</strong></p>
+<h5>更新 b₀（截距项，对应的&quot;特征值&quot;恒为1）</h5>
+<pre><code>平均(误差 × 1) = (−0.5 − 0.5 + 0.5 + 0.5 − 0.5 + 0.5) ÷ 6
+               = 0 ÷ 6
+               = 0
+
+新b₀ = 0 + 0.1 × 0 = 0
+</code></pre>
+<p>b₀ 不变，因为正负误差恰好抵消。</p>
+<h5>更新 b₁（年龄系数）</h5>
+<p>先算每个人的 <code>误差 × age_std</code>：</p>
+<pre><code>小赵: −0.5 × (−1.374) = +0.687  ← 误差负、age负，乘积为正
+小钱: −0.5 × (−0.343) = +0.172  ← 同上
+小孙: +0.5 × (+0.687) = +0.344  ← 误差正、age正，乘积为正
+小李: +0.5 × (+1.717) = +0.859  ← 同上
+小周: −0.5 × (−0.756) = +0.378  ← 误差负、age负，乘积为正
+小吴: +0.5 × (+0.069) = +0.035  ← 误差正、age正，乘积为正
+</code></pre>
+<blockquote>
+<p><strong>观察</strong>：所有6个乘积都是正数！因为会员(误差正)的age标准化值恰好都为正，非会员(误差负)的age标准化值恰好都为负。这说明 <strong>age和&quot;是否会员&quot;是正相关的</strong>。</p>
+</blockquote>
+<pre><code>平均 = (0.687 + 0.172 + 0.344 + 0.859 + 0.378 + 0.035) ÷ 6
+     = 2.475 ÷ 6
+     = 0.413
+
+新b₁ = 0 + 0.1 × 0.413 = 0.0413
+</code></pre>
+<h5>更新 b₂（消费系数）</h5>
+<pre><code>小赵: −0.5 × (−1.335) = +0.668
+小钱: −0.5 × (−0.594) = +0.297
+小孙: +0.5 × (+0.890) = +0.445
+小李: +0.5 × (+1.261) = +0.631
+小周: −0.5 × (−0.964) = +0.482
+小吴: +0.5 × (+0.742) = +0.371
+
+求和 = 0.668 + 0.297 + 0.445 + 0.631 + 0.482 + 0.371 = 2.894
+平均 = 2.894 ÷ 6 = 0.482
+
+新b₂ = 0 + 0.1 × 0.482 = 0.0482
+</code></pre>
+<h4>📊 第1轮结束后</h4>
+<pre><code>b₀ = 0,  b₁ = 0.0413,  b₂ = 0.0482
+</code></pre>
+<p>两个系数都从0变成了正数——模型学到了&quot;年龄越大、消费越多 → 越可能是会员&quot;。</p>
+<hr>
+<h3>Step 4：第2轮迭代 —— 用新系数重新预测</h3>
+<h4>4.1 用新系数计算每个人的 z 和 p</h4>
+<p><strong>小赵</strong> (age_std=−1.374, purchase_std=−1.335)：</p>
+<pre><code>z = 0 + 0.0413×(−1.374) + 0.0482×(−1.335)
+  = −0.0567 + (−0.0643)
+  = −0.1210
+
+e^(-z) = e^(0.1210) ≈ 1.129  （e^0.121 = 1.1287...，保留3位小数用1.129）
+
+p = 1 ÷ (1 + 1.129) = 1 ÷ 2.129 = 0.470
+误差 = 0 − 0.470 = −0.470
+</code></pre>
+<p><strong>小钱</strong> (age_std=−0.343, purchase_std=−0.594)：</p>
+<pre><code>z = 0 + 0.0413×(−0.343) + 0.0482×(−0.594)
+  = −0.0142 + (−0.0286)
+  = −0.0428
+
+e^(-z) = e^(0.0428) ≈ 1.044
+
+p = 1 ÷ (1 + 1.044) = 1 ÷ 2.044 = 0.489
+误差 = 0 − 0.489 = −0.489
+</code></pre>
+<p><strong>小孙</strong> (age_std=+0.687, purchase_std=+0.890)：</p>
+<pre><code>z = 0 + 0.0413×0.687 + 0.0482×0.890
+  = 0.0284 + 0.0429
+  = 0.0713
+
+e^(-z) = e^(-0.0713) ≈ 0.931
+
+p = 1 ÷ (1 + 0.931) = 1 ÷ 1.931 = 0.518
+误差 = 1 − 0.518 = +0.482
+</code></pre>
+<p><strong>小李</strong> (age_std=+1.717, purchase_std=+1.261)：</p>
+<pre><code>z = 0 + 0.0413×1.717 + 0.0482×1.261
+  = 0.0709 + 0.0608
+  = 0.1317
+
+e^(-z) = e^(-0.1317) ≈ 0.877
+
+p = 1 ÷ (1 + 0.877) = 1 ÷ 1.877 = 0.533
+误差 = 1 − 0.533 = +0.467
+</code></pre>
+<p><strong>小周</strong> (age_std=−0.756, purchase_std=−0.964)：</p>
+<pre><code>z = 0 + 0.0413×(−0.756) + 0.0482×(−0.964)
+  = −0.0312 + (−0.0465)
+  = −0.0777
+
+e^(-z) = e^(0.0777) ≈ 1.081
+
+p = 1 ÷ (1 + 1.081) = 1 ÷ 2.081 = 0.481
+误差 = 0 − 0.481 = −0.481
+</code></pre>
+<p><strong>小吴</strong> (age_std=+0.069, purchase_std=+0.742)：</p>
+<pre><code>z = 0 + 0.0413×0.069 + 0.0482×0.742
+  = 0.0029 + 0.0358
+  = 0.0387
+
+e^(-z) = e^(-0.0387) ≈ 0.962
+
+p = 1 ÷ (1 + 0.962) = 1 ÷ 1.962 = 0.510
+误差 = 1 − 0.510 = +0.490
+</code></pre>
+<h4>第2轮预测汇总</h4>
+<table>
+<thead>
+<tr>
+<th align="left">用户</th>
+<th align="center">z</th>
+<th align="center">p</th>
+<th align="center">实际</th>
+<th align="center">误差</th>
+<th align="left">相比第1轮(p=0.5)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">小赵</td>
+<td align="center">−0.121</td>
+<td align="center">0.470</td>
+<td align="center">0</td>
+<td align="center">−0.470</td>
+<td align="left">✅ 从0.5降到0.470（更接近0）</td>
+</tr>
+<tr>
+<td align="left">小钱</td>
+<td align="center">−0.043</td>
+<td align="center">0.489</td>
+<td align="center">0</td>
+<td align="center">−0.489</td>
+<td align="left">✅ 从0.5降到0.489（更接近0）</td>
+</tr>
+<tr>
+<td align="left">小孙</td>
+<td align="center">+0.071</td>
+<td align="center">0.518</td>
+<td align="center">1</td>
+<td align="center">+0.482</td>
+<td align="left">✅ 从0.5升到0.518（更接近1）</td>
+</tr>
+<tr>
+<td align="left">小李</td>
+<td align="center">+0.132</td>
+<td align="center">0.533</td>
+<td align="center">1</td>
+<td align="center">+0.467</td>
+<td align="left">✅ 从0.5升到0.533（更接近1）</td>
+</tr>
+<tr>
+<td align="left">小周</td>
+<td align="center">−0.078</td>
+<td align="center">0.481</td>
+<td align="center">0</td>
+<td align="center">−0.481</td>
+<td align="left">✅ 从0.5降到0.481（更接近0）</td>
+</tr>
+<tr>
+<td align="left">小吴</td>
+<td align="center">+0.039</td>
+<td align="center">0.510</td>
+<td align="center">1</td>
+<td align="center">+0.490</td>
+<td align="left">✅ 从0.5升到0.510（更接近1）</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>进步了！</strong> 所有预测都在向正确的方向移动。但误差仍然较大（约±0.47~0.49），还需要继续调整。</p>
+</blockquote>
+<h4>4.2 更新系数</h4>
+<h5>更新 b₀</h5>
+<pre><code>平均(误差) = (−0.470 − 0.489 + 0.482 + 0.467 − 0.481 + 0.490) ÷ 6
+           = −0.001 ÷ 6
+           ≈ 0
+
+新b₀ = 0 + 0.1 × 0 = 0
+</code></pre>
+<h5>更新 b₁</h5>
+<pre><code>小赵: −0.470 × (−1.374) = +0.646
+小钱: −0.489 × (−0.343) = +0.168
+小孙: +0.482 × (+0.687) = +0.331
+小李: +0.467 × (+1.717) = +0.802
+小周: −0.481 × (−0.756) = +0.364
+小吴: +0.490 × (+0.069) = +0.034
+
+求和 = 0.646 + 0.168 + 0.331 + 0.802 + 0.364 + 0.034 = 2.345
+平均 = 2.345 ÷ 6 = 0.391
+
+新b₁ = 0.0413 + 0.1 × 0.391 = 0.0413 + 0.0391 = 0.0804
+</code></pre>
+<h5>更新 b₂</h5>
+<pre><code>小赵: −0.470 × (−1.335) = +0.627
+小钱: −0.489 × (−0.594) = +0.290
+小孙: +0.482 × (+0.890) = +0.429
+小李: +0.467 × (+1.261) = +0.589
+小周: −0.481 × (−0.964) = +0.464
+小吴: +0.490 × (+0.742) = +0.364
+
+求和 = 0.627 + 0.290 + 0.429 + 0.589 + 0.464 + 0.364 = 2.763
+平均 = 2.763 ÷ 6 = 0.461
+
+新b₂ = 0.0482 + 0.1 × 0.461 = 0.0482 + 0.0461 = 0.0943
+</code></pre>
+<h4>📊 第2轮结束后</h4>
+<pre><code>b₀ = 0,  b₁ = 0.0804,  b₂ = 0.0943
+</code></pre>
+<hr>
+<h3>Step 5：第3轮迭代 —— 继续精调</h3>
+<h4>5.1 用新系数计算 z 和 p</h4>
+<p><strong>小赵</strong> (age_std=−1.374, purchase_std=−1.335)：</p>
+<pre><code>z = 0.0804×(−1.374) + 0.0943×(−1.335)
+  = −0.1105 + (−0.1259)
+  = −0.2364
+
+e^(-z) = e^(0.2364) ≈ 1.267
+
+p = 1 ÷ (1 + 1.267) = 1 ÷ 2.267 = 0.441
+误差 = 0 − 0.441 = −0.441
+</code></pre>
+<p><strong>小钱</strong> (age_std=−0.343, purchase_std=−0.594)：</p>
+<pre><code>z = 0.0804×(−0.343) + 0.0943×(−0.594)
+  = −0.0276 + (−0.0560)
+  = −0.0836
+
+e^(-z) = e^(0.0836) ≈ 1.087
+
+p = 1 ÷ (1 + 1.087) = 1 ÷ 2.087 = 0.479
+误差 = 0 − 0.479 = −0.479
+</code></pre>
+<p><strong>小孙</strong> (age_std=+0.687, purchase_std=+0.890)：</p>
+<pre><code>z = 0.0804×0.687 + 0.0943×0.890
+  = 0.0552 + 0.0839
+  = 0.1391
+
+e^(-z) = e^(-0.1391) ≈ 0.870
+
+p = 1 ÷ (1 + 0.870) = 1 ÷ 1.870 = 0.535
+误差 = 1 − 0.535 = +0.465
+</code></pre>
+<p><strong>小李</strong> (age_std=+1.717, purchase_std=+1.261)：</p>
+<pre><code>z = 0.0804×1.717 + 0.0943×1.261
+  = 0.1380 + 0.1189
+  = 0.2569
+
+e^(-z) = e^(-0.2569) ≈ 0.773
+
+p = 1 ÷ (1 + 0.773) = 1 ÷ 1.773 = 0.564
+误差 = 1 − 0.564 = +0.436
+</code></pre>
+<p><strong>小周</strong> (age_std=−0.756, purchase_std=−0.964)：</p>
+<pre><code>z = 0.0804×(−0.756) + 0.0943×(−0.964)
+  = −0.0608 + (−0.0909)
+  = −0.1517
+
+e^(-z) = e^(0.1517) ≈ 1.164
+
+p = 1 ÷ (1 + 1.164) = 1 ÷ 2.164 = 0.462
+误差 = 0 − 0.462 = −0.462
+</code></pre>
+<p><strong>小吴</strong> (age_std=+0.069, purchase_std=+0.742)：</p>
+<pre><code>z = 0.0804×0.069 + 0.0943×0.742
+  = 0.0055 + 0.0700
+  = 0.0755
+
+e^(-z) = e^(-0.0755) ≈ 0.927
+
+p = 1 ÷ (1 + 0.927) = 1 ÷ 1.927 = 0.519
+误差 = 1 − 0.519 = +0.481
+</code></pre>
+<h4>第3轮预测汇总</h4>
+<table>
+<thead>
+<tr>
+<th align="left">用户</th>
+<th align="center">z</th>
+<th align="center">p</th>
+<th align="center">实际</th>
+<th align="center">误差</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">小赵</td>
+<td align="center">−0.236</td>
+<td align="center">0.441</td>
+<td align="center">0</td>
+<td align="center">−0.441</td>
+</tr>
+<tr>
+<td align="left">小钱</td>
+<td align="center">−0.084</td>
+<td align="center">0.479</td>
+<td align="center">0</td>
+<td align="center">−0.479</td>
+</tr>
+<tr>
+<td align="left">小孙</td>
+<td align="center">+0.139</td>
+<td align="center">0.535</td>
+<td align="center">1</td>
+<td align="center">+0.465</td>
+</tr>
+<tr>
+<td align="left">小李</td>
+<td align="center">+0.257</td>
+<td align="center">0.564</td>
+<td align="center">1</td>
+<td align="center">+0.436</td>
+</tr>
+<tr>
+<td align="left">小周</td>
+<td align="center">−0.152</td>
+<td align="center">0.462</td>
+<td align="center">0</td>
+<td align="center">−0.462</td>
+</tr>
+<tr>
+<td align="left">小吴</td>
+<td align="center">+0.076</td>
+<td align="center">0.519</td>
+<td align="center">1</td>
+<td align="center">+0.481</td>
+</tr>
+</tbody></table>
+<h4>5.2 更新系数</h4>
+<h5>更新 b₁</h5>
+<pre><code>小赵: −0.441 × (−1.374) = +0.606
+小钱: −0.479 × (−0.343) = +0.164
+小孙: +0.465 × (+0.687) = +0.319
+小李: +0.436 × (+1.717) = +0.749
+小周: −0.462 × (−0.756) = +0.349
+小吴: +0.481 × (+0.069) = +0.033
+
+求和 = 0.606 + 0.164 + 0.319 + 0.749 + 0.349 + 0.033 = 2.220
+平均 = 2.220 ÷ 6 = 0.370
+
+新b₁ = 0.0804 + 0.1 × 0.370 = 0.0804 + 0.0370 = 0.1174
+</code></pre>
+<h5>更新 b₂</h5>
+<pre><code>小赵: −0.441 × (−1.335) = +0.589
+小钱: −0.479 × (−0.594) = +0.285
+小孙: +0.465 × (+0.890) = +0.414
+小李: +0.436 × (+1.261) = +0.550
+小周: −0.462 × (−0.964) = +0.445
+小吴: +0.481 × (+0.742) = +0.357
+
+求和 = 0.589 + 0.285 + 0.414 + 0.550 + 0.445 + 0.357 = 2.640
+平均 = 2.640 ÷ 6 = 0.440
+
+新b₂ = 0.0943 + 0.1 × 0.440 = 0.0943 + 0.0440 = 0.1383
+</code></pre>
+<h5>b₀ 依然接近0</h5>
+<pre><code>平均(误差) = (−0.441 − 0.479 + 0.465 + 0.436 − 0.462 + 0.481) ÷ 6 = 0 ÷ 6 = 0
+新b₀ = 0
+</code></pre>
+<h4>📊 第3轮结束后</h4>
+<pre><code>b₀ = 0,  b₁ = 0.1174,  b₂ = 0.1383
+</code></pre>
+<hr>
+<h3>Step 6：三轮迭代回顾 —— 看到收敛趋势了吗？</h3>
+<table>
+<thead>
+<tr>
+<th align="left">轮次</th>
+<th align="center">b₀</th>
+<th align="center">b₁</th>
+<th align="center">b₂</th>
+<th align="center">b₁的变化量</th>
+<th align="center">b₂的变化量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">初始</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">—</td>
+<td align="center">—</td>
+</tr>
+<tr>
+<td align="left">第1轮后</td>
+<td align="center">0</td>
+<td align="center">0.0413</td>
+<td align="center">0.0482</td>
+<td align="center">+0.0413</td>
+<td align="center">+0.0482</td>
+</tr>
+<tr>
+<td align="left">第2轮后</td>
+<td align="center">0</td>
+<td align="center">0.0804</td>
+<td align="center">0.0943</td>
+<td align="center">+0.0391</td>
+<td align="center">+0.0461</td>
+</tr>
+<tr>
+<td align="left">第3轮后</td>
+<td align="center">0</td>
+<td align="center">0.1174</td>
+<td align="center">0.1383</td>
+<td align="center">+0.0370</td>
+<td align="center">+0.0440</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>收敛趋势明显</strong>：每次更新量在递减（0.0413 → 0.0391 → 0.0370），说明系数在向一个稳定值靠拢。在真实代码中会迭代几百次直到更新量几乎为零。</p>
+</blockquote>
+<p><strong>b₂（消费系数）&gt; b₁（年龄系数）</strong>：说明在区分&quot;是否会员&quot;时，过去消费金额比年龄更重要——这符合电商直觉。</p>
+<hr>
+<h2>0.2 倾向得分手算：用训练好的系数给每个人打分</h2>
+<p>用第3轮结束后的系数 <code>b₀=0, b₁=0.1174, b₂=0.1383</code>，重新精确计算每个人的倾向得分（PS）。</p>
+<blockquote>
+<p><strong>倾向得分的含义</strong>：给定一个人的年龄和消费特征，模型预测他成为PLUS会员的概率。</p>
+</blockquote>
+<p><strong>小赵</strong>：</p>
+<pre><code>z = 0 + 0.1174×(−1.374) + 0.1383×(−1.335)
+  = −0.1613 + (−0.1846)
+  = −0.3459
+
+e^(0.3459) ≈ 1.413
+PS = 1 ÷ (1 + 1.413) = 1 ÷ 2.413 = 0.414
+</code></pre>
+<p><strong>小钱</strong>：</p>
+<pre><code>z = 0 + 0.1174×(−0.343) + 0.1383×(−0.594)
+  = −0.0403 + (−0.0822)
+  = −0.1225
+
+e^(0.1225) ≈ 1.130
+PS = 1 ÷ (1 + 1.130) = 1 ÷ 2.130 = 0.469
+</code></pre>
+<p><strong>小孙</strong>：</p>
+<pre><code>z = 0 + 0.1174×0.687 + 0.1383×0.890
+  = 0.0807 + 0.1231
+  = 0.2038
+
+e^(-0.2038) ≈ 0.816
+PS = 1 ÷ (1 + 0.816) = 1 ÷ 1.816 = 0.551
+</code></pre>
+<p><strong>小李</strong>：</p>
+<pre><code>z = 0 + 0.1174×1.717 + 0.1383×1.261
+  = 0.2016 + 0.1744
+  = 0.3760
+
+e^(-0.3760) ≈ 0.687
+PS = 1 ÷ (1 + 0.687) = 1 ÷ 1.687 = 0.593
+</code></pre>
+<p><strong>小周</strong>：</p>
+<pre><code>z = 0 + 0.1174×(−0.756) + 0.1383×(−0.964)
+  = −0.0888 + (−0.1333)
+  = −0.2221
+
+e^(0.2221) ≈ 1.249
+PS = 1 ÷ (1 + 1.249) = 1 ÷ 2.249 = 0.445
+</code></pre>
+<p><strong>小吴</strong>：</p>
+<pre><code>z = 0 + 0.1174×0.069 + 0.1383×0.742
+  = 0.0081 + 0.1026
+  = 0.1107
+
+e^(-0.1107) ≈ 0.895
+PS = 1 ÷ (1 + 0.895) = 1 ÷ 1.895 = 0.528
+</code></pre>
+<h3>📊 倾向得分汇总（按大小排序）</h3>
+<table>
+<thead>
+<tr>
+<th align="center">排名</th>
+<th align="left">用户</th>
+<th align="center">age</th>
+<th align="center">past_purchase</th>
+<th align="center">is_member</th>
+<th align="center"><strong>倾向得分(PS)</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="left">小赵</td>
+<td align="center">25</td>
+<td align="center">200</td>
+<td align="center">❌ 非会员</td>
+<td align="center"><strong>0.414</strong></td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="left">小周</td>
+<td align="center">28</td>
+<td align="center">250</td>
+<td align="center">❌ 非会员</td>
+<td align="center"><strong>0.445</strong></td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="left">小钱</td>
+<td align="center">30</td>
+<td align="center">300</td>
+<td align="center">❌ 非会员</td>
+<td align="center"><strong>0.469</strong></td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="left">小吴</td>
+<td align="center">32</td>
+<td align="center">480</td>
+<td align="center">✅ 会员</td>
+<td align="center"><strong>0.528</strong></td>
+</tr>
+<tr>
+<td align="center">5</td>
+<td align="left">小孙</td>
+<td align="center">35</td>
+<td align="center">500</td>
+<td align="center">✅ 会员</td>
+<td align="center"><strong>0.551</strong></td>
+</tr>
+<tr>
+<td align="center">6</td>
+<td align="left">小李</td>
+<td align="center">40</td>
+<td align="center">550</td>
+<td align="center">✅ 会员</td>
+<td align="center"><strong>0.593</strong></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>完美分离！</strong> 3个非会员的PS全部 &lt; 0.5，3个会员的PS全部 &gt; 0.5。模型成功学到了区分两组人的规律。</p>
+<p><strong>PS的业务解读</strong>：</p>
+<ul>
+<li>小赵PS=0.414 → 年龄小、消费少，&quot;成为会员的概率只有41%&quot;</li>
+<li>小李PS=0.593 → 年龄大、消费多，&quot;成为会员的概率有59%&quot;</li>
+<li>两个人的PS差0.179，说明他们在特征空间里&quot;长得不太一样&quot;</li>
+</ul>
+<p>接下来，我们用这些PS来给每个会员找&quot;长得像&quot;的非会员配对。</p>
+</blockquote>
+<hr>
+<h2>0.3 手动1:1 PSM最近邻匹配</h2>
+<h3>匹配逻辑（大白话）</h3>
+<p><strong>给每个会员，从非会员里挑一个PS最接近的人当&quot;替身&quot;</strong>。PS越接近，说明两个人的特征越像——年龄差不多、消费水平也差不多。配对之后，两组的差异就主要是&quot;有没有会员&quot;带来的，而不是&quot;他们本来就不一样&quot;造成的。</p>
+<h3>分组</h3>
+<pre><code>处理组（会员，3人）：小吴(PS=0.528)、小孙(PS=0.551)、小李(PS=0.593)
+控制组（非会员，3人）：小赵(PS=0.414)、小周(PS=0.445)、小钱(PS=0.469)
+</code></pre>
+<h3>计算距离矩阵</h3>
+<p>距离 = |会员PS − 非会员PS|，越小越好。</p>
+<table>
+<thead>
+<tr>
+<th align="left">会员 \ 非会员</th>
+<th align="center">小赵 (PS=0.414)</th>
+<th align="center">小周 (PS=0.445)</th>
+<th align="center">小钱 (PS=0.469)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>小吴</strong> (PS=0.528)</td>
+<td align="center">|0.528−0.414| = <strong>0.114</strong></td>
+<td align="center">|0.528−0.445| = <strong>0.083</strong></td>
+<td align="center">|0.528−0.469| = <strong>0.059</strong> ✅</td>
+</tr>
+<tr>
+<td align="left"><strong>小孙</strong> (PS=0.551)</td>
+<td align="center">|0.551−0.414| = <strong>0.137</strong></td>
+<td align="center">|0.551−0.445| = <strong>0.106</strong> ✅</td>
+<td align="center">|0.551−0.469| = <strong>0.082</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>小李</strong> (PS=0.593)</td>
+<td align="center">|0.593−0.414| = <strong>0.179</strong> ✅</td>
+<td align="center">|0.593−0.445| = <strong>0.148</strong></td>
+<td align="center">|0.593−0.469| = <strong>0.124</strong></td>
+</tr>
+</tbody></table>
+<h3>贪心匹配（无放回，从PS最高的会员开始）</h3>
+<p><strong>第1步</strong>：小李(PS=0.593)先选——所有非会员都在池子里。最近的是小钱(0.469)，距离=0.124。但小钱PS=0.469和小李的差距有0.124，不如先匹配更接近的组。换个顺序——<strong>从PS最低的会员开始匹配更合理</strong>。</p>
+<p><strong>第1步（重排）</strong>：小吴(PS=0.528)先选——最近的是小钱(PS=0.469)，距离=<strong>0.059</strong>。
+→ ✅ 配对：<strong>小吴 ↔ 小钱</strong>，距离=0.059。小钱从池子中移除。</p>
+<p><strong>第2步</strong>：小孙(PS=0.551)选——池子里剩小赵(0.414)、小周(0.445)。最近的是小周(0.445)，距离=<strong>0.106</strong>。
+→ ✅ 配对：<strong>小孙 ↔ 小周</strong>，距离=0.106。小周从池子中移除。</p>
+<p><strong>第3步</strong>：小李(PS=0.593)选——只剩小赵(0.414)，距离=<strong>0.179</strong>。
+→ ✅ 配对：<strong>小李 ↔ 小赵</strong>，距离=0.179。</p>
+<h3>匹配结果</h3>
+<table>
+<thead>
+<tr>
+<th align="center">配对编号</th>
+<th align="left">会员</th>
+<th align="center">会员PS</th>
+<th align="center">↔</th>
+<th align="left">非会员</th>
+<th align="center">非会员PS</th>
+<th align="center">PS距离</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">①</td>
+<td align="left">小吴</td>
+<td align="center">0.528</td>
+<td align="center">↔</td>
+<td align="left">小钱</td>
+<td align="center">0.469</td>
+<td align="center">0.059</td>
+</tr>
+<tr>
+<td align="center">②</td>
+<td align="left">小孙</td>
+<td align="center">0.551</td>
+<td align="center">↔</td>
+<td align="left">小周</td>
+<td align="center">0.445</td>
+<td align="center">0.106</td>
+</tr>
+<tr>
+<td align="center">③</td>
+<td align="left">小李</td>
+<td align="center">0.593</td>
+<td align="center">↔</td>
+<td align="left">小赵</td>
+<td align="center">0.414</td>
+<td align="center">0.179</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>观察</strong>：</p>
+<ul>
+<li>配对①距离很小(0.059)，小吴和小钱确实很像</li>
+<li>配对③距离较大(0.179)，小李和小赵差距明显——因为池子里&quot;像小李的人&quot;已经被前面挑走了</li>
+<li><strong>核心限制</strong>：我们只有3个非会员可供选择，选择余地太小。实际工作中控制组通常有几千~几万样本，匹配质量会好得多。</li>
+</ul>
+</blockquote>
+<hr>
+<h2>0.4 匹配前后SMD手工计算</h2>
+<h3>什么是SMD？（白话版）</h3>
+<p><strong>SMD = 标准化均值差异</strong>。用来衡量处理组和对照组在某一个特征上&quot;长得有多不像&quot;。</p>
+<pre><code>SMD = |处理组均值 − 对照组均值| ÷ 合并标准差
+
+合并标准差 = √[(处理组方差 + 对照组方差) ÷ 2]
+</code></pre>
+<ul>
+<li>SMD &lt; 0.1：两组在该特征上非常平衡，✅ 通过</li>
+<li>SMD ≥ 0.1：两组差别还比较大，❌ 需要改善</li>
+</ul>
+<h3>4.1 匹配前 SMD —— 看看原始偏差有多大</h3>
+<h4>SMD_age（年龄特征）</h4>
+<p><strong>处理组（3个会员）的年龄</strong>：小孙35、小李40、小吴32</p>
+<pre><code>处理组age均值 = (35 + 40 + 32) ÷ 3 = 107 ÷ 3 = 35.667
+</code></pre>
+<pre><code>处理组age方差 = [(35−35.667)² + (40−35.667)² + (32−35.667)²] ÷ 3
+
+逐项：
+(35 − 35.667)² = (−0.667)² =  0.445
+(40 − 35.667)² = (+4.333)² = 18.775
+(32 − 35.667)² = (−3.667)² = 13.445
+
+求和 = 0.445 + 18.775 + 13.445 = 32.665
+方差_T = 32.665 ÷ 3 = 10.888
+</code></pre>
+<p><strong>对照组（3个非会员）的年龄</strong>：小赵25、小钱30、小周28</p>
+<pre><code>对照组age均值 = (25 + 30 + 28) ÷ 3 = 83 ÷ 3 = 27.667
+</code></pre>
+<pre><code>对照组age方差 = [(25−27.667)² + (30−27.667)² + (28−27.667)²] ÷ 3
+
+逐项：
+(25 − 27.667)² = (−2.667)² = 7.113
+(30 − 27.667)² = (+2.333)² = 5.443
+(28 − 27.667)² = (+0.333)² = 0.111
+
+求和 = 7.113 + 5.443 + 0.111 = 12.667
+方差_C = 12.667 ÷ 3 = 4.222
+</code></pre>
+<pre><code>合并标准差 = √[(10.888 + 4.222) ÷ 2]
+           = √[15.110 ÷ 2]
+           = √7.555
+           = 2.749
+
+|均值差| = |35.667 − 27.667| = 8.000
+
+SMD_age(匹配前) = 8.000 ÷ 2.749 = 2.910
+</code></pre>
+<blockquote>
+<p><strong>SMD_age = 2.91 &gt;&gt; 0.1</strong>，严重超标。会员和非会员的年龄差距太大了——这证实了选择偏差的存在。</p>
+</blockquote>
+<h4>SMD_purchase（消费特征）</h4>
+<p><strong>处理组（3个会员）的过去消费</strong>：小孙500、小李550、小吴480</p>
+<pre><code>处理组purchase均值 = (500 + 550 + 480) ÷ 3 = 1530 ÷ 3 = 510
+</code></pre>
+<pre><code>处理组purchase方差 = [(500−510)² + (550−510)² + (480−510)²] ÷ 3
+
+逐项：
+(500 − 510)² = (−10)² =  100
+(550 − 510)² = (+40)² = 1600
+(480 − 510)² = (−30)² =  900
+
+求和 = 100 + 1600 + 900 = 2600
+方差_T = 2600 ÷ 3 = 866.667
+</code></pre>
+<p><strong>对照组（3个非会员）的过去消费</strong>：小赵200、小钱300、小周250</p>
+<pre><code>对照组purchase均值 = (200 + 300 + 250) ÷ 3 = 750 ÷ 3 = 250
+</code></pre>
+<pre><code>对照组purchase方差 = [(200−250)² + (300−250)² + (250−250)²] ÷ 3
+
+逐项：
+(200 − 250)² = (−50)² = 2500
+(300 − 250)² = (+50)² = 2500
+(250 − 250)² = (  0)² =    0
+
+求和 = 2500 + 2500 + 0 = 5000
+方差_C = 5000 ÷ 3 = 1666.667
+</code></pre>
+<pre><code>合并标准差 = √[(866.667 + 1666.667) ÷ 2]
+           = √[2533.334 ÷ 2]
+           = √1266.667
+           = 35.591
+
+|均值差| = |510 − 250| = 260
+
+SMD_purchase(匹配前) = 260 ÷ 35.591 = 7.307
+</code></pre>
+<blockquote>
+<p><strong>SMD_purchase = 7.31 &gt;&gt; 0.1</strong>，比年龄的偏差更严重。会员过去消费平均510元，非会员只有250元——差距巨大。</p>
+</blockquote>
+<h3>📊 匹配前SMD总览</h3>
+<p>| 特征 | 处理组均值 | 对照组均值 | |差值| | 合并标准差 | SMD | 判定 |
+|:---|:---:|:---:|:---:|:---:|:---:|:---:|
+| age | 35.667 | 27.667 | 8.000 | 2.749 | <strong>2.910</strong> | ❌ 严重超标 |
+| past_purchase | 510 | 250 | 260 | 35.591 | <strong>7.307</strong> | ❌ 严重超标 |</p>
+<blockquote>
+<p><strong>结论</strong>：两组人在干预前严重不具可比性。直接比较月消费会得出严重有偏的结论。</p>
+</blockquote>
+<h3>4.2 匹配后 SMD</h3>
+<p>用0.3节的配对结果，匹配后的对照组由配对中的非会员组成：</p>
+<table>
+<thead>
+<tr>
+<th align="left">配对</th>
+<th align="left">会员</th>
+<th align="center">会员age</th>
+<th align="center">会员purchase</th>
+<th align="left">非会员</th>
+<th align="center">非会员age</th>
+<th align="center">非会员purchase</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">①</td>
+<td align="left">小吴</td>
+<td align="center">32</td>
+<td align="center">480</td>
+<td align="left">小钱</td>
+<td align="center">30</td>
+<td align="center">300</td>
+</tr>
+<tr>
+<td align="left">②</td>
+<td align="left">小孙</td>
+<td align="center">35</td>
+<td align="center">500</td>
+<td align="left">小周</td>
+<td align="center">28</td>
+<td align="center">250</td>
+</tr>
+<tr>
+<td align="left">③</td>
+<td align="left">小李</td>
+<td align="center">40</td>
+<td align="center">550</td>
+<td align="left">小赵</td>
+<td align="center">25</td>
+<td align="center">200</td>
+</tr>
+</tbody></table>
+<h4>SMD_age（匹配后）</h4>
+<blockquote>
+<p>处理组age不变：{35, 40, 32}，均值=35.667，方差=10.888</p>
+</blockquote>
+<p><strong>匹配后对照组age</strong>：小钱30、小周28、小赵25</p>
+<pre><code>匹配后对照age均值 = (30 + 28 + 25) ÷ 3 = 83 ÷ 3 = 27.667
+匹配后对照age方差 = [(30−27.667)² + (28−27.667)² + (25−27.667)²] ÷ 3
+                   = (5.443 + 0.111 + 7.113) ÷ 3
+                   = 12.667 ÷ 3 = 4.222
+</code></pre>
+<pre><code>合并标准差 = √[(10.888 + 4.222) ÷ 2] = √7.555 = 2.749
+|均值差| = |35.667 − 27.667| = 8.000
+
+SMD_age(匹配后) = 8.000 ÷ 2.749 = 2.910
+</code></pre>
+<blockquote>
+<p>匹配后SMD和匹配前一样。<strong>原因</strong>：我们只有3个非会员，匹配时全部用上了——对照组的人员组合没变。这是极小样本的局限。</p>
+</blockquote>
+<h4>SMD_purchase（匹配后）</h4>
+<pre><code>匹配后对照purchase均值 = (300 + 250 + 200) ÷ 3 = 750 ÷ 3 = 250
+匹配后对照purchase方差 = [(300−250)² + (250−250)² + (200−250)²] ÷ 3
+                        = (2500 + 0 + 2500) ÷ 3
+                        = 5000 ÷ 3 = 1666.667
+SMD_purchase(匹配后) = SMD_purchase(匹配前) = 7.307  （对照组未变）
+</code></pre>
+<h3>⚠️ 重要说明：为什么SMD没有改善？</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│  这是一个&quot;极端小样本&quot;的固有局限。                              │
+│                                                             │
+│  3个会员 vs 3个非会员 → 匹配只能全部用上 → 对照组不变。        │
+│                                                             │
+│  在实际工作中：                                               │
+│  例如 2000个会员 vs 8000个非会员                              │
+│  匹配只从8000人中挑2000人（或更少）                           │
+│  被挑中的非会员和会员的特征分布会非常接近                      │
+│  → SMD会大幅下降，通常从 2~7 降到 0.05~0.15                   │
+│                                                             │
+│  本节的目的是展示SMD的计算方法本身。                            │
+│  下一章用Python代码跑10000条数据，你会看到SMD的真正改善。       │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<blockquote>
+<p><strong>我们在这里学到了</strong>：</p>
+<ol>
+<li>SMD怎么算：均值差 ÷ 合并标准差，每一步都列出来了</li>
+<li>匹配前SMD很高 → 说明选择偏差确实存在</li>
+<li>PSM的质量取决于<strong>对照池的大小</strong>——池子越大，越能挑到好的配对</li>
+</ol>
+</blockquote>
+<hr>
+<h2>0.5 业务效果测算：PLUS会员到底提升了多少消费？</h2>
+<p>匹配完成后，用配对样本计算 ATT（Average Treatment Effect on the Treated，处理组的平均处理效应）。</p>
+<pre><code>ATT = 会员月消费均值 − 配对非会员月消费均值
+</code></pre>
+<h3>逐对计算处理效应</h3>
+<table>
+<thead>
+<tr>
+<th align="center">配对</th>
+<th align="left">会员</th>
+<th align="center">会员月消费</th>
+<th align="left">非会员</th>
+<th align="center">非会员月消费</th>
+<th align="center">配对差值（会员−非会员）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">①</td>
+<td align="left">小吴</td>
+<td align="center">1600</td>
+<td align="left">小钱</td>
+<td align="center">1000</td>
+<td align="center">1600 − 1000 = <strong>+600</strong></td>
+</tr>
+<tr>
+<td align="center">②</td>
+<td align="left">小孙</td>
+<td align="center">1500</td>
+<td align="left">小周</td>
+<td align="center">900</td>
+<td align="center">1500 − 900 = <strong>+600</strong></td>
+</tr>
+<tr>
+<td align="center">③</td>
+<td align="left">小李</td>
+<td align="center">1800</td>
+<td align="left">小赵</td>
+<td align="center">800</td>
+<td align="center">1800 − 800 = <strong>+1000</strong></td>
+</tr>
+</tbody></table>
+<h3>计算ATT</h3>
+<pre><code>会员月消费均值 = (1600 + 1500 + 1800) ÷ 3
+              = 4900 ÷ 3
+              = 1633.3 元
+
+配对非会员月消费均值 = (1000 + 900 + 800) ÷ 3
+                    = 2700 ÷ 3
+                    = 900 元
+
+ATT = 1633.3 − 900 = 733.3 元
+</code></pre>
+<h3>ATT vs 简单差值对比</h3>
+<pre><code>方法① 简单差值（未修正，有偏）：
+  会员均值(1633元) − 非会员均值(900元) = 733元
+
+方法② PSM匹配后（修正后）：
+  因为只有3个对照全部被使用，PSM匹配后的ATT和简单差值数值上相同
+  但这不是PSM的问题，是样本太小导致的
+</code></pre>
+<h3>⚠️ 样本限制说明 &amp; 真实工作流</h3>
+<p>在实际工作中（比如第一部分的10000条数据），PSM匹配后的ATT通常<strong>小于</strong>简单差值。因为PSM把&quot;本来就爱花钱的人&quot;和&quot;同样爱花钱但没会员的人&quot;配对了，剔除了选择偏差。</p>
+<pre><code>真实场景的典型结果：
+  简单差值（有偏）: 800元  ← 高估，把&quot;会员本来就爱花钱&quot;也算进去了
+  PSM修正后的ATT:   150元  ← 这才是会员权益真正的提升效果
+</code></pre>
+<p>虽然我们的6样本演示中ATT恰好等于简单差值，但<strong>计算逻辑是正确且完整的</strong>。下一章用Python处理大样本数据时，你将亲眼看到PSM如何修正偏差。</p>
+<h3>业务解读</h3>
+<pre><code>假设PSM修正后的ATT = 733元/月（我们6样本的演示值）
+
+相对提升 = 733 ÷ 900 × 100% = 81.4%
+
+业务含义：
+  &quot;开通PLUS会员的用户，月消费比&#39;同样特征但没开会员的人&#39;高出约733元，
+   相对提升81.4%。这笔提升可以归因于会员权益本身。&quot;
+</code></pre>
+<blockquote>
+<p><strong>从算到代码的衔接</strong>：你已经用手算走完了全流程。接下来第一部分的Python代码，就是用程序自动完成你刚才手动做的每一步——只是数据量从6条变成了10000条，迭代从3轮变成了自动收敛。<strong>底层逻辑完全一样。</strong></p>
+</blockquote>
+<hr>
+<h2>0.6 LightGBM 极简迭代模拟：多棵树&quot;接力纠错&quot;</h2>
+<h3>大白话理解：LightGBM和逻辑回归有什么不同？</h3>
+<p><strong>逻辑回归</strong> = 一个专家，看所有特征，给一个分数。这个专家只有一个&quot;视角&quot;——线性关系。</p>
+<p><strong>LightGBM</strong> = 一群&quot;小学生&quot;接力答题。第1个小学生粗略判断一下，第2个纠正第1个的错误，第3个再纠正前两个的错误……最后把所有小学生的答案加起来，反而比一个专家更准。</p>
+<blockquote>
+<p><strong>类比</strong>：逻辑回归像一个人估算你的体重，看身高、体型就给了个数字。LightGBM像一群人在猜你的体重——第1人说&quot;大概70kg&quot;，第2人说&quot;不对，他骨架偏大，应该+5kg&quot;，第3人说&quot;但是他腿细，应该−2kg&quot;……最终答案 = 70 + 5 − 2 = 73kg。</p>
+</blockquote>
+<p><strong>LightGBM的三个核心特点</strong>（无公式版）：</p>
+<ol>
+<li><strong>多棵树，不是一棵</strong>：逻辑回归是一个公式，LightGBM是几百棵&quot;决策树&quot;（if-else规则）的叠加</li>
+<li><strong>每棵树很小</strong>：每棵树只做几次简单的&quot;是/否&quot;判断，比如&quot;年龄&gt;33吗？&quot;</li>
+<li><strong>后一棵纠正前一棵</strong>：第2棵树不去重新预测&quot;是不是会员&quot;，而是专门预测第1棵树的<strong>残差（错误）</strong></li>
+</ol>
+<h3>用我们的6个用户，手算3棵树</h3>
+<h4>准备工作：标签和特征</h4>
+<table>
+<thead>
+<tr>
+<th align="left">用户</th>
+<th align="center">age</th>
+<th align="center">past_purchase</th>
+<th align="center">is_member（要预测的）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">小赵</td>
+<td align="center">25</td>
+<td align="center">200</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="left">小钱</td>
+<td align="center">30</td>
+<td align="center">300</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="left">小孙</td>
+<td align="center">35</td>
+<td align="center">500</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="left">小李</td>
+<td align="center">40</td>
+<td align="center">550</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="left">小周</td>
+<td align="center">28</td>
+<td align="center">250</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="left">小吴</td>
+<td align="center">32</td>
+<td align="center">480</td>
+<td align="center">1</td>
+</tr>
+</tbody></table>
+<p>学习率 = <strong>0.5</strong>（为了在手算中快速看到效果；真实场景常用0.05~0.1）</p>
+<hr>
+<h4>🌲 第1棵树：先做个粗糙判断</h4>
+<p><strong>规则</strong>：如果 age ≥ 33，猜&quot;会员(1)&quot;；否则猜&quot;不确定，看比例&quot;。</p>
+<blockquote>
+<p>注：真实LightGBM会自动找最优切分点。这里我们手工设定age=33作为分界线，只演示逻辑。</p>
+</blockquote>
+<p><strong>分到age≥33的人</strong>：小孙(35, 实际1)、小李(40, 实际1)
+→ 这组实际会员占比 = 2/2 = 1.0，所以这组的预测值 = <strong>1.0</strong></p>
+<p><strong>分到age&lt;33的人</strong>：小赵(25, 实际0)、小钱(30, 实际0)、小周(28, 实际0)、小吴(32, 实际1)
+→ 这组实际会员占比 = 1/4 = 0.25，所以这组的预测值 = <strong>0.25</strong></p>
+<pre><code>第1棵树的预测值：
+小赵: 0.25    小钱: 0.25    小孙: 1.00
+小李: 1.00    小周: 0.25    小吴: 0.25
+</code></pre>
+<p><strong>当前累计预测</strong> = 初始值(0) + 学习率(0.5) × 第1棵树预测：</p>
+<pre><code>小赵: 0 + 0.5×0.25 = 0.125     小钱: 0.125
+小孙: 0 + 0.5×1.00 = 0.500     小李: 0.500
+小周: 0 + 0.5×0.25 = 0.125     小吴: 0.125
+</code></pre>
+<p><strong>算残差</strong> = 实际值 − 当前预测：</p>
+<pre><code>小赵: 0 − 0.125 = −0.125    小钱: −0.125
+小孙: 1 − 0.500 = +0.500    小李: +0.500
+小周: 0 − 0.125 = −0.125    小吴: 1 − 0.125 = +0.875 ← 残差很大！Tree1严重低估了小吴
+</code></pre>
+<blockquote>
+<p><strong>关键理解</strong>：残差为正 → 当前预测偏低，需要&quot;往上拉&quot;；残差为负 → 当前预测偏高，需要&quot;往下拉&quot;。下一棵树的任务就是预测这些残差。</p>
+</blockquote>
+<hr>
+<h4>🌲 第2棵树：专门预测&quot;残差&quot;</h4>
+<p>第2棵树不看 is_member，而是把第1棵树的**残差当成新的&quot;目标值&quot;**来预测。</p>
+<table>
+<thead>
+<tr>
+<th align="left">用户</th>
+<th align="center">残差（新目标）</th>
+<th align="center">age</th>
+<th align="center">past_purchase</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">小赵</td>
+<td align="center">−0.125</td>
+<td align="center">25</td>
+<td align="center">200</td>
+</tr>
+<tr>
+<td align="left">小钱</td>
+<td align="center">−0.125</td>
+<td align="center">30</td>
+<td align="center">300</td>
+</tr>
+<tr>
+<td align="left">小孙</td>
+<td align="center">+0.500</td>
+<td align="center">35</td>
+<td align="center">500</td>
+</tr>
+<tr>
+<td align="left">小李</td>
+<td align="center">+0.500</td>
+<td align="center">40</td>
+<td align="center">550</td>
+</tr>
+<tr>
+<td align="left">小周</td>
+<td align="center">−0.125</td>
+<td align="center">28</td>
+<td align="center">250</td>
+</tr>
+<tr>
+<td align="left">小吴</td>
+<td align="center">+0.875</td>
+<td align="center">32</td>
+<td align="center">480</td>
+</tr>
+</tbody></table>
+<p><strong>规则</strong>：如果 past_purchase ≥ 400，说明&quot;消费力强的人，Tree1低估了他们&quot;。</p>
+<p><strong>分到past_purchase≥400的</strong>：小孙(500, 残差+0.500)、小李(550, 残差+0.500)、小吴(480, 残差+0.875)
+→ 平均残差 = (0.500 + 0.500 + 0.875) ÷ 3 = <strong>+0.625</strong></p>
+<p><strong>分到past_purchase&lt;400的</strong>：小赵(200, 残差−0.125)、小钱(300, 残差−0.125)、小周(250, 残差−0.125)
+→ 平均残差 = (−0.125 − 0.125 − 0.125) ÷ 3 = <strong>−0.125</strong></p>
+<pre><code>第2棵树的预测值（预测的是残差）：
+小赵: −0.125   小钱: −0.125   小孙: +0.625
+小李: +0.625   小周: −0.125   小吴: +0.625
+</code></pre>
+<p><strong>当前累计预测</strong> = 上一轮预测 + 学习率(0.5) × 第2棵树预测：</p>
+<pre><code>小赵: 0.125 + 0.5×(−0.125) = 0.125 − 0.063 = 0.062
+小钱: 0.062
+小孙: 0.500 + 0.5×0.625 = 0.500 + 0.313 = 0.813
+小李: 0.813
+小周: 0.125 + 0.5×(−0.125) = 0.062
+小吴: 0.125 + 0.5×0.625 = 0.125 + 0.313 = 0.438
+</code></pre>
+<p><strong>新残差</strong> = 实际 − 当前预测：</p>
+<pre><code>小赵: 0 − 0.062 = −0.062
+小钱: 0 − 0.062 = −0.062
+小孙: 1 − 0.813 = +0.187  ← 残差从0.500降到0.187，改善了！
+小李: 1 − 0.813 = +0.187  ← 同样改善
+小周: 0 − 0.062 = −0.062
+小吴: 1 − 0.438 = +0.562  ← 残差从0.875降到0.562，还在改善中
+</code></pre>
+<blockquote>
+<p><strong>进步了！</strong> 残差在缩小。小孙小李的残差从0.500→0.187，小吴从0.875→0.562。</p>
+</blockquote>
+<hr>
+<h4>🌲 第3棵树：精细纠错</h4>
+<p>第3棵树继续预测第2轮后的残差。</p>
+<p><strong>规则</strong>：如果 age &lt; 33 且 past_purchase ≥ 400，说明&quot;年轻但消费高的人被前面低估了&quot;。</p>
+<p><strong>特殊组（age&lt;33 且 purchase≥400）</strong>：只有小吴(age=32, past=480, 残差+0.562)
+→ 平均残差 = <strong>+0.562</strong></p>
+<p><strong>其他人</strong>：小赵(−0.062)、小钱(−0.062)、小孙(+0.187)、小李(+0.187)、小周(−0.062)
+→ 平均残差 = (−0.062 − 0.062 + 0.187 + 0.187 − 0.062) ÷ 5 = 0.188 ÷ 5 = <strong>+0.038</strong></p>
+<pre><code>第3棵树的预测值（预测残差）：
+小赵: +0.038   小钱: +0.038   小孙: +0.038
+小李: +0.038   小周: +0.038   小吴: +0.562
+</code></pre>
+<p><strong>当前累计预测</strong> = 上一轮 + 0.5 × 第3棵树：</p>
+<pre><code>小赵: 0.062 + 0.5×0.038 = 0.062 + 0.019 = 0.081
+小钱: 0.081
+小孙: 0.813 + 0.5×0.038 = 0.813 + 0.019 = 0.832
+小李: 0.832
+小周: 0.062 + 0.5×0.038 = 0.081
+小吴: 0.438 + 0.5×0.562 = 0.438 + 0.281 = 0.719
+</code></pre>
+<hr>
+<h3>📊 3轮迭代后的预测汇总</h3>
+<table>
+<thead>
+<tr>
+<th align="left">用户</th>
+<th align="center">实际is_member</th>
+<th align="center">Tree1后</th>
+<th align="center">Tree2后</th>
+<th align="center">Tree3后</th>
+<th align="left">预测趋势</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">小赵</td>
+<td align="center">0</td>
+<td align="center">0.125</td>
+<td align="center">0.062</td>
+<td align="center"><strong>0.081</strong></td>
+<td align="left">↘ 向0靠近 ✅</td>
+</tr>
+<tr>
+<td align="left">小钱</td>
+<td align="center">0</td>
+<td align="center">0.125</td>
+<td align="center">0.062</td>
+<td align="center"><strong>0.081</strong></td>
+<td align="left">↘ 向0靠近 ✅</td>
+</tr>
+<tr>
+<td align="left">小孙</td>
+<td align="center">1</td>
+<td align="center">0.500</td>
+<td align="center">0.813</td>
+<td align="center"><strong>0.832</strong></td>
+<td align="left">↗ 向1靠近 ✅</td>
+</tr>
+<tr>
+<td align="left">小李</td>
+<td align="center">1</td>
+<td align="center">0.500</td>
+<td align="center">0.813</td>
+<td align="center"><strong>0.832</strong></td>
+<td align="left">↗ 向1靠近 ✅</td>
+</tr>
+<tr>
+<td align="left">小周</td>
+<td align="center">0</td>
+<td align="center">0.125</td>
+<td align="center">0.062</td>
+<td align="center"><strong>0.081</strong></td>
+<td align="left">↘ 向0靠近 ✅</td>
+</tr>
+<tr>
+<td align="left">小吴</td>
+<td align="center">1</td>
+<td align="center">0.125</td>
+<td align="center">0.438</td>
+<td align="center"><strong>0.719</strong></td>
+<td align="left">↗ 向1靠近 ✅</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>所有预测都在向正确的方向移动！</strong> 非会员的预测值越来越接近0，会员的预测值越来越接近1。</p>
+</blockquote>
+<h3>把预测值转换为倾向得分（PS）</h3>
+<p>LightGBM的最终预测值（所有树的得分之和）不是概率，需要通过 <strong>sigmoid函数</strong> 转换成0-1之间的倾向得分：</p>
+<pre><code>PS = 1 ÷ (1 + e^(-预测值))
+</code></pre>
+<p>用3轮后的预测值转换：</p>
+<pre><code>小赵: 预测值=0.081  → e^(-0.081) ≈ 0.922 → PS = 1÷(1+0.922) = 1÷1.922 = 0.520
+小钱: 同上 → PS = 0.520
+小孙: 预测值=0.832  → e^(-0.832) ≈ 0.435 → PS = 1÷(1+0.435) = 1÷1.435 = 0.697
+小李: 同上 → PS = 0.697
+小周: 预测值=0.081  → PS = 0.520
+小吴: 预测值=0.719  → e^(-0.719) ≈ 0.487 → PS = 1÷(1+0.487) = 1÷1.487 = 0.672
+</code></pre>
+<h3>🔬 LightGBM vs 逻辑回归：PS对比</h3>
+<table>
+<thead>
+<tr>
+<th align="left">用户</th>
+<th align="center">实际</th>
+<th align="center">逻辑回归PS</th>
+<th align="center">LightGBM PS(3棵树)</th>
+<th align="left">哪个更接近真实？</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">小赵</td>
+<td align="center">0</td>
+<td align="center">0.414</td>
+<td align="center">0.520</td>
+<td align="left">逻辑回归更接近0</td>
+</tr>
+<tr>
+<td align="left">小钱</td>
+<td align="center">0</td>
+<td align="center">0.469</td>
+<td align="center">0.520</td>
+<td align="left">逻辑回归更接近0</td>
+</tr>
+<tr>
+<td align="left">小孙</td>
+<td align="center">1</td>
+<td align="center">0.551</td>
+<td align="center">0.697</td>
+<td align="left"><strong>LightGBM更接近1</strong> ✅</td>
+</tr>
+<tr>
+<td align="left">小李</td>
+<td align="center">1</td>
+<td align="center">0.593</td>
+<td align="center">0.697</td>
+<td align="left"><strong>LightGBM更接近1</strong> ✅</td>
+</tr>
+<tr>
+<td align="left">小周</td>
+<td align="center">0</td>
+<td align="center">0.445</td>
+<td align="center">0.520</td>
+<td align="left">逻辑回归更接近0</td>
+</tr>
+<tr>
+<td align="left">小吴</td>
+<td align="center">1</td>
+<td align="center">0.528</td>
+<td align="center">0.672</td>
+<td align="left"><strong>LightGBM更接近1</strong> ✅</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>观察</strong>：LightGBM给会员的PS偏高（0.67<del>0.70 vs 逻辑回归的0.53</del>0.59），给非会员的PS也偏高（0.52 vs 0.41~0.47）。这说明3棵树太少，模型还没充分学会区分两组人。</p>
+<p>在真实应用中，LightGBM通常训练100~500棵树，加上概率校准，可以得到比逻辑回归更准确的倾向得分。但&quot;多棵树接力纠错&quot;的核心思想就是上面演示的这样。</p>
+</blockquote>
+<h3>💡 用三句话记住 LightGBM</h3>
+<pre><code>1. 一群小树接力：每棵树只做简单的&quot;是/否&quot;判断
+2. 后树纠正前树：第2棵预测第1棵的残差，第3棵再预测剩下的残差
+3. 所有树加起来 = 最终答案：通过学习率控制每棵树的贡献，越加越准
+</code></pre>
+<h3>🔗 对比：逻辑回归 vs LightGBM（用最简语言）</h3>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">逻辑回归</th>
+<th align="left">LightGBM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>像什么</strong></td>
+<td align="left">一个公式 y = ax + b</td>
+<td align="left">一群if-else规则叠加</td>
+</tr>
+<tr>
+<td align="left"><strong>怎么学</strong></td>
+<td align="left">调系数（b₀, b₁, b₂）</td>
+<td align="left">调规则（每棵树切在哪里）</td>
+</tr>
+<tr>
+<td align="left"><strong>处理复杂关系</strong></td>
+<td align="left">需要手动构造&quot;年龄×消费&quot;这种交叉项</td>
+<td align="left">自动发现&quot;年轻但消费高的人&quot;</td>
+</tr>
+<tr>
+<td align="left"><strong>倾向得分特点</strong></td>
+<td align="left">比较平滑，不会太极端</td>
+<td align="left">可能集中在0/1附近，需要校准</td>
+</tr>
+<tr>
+<td align="left"><strong>什么时候用</strong></td>
+<td align="left">特征少、关系简单</td>
+<td align="left">特征多、关系复杂、追求最优效果</td>
+</tr>
+<tr>
+<td align="left"><strong>本节手算轮数</strong></td>
+<td align="left">3轮系数更新</td>
+<td align="left">3棵树接力纠错</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>学到这里你就懂了</strong>：逻辑回归和LightGBM都是&quot;打分机&quot;，只是打分的机制不同。对PSM来说，两种方法输出的都是倾向得分(PS)，后续的匹配、SMD检验、ATT计算完全一样。<strong>底层工作流不变，只换了打分工具。</strong></p>
+</blockquote>
+<hr>
+<hr>
+<h2>第一部分  PSM（倾向得分匹配）</h2>
+
+<h3>1.1 大白话理解：PSM到底是什么？</h3>
+<p>想象一个场景：你想知道&quot;给用户发优惠券&quot;能不能提高他们的购买金额。</p>
+<p>最直接的想法是比较&quot;收到券的人&quot;和&quot;没收到券的人&quot;的消费差异。但这里有一个大坑：收到券的人，很可能是本身就爱买东西的人（平台觉得他们有潜力才发券的）。即使不发券，他们本来就会买更多。直接比较会高估优惠券的效果。</p>
+<p>这叫&quot;选择偏差&quot;（Selection Bias）——两组人在干预之前就长得不一样，没法直接比。</p>
+<p>PSM的核心思想：给每个&quot;收到券的人&quot;从&quot;没收到券的人&quot;里找一个&quot;各方面条件都差不多&quot;的人当对比。年龄相似、性别相同、过去消费金额差不多、浏览时长也接近……这样配成一对，两组的差距就主要是优惠券带来的，而不是他们本身的差异。</p>
+<p>&quot;倾向得分&quot;（Propensity Score）就是：一个人的&quot;被选入实验组的概率&quot;。比如用逻辑回归，输入用户的年龄、性别、过去消费等特征，算出一个0到1的数。得分0.8 = 这个人有80%的概率会收到干预。</p>
+<p>两个人都得0.75分 → 说明他们各方面特征很像 → 可以配对对比。</p>
+<blockquote><p>💡 一句话：PSM = 用数学方法算出一个&quot;倾向得分&quot;，按得分给实验组找最像的对照组，让两组变可比。</p></blockquote>
+
+<h3>1.2 业务场景：PLUS会员权益效果评估</h3>
+<p>场景设定：你是某电商平台的数据分析师。公司推出了&quot;PLUS会员&quot;权益（免运费、专属折扣等），你想评估：开通PLUS会员是否真的提高了用户的月均消费金额？</p>
+<p>数据情况：10,000名用户，2,000人开了会员（处理组），8,000人没开（控制组）。</p>
+<p>可用特征变量：</p>
+<ul>
+<li><strong>age</strong>：年龄</li>
+<li><strong>gender</strong>：性别（0=女，1=男）</li>
+<li><strong>income</strong>：月收入（元）</li>
+<li><strong>past_purchase</strong>：过去3个月总消费金额</li>
+<li><strong>browse_days</strong>：过去3个月活跃天数</li>
+<li><strong>category_count</strong>：购买的品类数</li>
+<li><strong>is_member</strong>：是否PLUS会员（1=是，0=否）——处理变量</li>
+<li><strong>monthly_spend</strong>：当月消费金额——结果变量</li>
+</ul>
+
+<h3>1.3 估计倾向得分的三种方法（重点！）</h3>
+<p>倾向得分是PSM的核心。用什么方法算倾向得分，直接影响匹配质量。下面介绍三种方法，从简单到复杂。</p>
+
+<h4>方法一：逻辑回归（Logistic Regression）—— 最基础、最常用</h4>
+<p>大白话理解：逻辑回归像一个&quot;打分机&quot;。输入一个人的各种特征，输出一个0到1之间的分数——这个人会接受干预的概率。</p>
+<p><strong>优点</strong>：计算快，结果可解释（能看出每个特征对&quot;是否被干预&quot;的影响方向）；输出天然在0-1之间，不需要额外处理。</p>
+<p><strong>缺点</strong>：只能捕捉线性关系。比如&quot;年龄越大越可能成为会员&quot;能处理，但&quot;25-35岁的人最可能成为会员，年龄再大反而概率下降&quot;这种曲线关系就处理不好。</p>
+<p><strong>什么时候用</strong>：特征不多（&lt; 20个），特征和结果之间大致是线性关系时，逻辑回归完全够用。</p>
+
+<h4>方法二：随机森林（Random Forest）—— 能处理复杂关系</h4>
+<p>大白话理解：随机森林 = 同时训练几百棵&quot;决策树&quot;，每棵树看一部分用户、一部分特征，最后投票决定这个人的倾向得分。</p>
+<p><strong>优点</strong>：自动捕捉非线性关系（比如&quot;收入和年龄的交互作用&quot;）；不需要手动构造特征交叉项；对异常值不敏感。</p>
+<p><strong>缺点</strong>：倾向得分可能集中在0和1附近（极端化），需要通过概率校准（Calibration）来修正；计算稍慢。</p>
+<p><strong>什么时候用</strong>：特征较多（&gt; 20个），特征和结果之间关系复杂，不想手动构造特征交互时。</p>
+
+<h4>方法三：GBDT / XGBoost / LightGBM —— 效果通常最好</h4>
+<p>大白话理解：GBDT像&quot;迭代学习&quot;。第一棵树学着预测&quot;谁是会员&quot;但可能错了很多，第二棵树专门去纠正第一棵树的错误，第三棵树再纠正前两棵的错误……一直迭代几百次。最后所有树的预测结果加起来 = 倾向得分。</p>
+<p><strong>优点</strong>：通常效果最好（匹配后SMD最低）；LightGBM训练速度很快；能自动处理缺失值。</p>
+<p><strong>缺点</strong>：参数多，需要调参（尤其是树的深度和学习率）；容易过拟合——模型把训练数据&quot;背下来&quot;了，预测新数据就变差。</p>
+<p><strong>什么时候用</strong>：追求最优匹配效果；特征很多（&gt; 50个）；样本量大（&gt; 1万）。</p>
+<h3>三种方法对比一览</h3>
+<table>
+<tr><th>比较维度</th><th>逻辑回归</th><th>随机森林</th><th>GBDT/XGBoost</th></tr>
+<tr><td>核心原理</td><td>线性方程 + Sigmoid</td><td>多棵决策树投票</td><td>迭代纠错，逐步提升</td></tr>
+<tr><td>非线性能力</td><td>差（需要手动构造）</td><td>好（自动捕捉）</td><td>最好</td></tr>
+<tr><td>可解释性</td><td>最好（看系数）</td><td>一般（看特征重要性）</td><td>一般</td></tr>
+<tr><td>过拟合风险</td><td>低</td><td>中</td><td>高（需要正则化）</td></tr>
+<tr><td>训练速度</td><td>最快</td><td>较快</td><td>较慢</td></tr>
+<tr><td>输出概率校准</td><td>天然校准</td><td>需要校准</td><td>需要校准</td></tr>
+<tr><td>适用场景</td><td>特征少、线性关系</td><td>特征多、关系复杂</td><td>追求最优效果</td></tr>
+</table>
+<h3>工作中怎么选？实操建议</h3>
+<ol>
+<li><strong>第1步：先用逻辑回归做基线（baseline）。</strong>不管最终用什么，逻辑回归的结果是参照物。</li>
+<li><strong>第2步：看匹配后SMD。</strong>如果逻辑回归匹配后大部分特征SMD &lt; 0.1，说明线性关系够用了，不需要换更复杂的方法。</li>
+<li><strong>第3步：如果SMD不达标，换随机森林再试。</strong>看SMD是否有改善。</li>
+<li><strong>第4步：如果随机森林还是不行，上LightGBM。</strong>但一定要控制过拟合（限制树的深度、增加正则化参数）。</li>
+<li><strong>第5步（稳健性检验）：最终报告时，三种方法都跑一遍。</strong>如果三种方法算出的ATT差不多，说明结论稳健。</li>
+</ol>
+<blockquote>
+<p>💡 <strong>手算回顾</strong>：如果你还没有看第零部分的&quot;极简手算全链路&quot;，强烈建议先看一遍。那一章用6条样本、纯加减乘除，把逻辑回归系数拟合→倾向得分计算→PSM 1:1匹配→SMD手工检验→ATT效果测算完整走了一遍。<strong>看完手算再看下面的代码，你会发现代码只是把手算过程自动化了——底层逻辑完全一样。</strong></p>
+</blockquote>
+<h3>1.4 完整可运行代码（带详细中文注释）</h3>
+<p>安装依赖（在命令行/终端中运行）：</p>
+<pre><code>pip install pandas numpy statsmodels scikit-learn matplotlib seaborn lightgbm</code></pre>
+<p>下面代码可以直接复制到 Jupyter Notebook 中按顺序运行。每一个步骤、每一个参数都有中文解释。</p>
+<h1>============================================================</h1>
+<h1>步骤①：导入库 &amp; 数据准备</h1>
+<h1>============================================================</h1>
+<h1>---------- 导入必要的库 ----------</h1>
+<p>import pandas as pd               # 数据处理，DataFrame
+import numpy as np                # 数值计算，数组操作
+import matplotlib.pyplot as plt   # 画图
+import seaborn as sns             # 美化图表
+from sklearn.linear_model import LogisticRegression      # 逻辑回归（方法一）
+from sklearn.ensemble import RandomForestClassifier      # 随机森林（方法二）
+from sklearn.preprocessing import StandardScaler         # 标准化：让不同特征尺度一致
+from sklearn.neighbors import NearestNeighbors           # 最近邻：用于匹配
+from sklearn.calibration import CalibratedClassifierCV   # 概率校准：修正概率估计
+from scipy import stats           # 统计检验（t检验）</p>
+<h1>设置中文显示（避免图表中文乱码）</h1>
+<p>plt.rcParams[&#39;font.sans-serif&#39;] = [&#39;SimHei&#39;, &#39;Microsoft YaHei&#39;]
+plt.rcParams[&#39;axes.unicode_minus&#39;] = False  # 让负号正常显示
+print(&quot;所有库导入成功！&quot;)</p>
+<h1>---------- 生成模拟数据（工作中替换为你的真实数据）----------</h1>
+<h1>我们模拟一个电商用户数据集，用于评估会员权益效果</h1>
+<h1>真实效果设定为150元（会员让月消费提高150元）</h1>
+<p>np.random.seed(42)  # 固定随机种子，保证每次运行结果可复现
+n = 10000           # 总样本量：1万名用户</p>
+<h1>--- 生成用户特征（X变量）---</h1>
+<h1>每个特征都是从一个概率分布中随机抽取的，模拟真实用户</h1>
+<p>age = np.random.normal(35, 10, n).astype(int)   # 年龄：正态分布，均值35，标准差10
+age = np.clip(age, 18, 65)                      # 限制年龄范围18-65岁
+gender = np.random.binomial(1, 0.5, n)          # 性别：二项分布，0=女 1=男，各50%
+income = np.random.lognormal(8.5, 0.5, n).astype(int)  # 月收入：对数正态分布
+income = np.clip(income, 2000, 50000)                  # 限制收入范围2000-50000
+past_purchase = np.random.lognormal(6, 0.8, n).astype(int)  # 过去3月消费：对数正态
+browse_days = np.random.poisson(30, n)                      # 活跃天数：泊松分布
+browse_days = np.clip(browse_days, 1, 90)                  # 限制1-90天
+category_count = np.random.poisson(3, n) + 1               # 购买品类数，至少1个</p>
+<h1>--- 生成处理变量（T）：是否开通会员 ---</h1>
+<h1>注意：这里模拟&quot;选择偏差&quot;——收入高、消费多、活跃的人更容易成为会员</h1>
+<h1>用sigmoid函数把特征组合映射为&quot;成为会员的概率&quot;</h1>
+<p>member_prob = 1 / (1 + np.exp(-(
+    -3.5                          # 截距：基础倾向偏低
+    + 0.00003 * income            # 收入越高，越可能成为会员
+    + 0.0001 * past_purchase       # 过去消费越多，越可能成为会员
+    + 0.02 * browse_days           # 越活跃，越可能成为会员
+    + 0.15 * category_count        # 买的品类越多，越可能成为会员
+    + np.random.normal(0, 0.5, n)  # 随机扰动（不可观测因素）
+)))
+is_member = np.random.binomial(1, member_prob)  # 按概率随机决定是否成为会员</p>
+<h1>--- 生成结果变量（Y）：月消费金额 ---</h1>
+<h1>真实因果效果 = 150元（is_member的系数）</h1>
+<p>monthly_spend = (500                           # 基础消费500元
+    + 0.01 * income                            # 收入的贡献
+    + 0.3 * past_purchase                       # 历史消费的贡献
+    + 2 * browse_days                           # 活跃度的贡献
+    + 30 * category_count                       # 品类多样性的贡献
+    + 150 * is_member                           # ★ 会员的真实因果效果 = 150元
+    + np.random.normal(0, 200, n)               # 随机噪音
+).astype(int)
+monthly_spend = np.clip(monthly_spend, 0, None) # 消费不能为负数</p>
+<h1>--- 汇总为DataFrame ---</h1>
+<p>df = pd.DataFrame({
+    &#39;age&#39;: age, &#39;gender&#39;: gender, &#39;income&#39;: income,
+    &#39;past_purchase&#39;: past_purchase, &#39;browse_days&#39;: browse_days,
+    &#39;category_count&#39;: category_count, &#39;is_member&#39;: is_member,
+    &#39;monthly_spend&#39;: monthly_spend
+})</p>
+<h1>--- 看一眼数据 ---</h1>
+<p>print(f&quot;===== 数据概览 =====&quot;)
+print(f&quot;总用户数: {len(df)}&quot;)
+print(f&quot;会员数: {df[&#39;is_member&#39;].sum()}（{df[&#39;is_member&#39;].mean()*100:.1f}%）&quot;)
+print(f&quot;非会员数: {(1-df[&#39;is_member&#39;]).sum()}&quot;)
+print(f&quot;\n会员平均月消费: {df[df[&#39;is_member&#39;]==1][&#39;monthly_spend&#39;].mean():.0f} 元&quot;)
+print(f&quot;非会员平均月消费: {df[df[&#39;is_member&#39;]==0][&#39;monthly_spend&#39;].mean():.0f} 元&quot;)</p>
+<h1>注意：这个简单差值是有偏的！因为会员本身就更爱花钱</h1>
+<p>print(f&quot;简单差值（有偏）: {df[df[&#39;is_member&#39;]==1][&#39;monthly_spend&#39;].mean() - df[df[&#39;is_member&#39;]==0][&#39;monthly_spend&#39;].mean():.0f} 元&quot;)
+print(f&quot;真实效果（我们模拟中设定的）: 150 元&quot;)
+print(f&quot;\n偏差 = {df[df[&#39;is_member&#39;]==1][&#39;monthly_spend&#39;].mean() - df[df[&#39;is_member&#39;]==0][&#39;monthly_spend&#39;].mean() - 150:.0f} 元&quot;)
+print(f&quot;→ 这说明直接比较会高估效果，需要PSM来修正！&quot;)</p>
+<h1>============================================================</h1>
+<h1>步骤②：用三种方法估计倾向得分</h1>
+<h1>============================================================</h1>
+<h1>--- 准备工作：定义特征列和处理变量 ---</h1>
+<p>feature_cols = [&#39;age&#39;, &#39;gender&#39;, &#39;income&#39;, &#39;past_purchase&#39;,
+                &#39;browse_days&#39;, &#39;category_count&#39;]  # 用于估计倾向得分的特征
+X = df[feature_cols].copy()   # 特征矩阵（X）
+T = df[&#39;is_member&#39;]           # 处理变量（T = Treatment）</p>
+<h1>--- 标准化特征 ---</h1>
+<h1>为什么要标准化？不同特征尺度差异大（年龄18-65，收入2000-50000），</h1>
+<h1>逻辑回归需要各特征在同一尺度上才能正确估计系数</h1>
+<p>scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)  # 将每个特征变为均值0、标准差1
+print(&quot;特征已标准化（均值=0，标准差=1）&quot;)</p>
+<h1>============================================================</h1>
+<h1>方法一：逻辑回归（Logistic Regression）</h1>
+<h1>============================================================</h1>
+<p>print(&quot;\n========== 方法一：逻辑回归 ==========&quot;)</p>
+<h1>C参数控制正则化强度，C越大正则化越弱。</h1>
+<h1>max_iter是最大迭代次数，数据量大的时候可能需要更多次。</h1>
+<p>lr = LogisticRegression(C=1.0, max_iter=1000, random_state=42)
+lr.fit(X_scaled, T)                              # 用特征X预测T（是否会员）
+df[&#39;ps_lr&#39;] = lr.predict_proba(X_scaled)[:, 1]   # predict_proba返回[非会员概率, 会员概率]
+                                                  # [:, 1]取第二列 = 成为会员的概率
+print(f&quot;逻辑回归倾向得分范围: [{df[&#39;ps_lr&#39;].min():.3f}, {df[&#39;ps_lr&#39;].max():.3f}]&quot;)
+print(f&quot;逻辑回归倾向得分均值: {df[&#39;ps_lr&#39;].mean():.3f}&quot;)</p>
+<h1>可以看看哪些特征最重要（系数越大 = 对倾向得分影响越大）</h1>
+<p>print(&quot;\n各特征的影响系数（正数=增大被干预概率，负数=减小）：&quot;)
+for col, coef in zip(feature_cols, lr.coef_[0]):
+    direction = &quot;↑ 增加概率&quot; if coef &gt; 0 else &quot;↓ 减小概率&quot;
+    print(f&quot;  {col}: {coef:.4f} {direction}&quot;)</p>
+<h1>注意：这些系数是在标准化后的尺度上的，不能直接解释为&quot;收入每增加1元&quot;</h1>
+<h1>============================================================</h1>
+<h1>方法二：随机森林（Random Forest）</h1>
+<h1>============================================================</h1>
+<p>print(&quot;\n========== 方法二：随机森林 ==========&quot;)</p>
+<h1>n_estimators: 森林里有多少棵树，一般100-500，越多越稳定但越慢</h1>
+<h1>max_depth: 每棵树的最大深度，限制深度可以防止过拟合</h1>
+<h1>min_samples_leaf: 叶子节点最少样本数，越大越不容易过拟合</h1>
+<p>rf = RandomForestClassifier(
+    n_estimators=200,       # 200棵树
+    max_depth=5,            # 最大深度5层（限制复杂度防止过拟合）
+    min_samples_leaf=50,    # 每个叶子至少50个样本
+    random_state=42,
+    n_jobs=-1               # 使用所有CPU核心并行计算
+)
+rf.fit(X_scaled, T)</p>
+<h1>随机森林的predict_proba输出有时太极端（0或1很常见）</h1>
+<h1>用概率校准把它&quot;拉回来&quot;，让预测概率更准确</h1>
+<p>calibrated_rf = CalibratedClassifierCV(rf, method=&#39;sigmoid&#39;, cv=5)
+calibrated_rf.fit(X_scaled, T)
+df[&#39;ps_rf&#39;] = calibrated_rf.predict_proba(X_scaled)[:, 1]
+print(f&quot;随机森林倾向得分范围: [{df[&#39;ps_rf&#39;].min():.3f}, {df[&#39;ps_rf&#39;].max():.3f}]&quot;)</p>
+<h1>看特征重要性（哪些特征对预测&quot;是不是会员&quot;最重要）</h1>
+<p>print(&quot;\n各特征的重要性（越高越重要）：&quot;)
+importances = rf.feature_importances_
+for col, imp in sorted(zip(feature_cols, importances), key=lambda x: -x[1]):
+    print(f&quot;  {col}: {imp:.4f}&quot;)</p>
+<h1>============================================================</h1>
+<h1>方法三：LightGBM / GBDT（梯度提升决策树）</h1>
+<h1>============================================================</h1>
+<p>print(&quot;\n========== 方法三：LightGBM（GBDT）==========&quot;)
+print(&quot;（如果没有安装lightgbm，先运行：pip install lightgbm）&quot;)
+try:
+    import lightgbm as lgb
+    # 核心参数解释：
+    # n_estimators: 迭代轮数，GBDT是逐步优化的，一般100-500
+    # max_depth: 每棵树深度，GBDT的树通常很浅（3-7），越深越容易过拟合
+    # learning_rate: 学习率，每棵树贡献的权重，小=更稳定但需要更多树
+    # num_leaves: LightGBM特有，叶子节点数，一般设 2^max_depth 左右
+    # min_child_samples: 叶子最少样本数，防止过拟合
+    lgb_model = lgb.LGBMClassifier(
+        n_estimators=200,        # 迭代200轮
+        max_depth=4,             # 树很浅，防止过拟合
+        learning_rate=0.05,      # 学习率较小，更稳定
+        num_leaves=15,           # 叶子数
+        min_child_samples=50,    # 每个叶子至少50个样本
+        subsample=0.8,           # 每棵树随机用80%的样本，防过拟合
+        random_state=42,
+        verbose=-1               # 不输出训练过程
+    )
+    lgb_model.fit(X_scaled, T)
+    df[&#39;ps_lgb&#39;] = lgb_model.predict_proba(X_scaled)[:, 1]
+    print(f&quot;LightGBM倾向得分范围: [{df[&#39;ps_lgb&#39;].min():.3f}, {df[&#39;ps_lgb&#39;].max():.3f}]&quot;)
+    print(&quot;LightGBM 倾向得分计算完成！&quot;)
+except ImportError:
+    print(&quot;LightGBM未安装，跳过此方法。&quot;)
+    print(&quot;如需安装：pip install lightgbm&quot;)
+    df[&#39;ps_lgb&#39;] = df[&#39;ps_lr&#39;]  # 用逻辑回归暂代，不影响后续代码运行</p>
+<h1>============================================================</h1>
+<h1>对比三种方法的倾向得分分布</h1>
+<h1>============================================================</h1>
+<p>fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+for ax, ps_col, title in zip(
+    axes,
+    [&#39;ps_lr&#39;, &#39;ps_rf&#39;, &#39;ps_lgb&#39;],
+    [&#39;逻辑回归&#39;, &#39;随机森林&#39;, &#39;LightGBM&#39;]
+):
+    ax.hist(df[df[&#39;is_member&#39;]==0][ps_col], bins=40, alpha=0.6, label=&#39;非会员&#39;, color=&#39;#3498DB&#39;)
+    ax.hist(df[df[&#39;is_member&#39;]==1][ps_col], bins=40, alpha=0.6, label=&#39;会员&#39;, color=&#39;#E74C3C&#39;)
+    ax.set_xlabel(&#39;倾向得分&#39;); ax.set_ylabel(&#39;人数&#39;)
+    ax.set_title(f&#39;{title}\n倾向得分分布&#39;)
+    ax.legend()
+plt.tight_layout()
+plt.savefig(&#39;psm_three_methods_comparison.png&#39;, dpi=150)
+plt.show()
+print(&quot;\n三种方法的倾向得分分布图已生成。&quot;)
+print(&quot;关键结论：看三张图，哪张的两组分布重叠区域最大，哪种方法最适合你的数据。&quot;)</p>
+<h1>============================================================</h1>
+<h1>步骤③：用倾向得分进行匹配 &amp; 选择最优方法</h1>
+<h1>============================================================</h1>
+<h1>---- 选择使用哪种倾向得分 ----</h1>
+<h1>这里我们先用逻辑回归的结果（ps_lr）做演示</h1>
+<h1>实际工作中，建议三种都试，选匹配后SMD最低的那个</h1>
+<p>ps_col = &#39;ps_lr&#39;  # 可以改成 &#39;ps_rf&#39; 或 &#39;ps_lgb&#39;
+print(f&quot;当前使用的倾向得分: {ps_col}&quot;)</p>
+<h1>---- 执行最近邻匹配 ----</h1>
+<h1>原理：对每个处理组的人，在控制组中找一个倾向得分最接近的人配对</h1>
+<p>treated = df[df[&#39;is_member&#39;] == 1].copy().reset_index(drop=True)  # 处理组（会员）
+control = df[df[&#39;is_member&#39;] == 0].copy().reset_index(drop=True)  # 控制组（非会员）</p>
+<h1>NearestNeighbors: 使用KD树/球树数据结构，快速找到最近邻</h1>
+<h1>n_neighbors=1: 每个会员只找1个最相似的非会员（1:1匹配）</h1>
+<p>nn = NearestNeighbors(n_neighbors=1, algorithm=&#39;ball_tree&#39;)
+nn.fit(control[[ps_col]])                      # 在控制组中&quot;学习&quot;倾向得分的分布
+distances, indices = nn.kneighbors(treated[[ps_col]])  # 为每个会员找最近的非会员</p>
+<h1>indices.flatten() = 每个会员对应的控制组索引</h1>
+<p>matched_control = control.iloc[indices.flatten()].copy().reset_index(drop=True)</p>
+<h1>合并匹配后的数据</h1>
+<p>df_matched = pd.concat([
+    treated.reset_index(drop=True),
+    matched_control.reset_index(drop=True)
+], axis=0)  # axis=0 表示上下拼接
+print(f&quot;===== 匹配结果 =====&quot;)
+print(f&quot;处理组: {len(treated)} 人（全部保留）&quot;)
+print(f&quot;匹配后的控制组: {len(matched_control)} 人&quot;)
+print(f&quot;匹配后总样本: {len(df_matched)} 人&quot;)</p>
+<h1>---- 检查匹配质量：看距离分布 ----</h1>
+<p>print(f&quot;\n匹配距离统计（越小说明配对越像）：&quot;)
+print(f&quot;  平均距离: {distances.mean():.6f}&quot;)
+print(f&quot;  最大距离: {distances.max():.6f}&quot;)
+print(f&quot;  距离中位数: {np.median(distances):.6f}&quot;)</p>
+<h1>============================================================</h1>
+<h1>步骤④：平衡性检验 —— 这是PSM最关键的一步！</h1>
+<h1>============================================================</h1>
+<h1>目的：检验匹配后，处理组和控制组在各特征上是否真的&quot;像&quot;了</h1>
+<h1>标准：SMD（标准化均值差异）&lt; 0.1 即视为通过</h1>
+<p>def calculate_smd(df, treat_col, feature_cols):
+    &quot;&quot;&quot;
+    计算每个特征的标准化均值差异（SMD）
+    SMD = 两组均值的差 / 两组合并标准差
+    SMD越小说明两组越平衡，&lt; 0.1为合格
+    &quot;&quot;&quot;
+    treated = df[df[treat_col] == 1]   # 处理组
+    control = df[df[treat_col] == 0]   # 控制组
+    smd_dict = {}
+    for col in feature_cols:
+        diff = treated[col].mean() - control[col].mean()        # 均值差
+        # 合并标准差 = sqrt((组1方差 + 组2方差) / 2)
+        pooled_std = np.sqrt((treated[col].var() + control[col].var()) / 2)
+        smd_dict[col] = abs(diff / pooled_std) if pooled_std &gt; 0 else 0
+    return smd_dict</p>
+<h1>计算匹配前后的SMD</h1>
+<p>smd_before = calculate_smd(df, &#39;is_member&#39;, feature_cols)         # 匹配前
+smd_after = calculate_smd(df_matched, &#39;is_member&#39;, feature_cols)  # 匹配后</p>
+<h1>展示对比表</h1>
+<p>print(&quot;\n========== 平衡性检验结果 ==========&quot;)
+print(f&quot;{&#39;特征&#39;:&lt;20} {&#39;匹配前SMD&#39;:&gt;10} {&#39;匹配后SMD&#39;:&gt;10} {&#39;改善幅度&#39;:&gt;10} {&#39;判定&#39;:&gt;8}&quot;)
+print(&quot;-&quot; * 65)
+all_pass = True
+for col in feature_cols:
+    before = smd_before[col]
+    after = smd_after[col]
+    improvement = (before - after) / before * 100 if before &gt; 0 else 0
+    status = &#39;✅ 通过&#39; if after &lt; 0.1 else &#39;❌ 未通过&#39;
+    if after &gt;= 0.1:
+        all_pass = False
+    print(f&quot;{col:&lt;20} {before:&gt;10.3f} {after:&gt;10.3f} {improvement:&gt;9.1f}% {status:&gt;8}&quot;)
+if all_pass:
+    print(&quot;\n✅ 所有特征SMD均 &lt; 0.1，匹配质量合格！&quot;)
+else:
+    print(&quot;\n❌ 部分特征SMD &gt; 0.1，建议尝试：&quot;)
+    print(&quot;   1) 换一种倾向得分估计方法（如随机森林或GBDT）&quot;)
+    print(&quot;   2) 增加更多特征到倾向得分模型中&quot;)
+    print(&quot;   3) 尝试1:N匹配或卡尺匹配&quot;)</p>
+<h1>---- 画对比图 ----</h1>
+<p>fig, ax = plt.subplots(figsize=(10, 6))
+x = np.arange(len(feature_cols))
+width = 0.35
+ax.bar(x - width/2, [smd_before[c] for c in feature_cols], width,
+       label=&#39;匹配前 SMD&#39;, color=&#39;#E74C3C&#39;, alpha=0.8)
+ax.bar(x + width/2, [smd_after[c] for c in feature_cols], width,
+       label=&#39;匹配后 SMD&#39;, color=&#39;#2ECC71&#39;, alpha=0.8)
+ax.axhline(y=0.1, color=&#39;red&#39;, linestyle=&#39;--&#39;, linewidth=2, label=&#39;SMD = 0.1 阈值&#39;)
+ax.set_xticks(x)
+ax.set_xticklabels(feature_cols, rotation=30, fontsize=10)
+ax.set_ylabel(&#39;标准化均值差异 (SMD)&#39;)
+ax.set_title(&#39;PSM平衡性检验：匹配前 vs 匹配后&#39;, fontsize=14, fontweight=&#39;bold&#39;)
+ax.legend(loc=&#39;upper right&#39;)
+ax.grid(axis=&#39;y&#39;, alpha=0.3)
+plt.tight_layout()
+plt.savefig(&#39;psm_balance_check.png&#39;, dpi=150)
+plt.show()
+print(&quot;\n平衡性检验柱状图已保存。每个柱子越短说明两组越平衡。&quot;)</p>
+<h1>============================================================</h1>
+<h1>步骤⑤：计算处理效应（ATT）</h1>
+<h1>============================================================</h1>
+<h1>ATT = Average Treatment Effect on the Treated</h1>
+<h1>= 处理组(Y=1)的平均结果 - 匹配后控制组(Y=0)的平均结果</h1>
+<h1>注意：只对&quot;被处理的人&quot;算效果，不是对所有人的平均效果</h1>
+<h1>分别取出匹配后两组的月消费</h1>
+<p>y_treated = df_matched[df_matched[&#39;is_member&#39;] == 1][&#39;monthly_spend&#39;]  # 会员消费
+y_control = df_matched[df_matched[&#39;is_member&#39;] == 0][&#39;monthly_spend&#39;]  # 非会员消费</p>
+<h1>ATT = 处理组均值 - 控制组均值</h1>
+<p>att = y_treated.mean() - y_control.mean()</p>
+<h1>用独立样本t检验判断效果是否显著</h1>
+<h1>H0（原假设）：两组均值相等（= 会员没效果）</h1>
+<h1>H1（备择假设）：两组均值不等（= 会员有效果）</h1>
+<h1>p &lt; 0.05 就拒绝H0，认为效果显著</h1>
+<p>t_stat, p_value = stats.ttest_ind(y_treated, y_control)</p>
+<h1>计算95%置信区间</h1>
+<h1>如果置信区间不包含0，说明效果统计显著</h1>
+<p>se = np.sqrt(y_treated.var()/len(y_treated) + y_control.var()/len(y_control))
+ci_lower = att - 1.96 * se  # 置信区间下界
+ci_upper = att + 1.96 * se  # 置信区间上界
+print(&quot;========== PSM 结果（ATT）==========&quot;)
+print(f&quot;处理组（会员）平均月消费:   {y_treated.mean():.0f} 元&quot;)
+print(f&quot;控制组（非会员）平均月消费: {y_control.mean():.0f} 元&quot;)
+print(f&quot;ATT（会员权益效果）:        {att:.0f} 元&quot;)
+print(f&quot;95%置信区间:               [{ci_lower:.0f}, {ci_upper:.0f}] 元&quot;)
+print(f&quot;t统计量:                   {t_stat:.2f}&quot;)
+print(f&quot;p值:                       {p_value:.4f}&quot;)
+print(f&quot;&quot;)
+print(f&quot;真实效果（模拟中设定）:     150 元&quot;)
+print(f&quot;PSM估计误差:                {abs(att - 150):.0f} 元&quot;)
+if p_value &lt; 0.05:
+    print(f&quot;\n✅ 结论：PLUS会员权益显著提高了用户月消费&quot;)
+    print(f&quot;   效果为 {att:.0f} 元/月（p = {p_value:.4f}）&quot;)
+else:
+    print(f&quot;\n❌ 结论：未发现PLUS会员对月消费有显著影响（p = {p_value:.4f}）&quot;)</p>
+<h1>============================================================</h1>
+<h1>步骤⑥：敏感性分析 &amp; 稳健性检验</h1>
+<h1>============================================================</h1>
+<h1>----- 检验1：换匹配比例（1:2匹配）-----</h1>
+<p>nn2 = NearestNeighbors(n_neighbors=2, algorithm=&#39;ball_tree&#39;)
+nn2.fit(control[[ps_col]])
+distances2, indices2 = nn2.kneighbors(treated[[ps_col]])
+matched_c2 = control.iloc[indices2.flatten()].copy()
+df_m2 = pd.concat([treated.reset_index(drop=True), matched_c2.reset_index(drop=True)])
+y_t2 = df_m2[df_m2[&#39;is_member&#39;]==1][&#39;monthly_spend&#39;]
+y_c2 = df_m2[df_m2[&#39;is_member&#39;]==0][&#39;monthly_spend&#39;]
+att_1to2 = y_t2.mean() - y_c2.mean()
+print(f&quot;1:1匹配 ATT: {att:.0f} 元&quot;)
+print(f&quot;1:2匹配 ATT: {att_1to2:.0f} 元&quot;)
+print(f&quot;两次结果差异: {abs(att - att_1to2):.0f} 元 → {&#39;一致&#39; if abs(att - att_1to2) &lt; 20 else &#39;需关注&#39;}&quot;)</p>
+<h1>----- 检验2：三种倾向得分方法都跑一遍 -----</h1>
+<p>print(&quot;\n--- 三种倾向得分方法的ATT对比 ---&quot;)
+att_values = {}
+for ps_name in [&#39;ps_lr&#39;, &#39;ps_rf&#39;, &#39;ps_lgb&#39;]:
+    ctl = control.copy()
+    ttd = treated.copy()
+    nn.fit(ctl[[ps_name]])
+    _, idx = nn.kneighbors(ttd[[ps_name]])
+    mc = ctl.iloc[idx.flatten()]
+    dm = pd.concat([ttd.reset_index(drop=True), mc.reset_index(drop=True)])
+    y1 = dm[dm[&#39;is_member&#39;]==1][&#39;monthly_spend&#39;]
+    y0 = dm[dm[&#39;is_member&#39;]==0][&#39;monthly_spend&#39;]
+    att_val = y1.mean() - y0.mean()
+    att_values[ps_name] = att_val
+    print(f&quot;  {ps_name}: ATT = {att_val:.0f} 元&quot;)</p>
+<h1>如果三种方法结果都接近，说明结论稳健</h1>
+<p>att_range = max(att_values.values()) - min(att_values.values())
+print(f&quot;\n三种方法ATT波动范围: {att_range:.0f} 元&quot;)
+if att_range &lt; 30:
+    print(&quot;✅ 结论稳健：不同方法估计的效果一致&quot;)
+else:
+    print(&quot;⚠️ 结论不稳健：不同方法结果差异较大，建议深入分析&quot;)</p>
+<h1>----- 检验3：卡尺匹配（只在倾向得分很接近时才配对）-----</h1>
+<p>caliper = 0.05  # 卡尺阈值：倾向得分差距必须小于0.05
+treated_ps = treated[[ps_col]].values
+control_ps = control[[ps_col]].values
+matched_count = 0
+att_caliper_pairs = []
+for i, ps_t in enumerate(treated_ps):
+    diffs = np.abs(control_ps - ps_t).flatten()
+    best_idx = np.argmin(diffs)
+    if diffs[best_idx] &lt; caliper:  # 只保留倾向得分差距小于卡尺的配对
+        att_caliper_pairs.append((
+            treated.iloc[i][&#39;monthly_spend&#39;],
+            control.iloc[best_idx][&#39;monthly_spend&#39;]
+        ))
+        matched_count += 1
+if matched_count &gt; 0:
+    y1_caliper, y0_caliper = zip(*att_caliper_pairs)
+    att_caliper = np.mean(y1_caliper) - np.mean(y0_caliper)
+    print(f&quot;\n卡尺匹配 (caliper={caliper}):&quot;)
+    print(f&quot;  成功匹配: {matched_count}/{len(treated)} ({matched_count/len(treated)*100:.0f}%)&quot;)
+    print(f&quot;  ATT: {att_caliper:.0f} 元&quot;)
+print(&quot;\n===== 敏感性分析总结 =====&quot;)
+print(&quot;如果以上三种检验的ATT都接近，说明你的PSM结果是可信的。&quot;)
+<h3>1.5 核心评估指标（必须掌握）</h3>
+<table>
+<tr><th>指标</th><th>含义</th><th>合格标准</th><th>怎么看</th></tr>
+<tr><td>SMD（标准化均值差异）</td><td>匹配后处理组与对照组在各特征上的差异</td><td>所有特征SMD &lt; 0.1</td><td>越小越好，&lt; 0.1 即通过平衡性检验</td></tr>
+<tr><td>ATT（处理组平均处理效应）</td><td>匹配后会员月消费 − 配对的非会员月消费</td><td>与业务逻辑一致，通过显著性检验</td><td>对比简单差值，ATT应更小（修正了偏差）</td></tr>
+<tr><td>匹配成功率</td><td>处理组中成功找到配对的比例</td><td>&gt; 90%</td><td>成功率太低说明对照池不够大或卡尺太严</td></tr>
+</table>
+<h3>1.6 调参指南（工作中怎么调）</h3>
+	<h4>① 倾向得分估计方法的选择</h4>
+	<ul>
+	<li>逻辑回归 → 作为baseline，永远先跑一遍</li>
+	<li>随机森林 → 特征多、怀疑有非线性关系时使用</li>
+	<li>GBDT/LightGBM → 追求最优匹配效果时使用</li>
+	<li>核心判断指标：匹配后SMD。SMD &lt; 0.1 就用当前方法，不达标就换更复杂的方法</li>
+	</ul>
+	<h4>② 匹配参数调优</h4>
+	<p><strong>匹配比例（1:1 vs 1:N）：</strong></p>
+	<ul>
+	<li>样本量大（处理组 &gt; 1000人）：用1:1就够了</li>
+	<li>处理组样本小（&lt; 200人）：用1:3或1:5，利用更多控制组样本</li>
+	</ul>
+	<p><strong>卡尺（Caliper）：</strong></p>
+	<ul>
+	<li>常用值：倾向得分标准差的0.2倍，或直接设0.02-0.05</li>
+	<li>先不加卡尺跑一遍，加了卡尺再跑一遍，对比结果</li>
+	<li>卡尺越小 = 匹配越严格 = 可能匹配不上太多人</li>
+	</ul>
+	<h4>③ 调参检查清单</h4>
+	<ul>
+	<li>□ 特征标准化后再算倾向得分（代码中已包含）</li>
+	<li>□ 检查倾向得分分布图：两组有足够重叠区域</li>
+	<li>□ 匹配后所有特征SMD &lt; 0.1</li>
+	<li>□ 三种倾向得分估计方法都试一遍，ATT结果稳定</li>
+	<li>□ 尝试不同匹配参数（1:1, 1:2, 卡尺），结论一致</li>
+	<li>□ 报告ATT时同时报告95%置信区间和p值</li>
+	</ul>
+	<h2>第二部分  SCM（合成控制方法）</h2>
+	<h3>2.1 大白话理解：SCM到底是什么？</h3>
+	<p>PSM解决的是&quot;有很多人接受干预&quot;的场景。但如果只有1个对象接受了干预呢？</p>
+	<p>比如：公司只在北京做了广告投放，你想评估广告效果。没法用PSM——因为不可能找到&quot;另一个和北京一模一样的城市&quot;来对比。</p>
+	<p>SCM的思路：既然没有现成的&quot;另一个北京&quot;，那就用多个没投放广告的城市（上海、广州、深圳、成都……），通过加权组合，&quot;人工合成&quot;一个和北京广告投放前趋势一模一样的&quot;虚拟北京&quot;。然后用这个&quot;虚拟北京&quot;在广告投放后作为对比基准。</p>
+	<p>就像一个调色师：你说&quot;我想要一种和北京完全一样的颜色&quot;，但颜料盘里没有现成的。调色师就用红+黄+蓝按特定比例混合，调出和北京一模一样的颜色。SCM就是&quot;用多个城市的加权平均来合成北京&quot;。</p>
+	<blockquote><p>💡 一句话：SCM = 用多个未受干预的对象合成一个&quot;虚拟对照&quot;，对比干预前后的差异来估算效果。</p></blockquote>
+	<h3>2.2 业务场景：广告投放城市效果评估</h3>
+	<p>场景设定：你是某快消品牌的数据分析师。公司在&quot;北京&quot;做了大规模电视广告投放（2024年1月开始）。你有全国10个城市2019-2025年的月度数据。你想评估：广告投放后，北京的市场份额是否真的提高了？</p>
+	<p>数据情况：月度面板数据，10个城市 × 72个月（6年）。北京是实验组，其他9个城市作为候选对照。</p>
+	<h3>2.3 完整可运行代码（带详细中文注释）</h3>
+
+<h1>============================================================</h1>
+<h1>SCM 完整代码：评估北京广告投放效果</h1>
+<h1>所有代码可直接复制到 Jupyter Notebook 运行</h1>
+<h1>============================================================</h1>
+<h1>---------- 导入库 ----------</h1>
+<p>import pandas as pd               # 数据处理
+import numpy as np                # 数值计算
+import matplotlib.pyplot as plt   # 画图
+from scipy.optimize import minimize, Bounds, LinearConstraint  # 优化：找最优城市权重</p>
+<h1>设置中文显示</h1>
+<p>plt.rcParams[&#39;font.sans-serif&#39;] = [&#39;SimHei&#39;, &#39;Microsoft YaHei&#39;]
+plt.rcParams[&#39;axes.unicode_minus&#39;] = False
+print(&quot;库导入成功！&quot;)</p>
+<h1>---------- 生成模拟面板数据 ----------</h1>
+<h1>10个城市，72个月（2019/1 ~ 2024/12），北京在2024/1开始广告投放</h1>
+<p>np.random.seed(42)                              # 固定种子，保证可复现
+cities = [&#39;北京&#39;,&#39;上海&#39;,&#39;广州&#39;,&#39;深圳&#39;,&#39;成都&#39;,&#39;杭州&#39;,&#39;南京&#39;,&#39;武汉&#39;,&#39;西安&#39;,&#39;长沙&#39;]
+n_cities = len(cities)                           # 10个城市
+n_months = 72                                    # 72个月 = 6年
+intervention_month = 60                          # 第61个月开始干预（2024年1月）
+time_arr = np.arange(n_months)                   # 月份编号 0-71</p>
+<h1>基础趋势：市场份额随时间缓慢上升</h1>
+<p>base_trend = 20 + 0.05 * time_arr</p>
+<h1>每个城市的市场份额基础水平不同（北京最高）</h1>
+<p>city_base = {
+    &#39;北京&#39;:22, &#39;上海&#39;:21, &#39;广州&#39;:18, &#39;深圳&#39;:17, &#39;成都&#39;:15,
+    &#39;杭州&#39;:16, &#39;南京&#39;:14, &#39;武汉&#39;:13, &#39;西安&#39;:12, &#39;长沙&#39;:11
+}</p>
+<h1>为每个城市生成市场份额时间序列</h1>
+<p>data_records = []
+for city in cities:
+    base = city_base[city]                           # 该城市的基础水平
+    noise = np.random.normal(0, 1.5, n_months)        # 随机噪声（不可预测的部分）
+    seasonal = 1.5 * np.sin(2 * np.pi * time_arr / 12) # 季节性波动（每年一个周期）
+    trend = base_trend + (base - 15) * 0.1            # 各城市趋势略有差异
+    ms = trend + (base - 15) + seasonal + noise       # 市场份额 = 趋势 + 基础 + 季节 + 噪声
+    # ★ 关键设定：北京的广告投放效果 = +3个百分点
+    if city == &#39;北京&#39;:
+        ms[intervention_month:] += 3.0                # 干预后每月市场份额 +3%
+    for t in range(n_months):
+        data_records.append({
+            &#39;city&#39;: city,
+            &#39;time&#39;: t,
+            &#39;market_share&#39;: ms[t],
+            &#39;treated&#39;: 1 if city == &#39;北京&#39; else 0,    # 是否接受广告投放
+            &#39;post&#39;: 1 if t &gt;= intervention_month else 0  # 是否在干预后时期
+        })
+df = pd.DataFrame(data_records)
+print(f&quot;数据量: {len(df)} 行&quot;)
+print(f&quot;数据范围: {len(cities)}个城市 × {n_months}个月&quot;)
+print(f&quot;干预开始月: 第{intervention_month+1}个月（2024年1月）&quot;)
+print(f&quot;\n前5行数据预览:&quot;)
+print(df.head())</p>
+<h1>---------- 将数据转为宽格式（每行=一个时间点，每列=一个城市）----------</h1>
+<p>df_wide = df.pivot(index=&#39;time&#39;, columns=&#39;city&#39;, values=&#39;market_share&#39;)
+treated_unit = &#39;北京&#39;                               # 实验组
+control_units = [c for c in cities if c != treated_unit]  # 候选对照组
+print(f&quot;实验组: {treated_unit}&quot;)
+print(f&quot;候选对照组: {control_units}&quot;)
+print(f&quot;\n宽格式数据形状: {df_wide.shape}&quot;)</p>
+<h1>---------- 构建合成控制：找到最优城市权重 ----------</h1>
+<h1>核心思路：用优化算法找到一组权重(w1, w2, ..., w9)</h1>
+<h1>使得 w1<em>上海 + w2</em>广州 + ... + w9*长沙 ≈ 干预前的北京</h1>
+<p>pre_data = df_wide.iloc[:intervention_month]  # 只取干预前的数据来拟合权重</p>
+<h1>--- 提取预测变量（Predictors）---</h1>
+<h1>每个城市用三个特征描述自己：</h1>
+<h1>(1) 干预前的平均市场份额</h1>
+<h1>(2) 干预前的趋势（用最后一期减第一期近似）</h1>
+<h1>(3) 干预前的波动性（标准差）</h1>
+<p>def extract_predictors(data, control_list):
+    &quot;&quot;&quot;提取每个候选对照城市的特征&quot;&quot;&quot;
+    preds = {}
+    for city in control_list:
+        preds[city] = [
+            data[city].mean(),                            # 特征1：均值
+            data[city].iloc[-1] - data[city].iloc[0],    # 特征2：趋势
+            data[city].std(),                             # 特征3：波动性
+        ]
+    return preds</p>
+<h1>实验组（北京）的特征</h1>
+<p>treated_predictors = [
+    pre_data[treated_unit].mean(),                            # 北京干预前均值
+    pre_data[treated_unit].iloc[-1] - pre_data[treated_unit].iloc[0],  # 北京趋势
+    pre_data[treated_unit].std(),                             # 北京波动性
+]</p>
+<h1>所有对照城市的特征</h1>
+<p>control_predictors = extract_predictors(pre_data, control_units)
+print(f&quot;北京的特征: 均值={treated_predictors[0]:.2f}, 趋势={treated_predictors[1]:.2f}, 波动={treated_predictors[2]:.2f}&quot;)</p>
+<h1>---------- 用优化算法求解权重 ----------</h1>
+<h1>问题定义: min || treated_features - sum(w_i * control_features_i) ||^2</h1>
+<h1>约束条件: w_i &gt;= 0 (权重非负), sum(w_i) = 1 (权重和为1)</h1>
+<p>def loss_function(weights, treated_pred, ctrl_pred, ctrl_list):
+    &quot;&quot;&quot;损失函数：合成城市与真实北京的特征差距（平方和）&quot;&quot;&quot;
+    weights = np.array(weights)
+    # 合成城市的特征 = 加权平均
+    synthetic_pred = np.zeros(len(treated_pred))
+    for i, city in enumerate(ctrl_list):
+        synthetic_pred += weights[i] * np.array(ctrl_pred[city])
+    return np.sum((treated_pred - synthetic_pred) ** 2)</p>
+<h1>约束：每个权重 0 &lt;= w_i &lt;= 1，所有权重之和 = 1</h1>
+<p>bounds = Bounds([0] * len(control_units), [1] * len(control_units))
+constraint = LinearConstraint(np.ones(len(control_units)), 1, 1)</p>
+<h1>初始值：均匀分配（每个城市权重一样）</h1>
+<p>init_weights = np.ones(len(control_units)) / len(control_units)</p>
+<h1>执行优化（SLSQP是一种适合带约束优化的算法）</h1>
+<p>result = minimize(
+    loss_function,
+    init_weights,
+    args=(treated_predictors, control_predictors, control_units),
+    method=&#39;SLSQP&#39;,
+    bounds=bounds,
+    constraints=constraint,
+    options={&#39;maxiter&#39;: 1000, &#39;ftol&#39;: 1e-12}  # 最大迭代次数和收敛精度
+)</p>
+<h1>拿到最优权重</h1>
+<p>weights_optimal = result.x
+print(&quot;\n========== 合成控制权重 ==========&quot;)
+print(f&quot;优化是否收敛: {&#39;是&#39; if result.success else &#39;否&#39;}&quot;)
+total_weight = 0
+for city, w in zip(control_units, weights_optimal):
+    if w &gt; 0.001:  # 只显示权重大于0.1%的城市
+        print(f&quot;  {city}: {w:.4f}（{w*100:.1f}%）&quot;)
+        total_weight += w
+print(f&quot;权重合计: {total_weight:.4f}&quot;)</p>
+<h1>---------- 合成&quot;虚拟北京&quot; &amp; 画图 ----------</h1>
+<h1>用最优权重把对照城市加权平均，得到&quot;合成北京&quot;</h1>
+<p>synthetic_beijing = np.zeros(n_months)
+for i, city in enumerate(control_units):
+    synthetic_beijing += weights_optimal[i] * df_wide[city].values</p>
+<h1>计算干预前拟合误差</h1>
+<p>pre_errors = np.abs(
+    df_wide[treated_unit].values[:intervention_month] -
+    synthetic_beijing[:intervention_month]
+)
+pre_rmse = np.sqrt(np.mean(pre_errors ** 2))  # 均方根误差
+print(f&quot;干预前拟合误差 (RMSE): {pre_rmse:.4f}（越小越好）&quot;)</p>
+<h1>画图：真实北京 vs 合成北京</h1>
+<p>fig, ax = plt.subplots(figsize=(14, 6))</p>
+<h1>画两条线</h1>
+<p>ax.plot(time_arr, df_wide[treated_unit].values,
+        color=&#39;#E74C3C&#39;, linewidth=2.5, label=&#39;真实北京（实际数据）&#39;)
+ax.plot(time_arr, synthetic_beijing,
+        color=&#39;#3498DB&#39;, linewidth=2.5, linestyle=&#39;--&#39;, label=&#39;合成北京（虚拟对照）&#39;)</p>
+<h1>标记干预时间点</h1>
+<p>ax.axvline(x=intervention_month, color=&#39;black&#39;, linestyle=&#39;:&#39;, linewidth=2.5)
+ax.text(intervention_month + 0.3, ax.get_ylim()[1] * 0.97,
+        &#39;← 广告投放
+    开始&#39;, fontsize=12, fontweight=&#39;bold&#39;)</p>
+<h1>填充处理效应区域（干预后两条线的差距）</h1>
+<p>ax.fill_between(
+    time_arr[intervention_month:],
+    df_wide[treated_unit].values[intervention_month:],
+    synthetic_beijing[intervention_month:],
+    alpha=0.2, color=&#39;#E74C3C&#39;,
+    label=&#39;处理效应（广告效果）&#39;
+)
+ax.set_xlabel(&#39;月份（2019年1月=0）&#39;, fontsize=13)
+ax.set_ylabel(&#39;市场份额 (%)&#39;, fontsize=13)
+ax.set_title(&#39;SCM分析：北京广告投放对市场份额的影响&#39;, fontsize=15, fontweight=&#39;bold&#39;)
+ax.legend(loc=&#39;upper left&#39;, fontsize=11)
+ax.grid(alpha=0.3)
+plt.tight_layout()
+plt.savefig(&#39;scm_beijing_effect.png&#39;, dpi=150)
+plt.show()
+print(&quot;\n效果图已保存。蓝虚线=合成北京，红线=真实北京。&quot;)
+print(&quot;干预前两条线越贴近 = 拟合越好。&quot;)
+print(&quot;干预后两条线的差距 = 广告投放效果。&quot;)</p>
+<h1>---------- 计算处理效应 ----------</h1>
+<h1>干预后的效果 = 真实北京 - 合成北京</h1>
+<p>post_mask = time_arr &gt;= intervention_month
+gaps = df_wide[treated_unit].values[post_mask] - synthetic_beijing[post_mask]
+avg_effect = gaps.mean()              # 平均效果
+total_effect = gaps.sum()             # 累计效果
+peak_effect = gaps.max()              # 最大效果
+print(&quot;========== SCM 处理效应结果 ==========&quot;)
+print(f&quot;干预后平均效果: {avg_effect:.2f} 个百分点&quot;)
+print(f&quot;干预后累计效果: {total_effect:.2f} 个百分点&quot;)
+print(f&quot;干预后最大效果: {peak_effect:.2f} 个百分点&quot;)
+print(f&quot;\n真实效果（模拟中设定）: 3.0 个百分点&quot;)
+print(f&quot;SCM估计误差: {abs(avg_effect - 3.0):.2f} 个百分点&quot;)
+print(f&quot;\n干预后逐月效果:&quot;)
+for t in range(intervention_month, min(intervention_month + 12, n_months)):
+    gap = df_wide[treated_unit].values[t] - synthetic_beijing[t]
+    print(f&quot;  第{t+1}个月（{2024+(t-60)//12}年{(t-60)%12+1}月）: {gap:.2f}%&quot;)</p>
+<h1>---------- 安慰剂检验（Placebo Test）----------</h1>
+<h1>核心问题：北京的效果会不会只是随机波动？</h1>
+<h1>方法：对每个&quot;没做广告&quot;的城市也假装它做了广告，做一次SCM</h1>
+<h1>如果北京的&quot;效果&quot;比其他所有城市的&quot;伪效果&quot;都大，说明效果是真实的</h1>
+<p>print(&quot;========== 安慰剂检验 ==========&quot;)
+placebo_results = []
+for fake_city in control_units:
+    # 假装这个城市做了广告，用其他城市合成它
+    other_ctrls = [c for c in control_units if c != fake_city]
+    # 简化版：用其他城市均值作为&quot;合成&quot;
+    fake_synthetic = df_wide[other_ctrls].mean(axis=1).values
+    fake_gaps = df_wide[fake_city].values[post_mask] - fake_synthetic[post_mask]
+    fake_avg = fake_gaps.mean()
+    placebo_results.append({&#39;city&#39;: fake_city, &#39;effect&#39;: fake_avg})</p>
+<h1>加上真实北京的效应</h1>
+<p>placebo_results.append({&#39;city&#39;: &#39;北京 ★&#39;, &#39;effect&#39;: avg_effect})
+placebo_df = pd.DataFrame(placebo_results)</p>
+<h1>北京在所有城市中的排名</h1>
+<p>effects_sorted = sorted(placebo_df[&#39;effect&#39;].values)
+rank = sum(1 for e in effects_sorted if e &gt;= avg_effect)
+p_value_placebo = rank / len(effects_sorted)
+print(f&quot;北京效果在{len(effects_sorted)}个城市中排名: 第{rank}位&quot;)
+print(f&quot;安慰剂检验 p值 = {rank}/{len(effects_sorted)} = {p_value_placebo:.3f}&quot;)
+if p_value_placebo &lt;= 0.1:
+    print(&quot;✅ 通过安慰剂检验（p &lt;= 0.1）：广告投放效果显著大于随机波动&quot;)
+elif p_value_placebo &lt;= 0.2:
+    print(&quot;⚠️ 边缘显著（0.1 &lt; p &lt;= 0.2）：效果较大但需更多数据支持&quot;)
+else:
+    print(&quot;❌ 未通过安慰剂检验：效果可能与随机波动无差异&quot;)</p>
+<h1>画安慰剂检验图</h1>
+<p>fig, ax = plt.subplots(figsize=(10, 6))
+colors = [&#39;#BDC3C7&#39; if c != &#39;北京 ★&#39; else &#39;#E74C3C&#39; for c in placebo_df[&#39;city&#39;]]
+bars = ax.barh(placebo_df[&#39;city&#39;], placebo_df[&#39;effect&#39;], color=colors, edgecolor=&#39;white&#39;)
+ax.axvline(x=0, color=&#39;black&#39;, linewidth=0.8)</p>
+<h1>标注数值</h1>
+<p>for bar, val in zip(bars, placebo_df[&#39;effect&#39;]):
+    ax.text(val + 0.05, bar.get_y() + bar.get_height()/2,
+            f&#39;{val:.1f}%&#39;, va=&#39;center&#39;, fontsize=10)
+ax.set_xlabel(&#39;平均处理效应 (%)&#39;, fontsize=12)
+ax.set_title(&#39;安慰剂检验：北京 vs 各城市的&quot;伪效果&quot;&#39;, fontsize=14, fontweight=&#39;bold&#39;)
+plt.tight_layout()
+plt.savefig(&#39;scm_placebo_test.png&#39;, dpi=150)
+plt.show()
+print(&quot;\n如果红色柱子在所有柱子中明显突出，说明效果真实。&quot;)
+2.4 核心评估指标（必须掌握）</p>
+<table>
+<tr><th>指标</th><th>含义</th><th>合格标准</th><th>怎么看</th></tr>
+<tr><td>干预前RMSE</td><td>干预前真实值与合成值的均方根误差</td><td>越小越好，一般 &lt; 1.0 为优秀</td><td>RMSE越小说明合成越像真实</td></tr>
+<tr><td>处理效应（ATT）</td><td>干预后真实值与合成值的平均差异</td><td>与业务预期一致，通过安慰剂检验</td><td>结合p值判断统计显著性</td></tr>
+<tr><td>安慰剂检验 p值</td><td>随机得到同样大效果的概率</td><td>p值 &lt; 0.1</td><td>在所有安慰剂中排名越靠前越好</td></tr>
+<tr><td>权重稀疏性</td><td>合成时使用对照单元的数量（非零权重个数）</td><td>2~8个为宜，避免过拟合</td><td>太多=可能过拟合；太少=可能不稳健</td></tr>
+</table>
+<h3>2.5 调参指南（工作中怎么调）</h3>
+① 预测变量的选择（最重要的调参项）
+• 选什么特征来拟合权重，直接影响合成质量
+• 至少包含：干预前结果变量的均值、趋势、最后一次观测值
+• 强烈推荐加入：与结果变量强相关的其他协变量（如GDP、人口等）
+• 核心检验：看干预前真实值和合成值是否紧密贴合（RMSE小）
+② 候选对照组筛选
+• 排除&quot;明显不相似&quot;的对照组（比如市场规模差10倍的）
+• 排除也受过类似干预的（被&quot;污染&quot;的对照）
+• 一般保留5-20个候选对照，太多会过拟合，太少会拟合不好
+③ 多种安慰剂检验
+• 时间安慰剂：假改干预时间，看&quot;效果&quot;是否出现在正确的时机
+• 空间安慰剂：对每个对照都做一次SCM（代码中已包含）
+• 留一法：逐个移除权重最大的对照城市，结论应保持稳定
+第三部分  PSM vs SCM：选哪个？</p>
+<table>
+<tr><th>比较维度</th><th>PSM</th><th>SCM</th></tr>
+<tr><td>处理组数量</td><td>多个（几十 ~ 几万个）</td><td>1个（或很少几个）</td></tr>
+<tr><td>对照组数量</td><td>大量未干预个体</td><td>多个未干预单元</td></tr>
+<tr><td>数据类型</td><td>横截面数据为主</td><td>面板数据（多时间点）</td></tr>
+<tr><td>核心思想</td><td>给每个干预个体找特征相似的对照</td><td>用多个对照单元加权合成虚拟对照</td></tr>
+<tr><td>典型场景</td><td>用户策略评估、会员效果评估</td><td>区域政策评估、广告投放效果</td></tr>
+<tr><td>主要风险</td><td>未观测混杂因素导致偏差</td><td>合成单元过度外推、权重不稳定</td></tr>
+<tr><td>上手难度</td><td>★★☆☆☆ 较易</td><td>★★★☆☆ 中等</td></tr>
+</table>
+<h4>选择口诀：</h4>
+<p>• 有很多&quot;人&quot;接受干预 → PSM（用户策略评估、会员效果）<br>
+• 只有一个&quot;地方/单位&quot;接受干预 → SCM（区域政策评估、广告投放）
+• 有面板数据（多时间点） → 优先考虑 SCM
+• 只有横截面数据（单时间点） → 只能选 PSM
+• 不确定 → PSM更通用，先用PSM
+附录  环境配置 &amp; 常见报错解决</p>
+<h3>A. 环境配置（一次性操作）</h3>
+<ol>
+<li>安装Anaconda（Python 3.9+）：<a href="https://www.anaconda.com/download">https://www.anaconda.com/download</a></li>
+<li>打开命令行，依次运行：<br><code>pip install pandas numpy statsmodels scikit-learn matplotlib seaborn scipy lightgbm cvxpy</code></li>
+<li>验证安装：<br><code>python -c "import pandas; import sklearn; import lightgbm; print('环境配置成功!')"</code></li>
+</ol>
+<h3>B. 常见报错与解决</h3>
+<ul>
+<li><strong>报错：No module named xxx</strong> → 解决：<code>pip install xxx</code></li>
+<li><strong>报错：PSM匹配后所有SMD &gt; 0.1</strong> → 解决：换随机森林或GBDT估计倾向得分；增加特征；尝试1:N匹配</li>
+<li><strong>报错：SCM优化不收敛</strong> → 解决：减少候选对照数量；检查缺失值；尝试不同初始权重</li>
+<li><strong>报错：SCM权重全给1个城市</strong> → 解决：在候选池中排除该城市，或添加正则化约束</li>
+<li><strong>报错：中文图表显示方框</strong> → 解决：代码已设置SimHei字体。如仍不行，在plt.rcParams中改为你系统的中文字体名</li>
+</ul>
+<hr>
+<p style="text-align:center;color:#999;font-size:10pt;">— 文档结束 —<br>祝你学完就能在工作中落地使用！</p>
+
+
+<script>
+(function() {
+  'use strict';
+
+  // ============================================================
+  // 1. Detect code language from text content
+  // ============================================================
+  function detectLanguage(text) {
+    var pyPatterns = /\b(import\s+\w+|from\s+\w+\s+import|def\s+\w+\s*\(|class\s+\w+\s*[:\(]|print\s*\(|plt\.|np\.|pd\.|df\[|df\.|ax\.|fig\.|sklearn\.|lightgbm\b|n_estimators|max_depth|random_state|X_scaled|is_member|monthly_spend|pip install|python -c)/;
+    var bashPatterns = /^(pip\s|python\s|npm\s|git\s|cd\s|ls\s|mkdir\s)/m;
+    var sqlPatterns = /\b(SELECT|FROM|WHERE|JOIN|GROUP BY|ORDER BY|INSERT|UPDATE|CREATE TABLE)\b/i;
+    var rPatterns = /\b(library\(|ggplot\(|dplyr::|tidyverse|data\.frame\()/;
+
+    if (pyPatterns.test(text)) return 'python';
+    if (sqlPatterns.test(text)) return 'sql';
+    if (rPatterns.test(text)) return 'r';
+    if (bashPatterns.test(text)) return 'bash';
+    if (/^(age|past_purchase|均值|方差|标准差|z\s*=|p\s*=)/m.test(text) && /\d/.test(text)) return 'text';
+    return 'text';
+  }
+
+  // ============================================================
+  // 2. Create a Feishu-style code block wrapper
+  // ============================================================
+  function createCodeBlock(lang, codeText) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'code-block';
+
+    var header = document.createElement('div');
+    header.className = 'code-block-header';
+
+    var langLabel = document.createElement('span');
+    langLabel.className = 'code-block-lang ' + lang;
+    var langNames = { python: 'Python', bash: 'Bash / Shell', sql: 'SQL', r: 'R', text: 'Text', markdown: 'Markdown' };
+    langLabel.appendChild(document.createTextNode(langNames[lang] || lang));
+
+    var copyBtn = document.createElement('button');
+    copyBtn.className = 'code-block-copy';
+    copyBtn.innerHTML = '📋 复制';
+    copyBtn.onclick = function() {
+      var pre = wrapper.querySelector('pre');
+      var text = pre ? pre.textContent : '';
+      navigator.clipboard.writeText(text).then(function() {
+        copyBtn.innerHTML = '✓ 已复制';
+        copyBtn.classList.add('copied');
+        setTimeout(function() {
+          copyBtn.innerHTML = '📋 复制';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      }).catch(function() {
+        // Fallback
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); copyBtn.innerHTML = '✓ 已复制'; copyBtn.classList.add('copied'); }
+        catch(e) { copyBtn.innerHTML = '⚠ 复制失败'; }
+        document.body.removeChild(ta);
+        setTimeout(function() {
+          copyBtn.innerHTML = '📋 复制';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    };
+
+    header.appendChild(langLabel);
+    header.appendChild(copyBtn);
+
+    var pre = document.createElement('pre');
+    var code = document.createElement('code');
+    code.textContent = codeText;
+    pre.appendChild(code);
+
+    wrapper.appendChild(header);
+    wrapper.appendChild(pre);
+    return wrapper;
+  }
+
+  // ============================================================
+  // 3. Wrap existing <pre> elements with Feishu-style blocks
+  // ============================================================
+  function upgradeExistingPreBlocks() {
+    var pres = document.querySelectorAll('pre');
+    for (var i = 0; i < pres.length; i++) {
+      var pre = pres[i];
+      // Skip if already inside .code-block
+      if (pre.closest('.code-block')) continue;
+
+      var codeText = pre.textContent || '';
+      var lang = detectLanguage(codeText);
+      var block = createCodeBlock(lang, codeText.trimEnd());
+
+      pre.parentNode.insertBefore(block, pre);
+      pre.parentNode.removeChild(pre);
+    }
+  }
+
+  // ============================================================
+  // 4. Convert <p> tags with code into proper code blocks
+  // ============================================================
+  function isCodeParagraph(p) {
+    var text = (p.textContent || '').trim();
+    if (!text) return false;
+    // Skip short text and natural language
+    if (text.length < 6) return false;
+
+    // Obvious Python / code indicators
+    if (/^(import\s+\w+|from\s+\w+\s+import|def\s+\w+\s*\(|class\s+\w+)/.test(text)) return true;
+    if (/^(plt\.|np\.|pd\.|ax\.|fig\.)/.test(text)) return true;
+    if (/^(pip\s+install|python\s+-c)/.test(text)) return true;
+    if (/^\w+\s*=\s*[\w\[.{]/.test(text) && /np\.|pd\.|plt\.|sklearn\.|lightgbm|result\.|scaler\.|lgb_model\.|rf\.|lr\.|calibrated_rf\./.test(text)) return true;
+    if (/^print\s*\(/.test(text)) return true;
+    if (/^(for\s+\w+\s+in|if\s+__name__|try:|except|with\s+\w+\s+as)/.test(text)) return true;
+    if (/^\w+\[.+\]\s*=/.test(text)) return true;
+    if (/^\w+\.\w+\(/.test(text) && /[=:]/.test(text)) return true;
+    if (/^(fig|ax|plt|df|pd|np|lr|rf|lgb|lgb_model|result|scaler|calibrated_rf)\b/.test(text)) return true;
+    if (/^#\s*=+/.test(text) && text.length > 20) return true;
+    if (/^[\w_]+\[.*\]\./.test(text)) return true;
+
+    return false;
+  }
+
+  function isCodeH1(h1) {
+    var text = (h1.textContent || '').trim();
+    // h1 tags that look like code comments
+    if (/^#/.test(text)) return true;
+    // Section dividers that are clearly code (repeated dashes, equals, or start with common code patterns)
+    if (/^[-=]{5,}/.test(text)) return true;
+    if (/^[-=]+\s*[A-Za-z一-鿿]+/.test(text) && text.length > 15) return true;
+    return false;
+  }
+
+  function isCodeHeading(el) {
+    if (el.tagName !== 'H1') return false;
+    var text = (el.textContent || '').trim();
+    // Real section headings to keep as-is
+    if (/^(步骤|方法[一二三]|第[零一二三]部分|附录|SCM 完整代码|对比三种|目的：|PSM|SCM|\\d+\\.\\d|第三部分)/.test(text)) return false;
+    // Code comments and dividers
+    if (/^[-=]{3,}/.test(text)) return true;
+    if (/^#/.test(text)) return true;
+    if (/^(----------|==========)/.test(text) && text.length > 10) return true;
+    // Generic code-like heading (short, starts with Chinese/English word followed by explanation)
+    if (text.length > 4 && text.length < 80 && !/[。，！？；：""''（）《》]/.test(text)) {
+      // Check if surrounded by code paragraphs
+      var prev = el.previousElementSibling;
+      var next = el.nextElementSibling;
+      var prevIsCode = prev && ((prev.tagName === 'P' && isCodeParagraph(prev)) || prev.classList.contains('code-block'));
+      var nextIsCode = next && ((next.tagName === 'P' && isCodeParagraph(next)) || next.classList.contains('code-block'));
+      if (prevIsCode || nextIsCode) return true;
+    }
+    return false;
+  }
+
+  function convertParagraphsToCodeBlocks() {
+    var body = document.body;
+    // Query both p and h1, sorted by DOM order
+    var allElements = Array.prototype.slice.call(body.querySelectorAll('p, h1'));
+
+    // Group consecutive code elements (p + h1)
+    var groups = [];
+    var currentGroup = null;
+
+    for (var i = 0; i < allElements.length; i++) {
+      var el = allElements[i];
+      // Skip elements already inside special containers
+      if (el.closest('.code-block') || el.closest('pre') || el.closest('blockquote') || el.closest('ol') || el.closest('ul') || el.closest('li')) {
+        if (currentGroup && currentGroup.nodes.length > 0) {
+          groups.push(currentGroup);
+          currentGroup = null;
+        }
+        continue;
+      }
+
+      var isCode = false;
+      if (el.tagName === 'P' && isCodeParagraph(el)) {
+        isCode = true;
+      } else if (el.tagName === 'H1' && isCodeHeading(el)) {
+        isCode = true;
+      }
+
+      if (isCode) {
+        if (!currentGroup) {
+          currentGroup = { nodes: [] };
+        }
+        currentGroup.nodes.push(el);
+      } else {
+        if (currentGroup && currentGroup.nodes.length > 0) {
+          groups.push(currentGroup);
+          currentGroup = null;
+        }
+      }
+    }
+    if (currentGroup && currentGroup.nodes.length > 0) {
+      groups.push(currentGroup);
+    }
+
+    // Convert each group to a Feishu code block
+    for (var g = 0; g < groups.length; g++) {
+      var nodes = groups[g].nodes;
+      if (nodes.length === 0) continue;
+
+      var lines = [];
+      for (var n = 0; n < nodes.length; n++) {
+        var t = (nodes[n].textContent || '').trim();
+        if (!t) continue;
+        // Add # prefix for h1 code comments that don't have it
+        if (nodes[n].tagName === 'H1' && !/^#/.test(t)) {
+          t = '# ' + t;
+        }
+        lines.push(t);
+      }
+
+      if (lines.length === 0) continue;
+
+      var fullText = lines.join('\n');
+      var lang = detectLanguage(fullText);
+      var block = createCodeBlock(lang, fullText);
+
+      // Insert before first node, remove all nodes
+      var firstNode = nodes[0];
+      firstNode.parentNode.insertBefore(block, firstNode);
+      for (var r = 0; r < nodes.length; r++) {
+        nodes[r].parentNode.removeChild(nodes[r]);
+      }
+    }
+  }
+
+  // ============================================================
+  // 5. Also handle <h1> tags that are code comments inside code sections
+  // ============================================================
+  function integrateCodeH1IntoBlocks() {
+    var codeBlocks = document.querySelectorAll('.code-block');
+    for (var i = 0; i < codeBlocks.length; i++) {
+      var block = codeBlocks[i];
+      var next = block.nextElementSibling;
+      while (next) {
+        var nextText = (next.textContent || '').trim();
+        // Catch: # ====, # ----, ----, ====, or any dashed/equals divider
+        var isDivider = /^(#\s*)?[-=]{3,}/.test(nextText);
+        var isCodeLine = isCodeH1(next);
+        if ((next.tagName === 'H1' && (isDivider || isCodeLine)) ||
+            (next.tagName === 'P' && /^#\s*[-=]{3,}/.test(nextText))) {
+          // Also check H2-H6
+          var pre = block.querySelector('pre');
+          if (pre) {
+            var codeText = pre.textContent || '';
+            codeText += '\n' + nextText;
+            pre.querySelector('code').textContent = codeText;
+          }
+          var toRemove = next;
+          next = next.nextElementSibling;
+          toRemove.parentNode.removeChild(toRemove);
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
+  // ============================================================
+  // 6. Fix the "附录" section table remnants
+  // ============================================================
+  function fixAppendixTables() {
+    // Fix the SCM evaluation metrics table and PSM vs SCM comparison table
+    // by wrapping loose text in proper table structures
+    var body = document.body;
+    // Look for known broken sections after the SCM code
+    var allP = body.querySelectorAll('p');
+    for (var i = 0; i < allP.length; i++) {
+      var p = allP[i];
+      var text = (p.textContent || '').trim();
+      if (text.indexOf('2.4 核心评估指标') !== -1) {
+        // Find the table data that follows and wrap it
+        var next = p.nextElementSibling;
+        var tableLines = [];
+        while (next && next.tagName === 'P' && !/^\d/.test((next.textContent || '').trim())) {
+          // skip
+          next = next.nextElementSibling;
+        }
+      }
+    }
+  }
+
+  // ============================================================
+  // 7. Add basic syntax highlighting for Python code in blocks
+  // ============================================================
+  function addSyntaxHighlighting() {
+    var codeEls = document.querySelectorAll('.code-block pre code');
+    for (var i = 0; i < codeEls.length; i++) {
+      var el = codeEls[i];
+      var html = el.innerHTML;
+      // Only apply if not already highlighted (plain text)
+      if (html.indexOf('class="') !== -1) continue;
+
+      var text = el.textContent || '';
+      // Escape HTML first
+      var escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Python keywords
+      escaped = escaped.replace(/\b(import|from|def|class|return|if|elif|else|for|while|try|except|finally|with|as|in|not|and|or|True|False|None|print|yield|raise|break|continue|pass|lambda|global|nonlocal|assert|del|is)\b/g,
+        '<span class="kw">$1</span>');
+
+      // Decorators
+      escaped = escaped.replace(/^(@\w+)/gm, '<span class="decorator">$1</span>');
+
+      // Comments (lines starting with #)
+      escaped = escaped.replace(/^(#.*)$/gm, '<span class="cm">$1</span>');
+
+      // Strings
+      escaped = escaped.replace(/(&quot;[^&]*?&quot;|&#39;[^&]*?&#39;|'[^']*?'|"[^"]*?")/g,
+        '<span class="str">$1</span>');
+
+      // Numbers
+      escaped = escaped.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
+
+      // Function calls
+      escaped = escaped.replace(/\b(\w+)(?=\s*\()/g, function(match, fn) {
+        var special = ['print', 'len', 'range', 'int', 'float', 'str', 'list', 'dict', 'set', 'tuple',
+                       'sum', 'min', 'max', 'abs', 'round', 'zip', 'map', 'filter', 'sorted',
+                       'enumerate', 'isinstance', 'hasattr', 'getattr', 'setattr', 'type',
+                       'np', 'pd', 'plt', 'sns', 'lgb', 'MiniBatch', 'clone'];
+        if (special.indexOf(fn) !== -1) return '<span class="imp">' + fn + '</span>';
+        return '<span class="fn">' + fn + '</span>';
+      });
+
+      el.innerHTML = escaped;
+    }
+  }
+
+  // ============================================================
+  // Main execution
+  // ============================================================
+  upgradeExistingPreBlocks();    // Step 1: wrap existing <pre> blocks
+  convertParagraphsToCodeBlocks(); // Step 2: convert <p> code to blocks
+  integrateCodeH1IntoBlocks();   // Step 3: merge h1 comments into blocks
+  addSyntaxHighlighting();       // Step 4: add syntax colors
+})();
+</script>
+</body>
+</html>

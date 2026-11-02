@@ -1,0 +1,157 @@
+{
+  "project": "causal-inference-handbook",
+  "overall_status": "verified_with_production_caveats",
+  "summary": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "not_run": 0,
+    "review": 0
+  },
+  "checks": [
+    {
+      "check_id": "source_manifest_hashes",
+      "status": "PASS",
+      "zh": {
+        "title": "五个源文件大小和 SHA-256 一致",
+        "evidence": "5 项；仓库异常=[]"
+      },
+      "en": {
+        "title": "All five source sizes and SHA-256 values match",
+        "evidence": "5 entries; repository mismatches=[]"
+      }
+    },
+    {
+      "check_id": "local_source_lineage",
+      "status": "PASS",
+      "zh": {
+        "title": "仓库副本可追溯到本机原文件",
+        "evidence": "本机匹配异常=[]"
+      },
+      "en": {
+        "title": "Repository copies trace to local source files by hash",
+        "evidence": "local hash mismatches=[]"
+      }
+    },
+    {
+      "check_id": "markdown_structure",
+      "status": "PASS",
+      "zh": {
+        "title": "Markdown 主文档结构可读",
+        "evidence": "行数=2025; 代码块=74; 围栏标记=148; 成对=True; 字符=56721"
+      },
+      "en": {
+        "title": "Markdown master structure is readable",
+        "evidence": "lines=2025; code blocks=74; fence markers=148; paired=True; characters=56721"
+      }
+    },
+    {
+      "check_id": "zero_part_embedding",
+      "status": "PASS",
+      "zh": {
+        "title": "第零部分完整包含于优化版 Markdown",
+        "evidence": "规范化文本包含=True"
+      },
+      "en": {
+        "title": "The zero-part deep dive is fully contained in optimized Markdown",
+        "evidence": "normalized containment=True"
+      }
+    },
+    {
+      "check_id": "docx_structure",
+      "status": "PASS",
+      "zh": {
+        "title": "DOCX 可读且核心主题齐全",
+        "evidence": "段落=871; 表格=4; 字符=31016"
+      },
+      "en": {
+        "title": "DOCX is readable with core topics",
+        "evidence": "paragraphs=871; tables=4; characters=31016"
+      }
+    },
+    {
+      "check_id": "html_structure",
+      "status": "PASS",
+      "zh": {
+        "title": "HTML 可读且核心主题齐全",
+        "evidence": "可见字符=53107"
+      },
+      "en": {
+        "title": "HTML is readable with core topics",
+        "evidence": "visible characters=53107"
+      }
+    },
+    {
+      "check_id": "pdf_structure",
+      "status": "PASS",
+      "zh": {
+        "title": "PDF 页数和正文提取正常",
+        "evidence": "页数=155; 可提取字符=55958"
+      },
+      "en": {
+        "title": "PDF page count and text extraction succeed",
+        "evidence": "pages=155; extractable characters=55958"
+      }
+    },
+    {
+      "check_id": "content_coverage",
+      "status": "PASS",
+      "zh": {
+        "title": "PSM 与 SCM 核心主题覆盖",
+        "evidence": "缺失=[]"
+      },
+      "en": {
+        "title": "Core PSM and SCM topics are covered",
+        "evidence": "missing=[]"
+      }
+    },
+    {
+      "check_id": "method_review_inventory",
+      "status": "PASS",
+      "zh": {
+        "title": "11 项中英文方法风险清单一致",
+        "evidence": "英文=11; 中文=11; 英文字段宽度=[6]; 中文字段宽度=[6]; 编号一致=True"
+      },
+      "en": {
+        "title": "The eleven bilingual method risks match",
+        "evidence": "English=11; Chinese=11; English widths=[6]; Chinese widths=[6]; IDs match=True"
+      }
+    },
+    {
+      "check_id": "critical_caveats",
+      "status": "PASS",
+      "zh": {
+        "title": "关键方法限制均有书面证据",
+        "evidence": "覆盖={'balance heuristic': True, 'paired inference': True, 'control replacement': True, 'common support': True, 'SCM placebo': True}"
+      },
+      "en": {
+        "title": "Critical methodological limitations have evidence",
+        "evidence": "coverage={'balance heuristic': True, 'paired inference': True, 'control replacement': True, 'common support': True, 'SCM placebo': True}"
+      }
+    },
+    {
+      "check_id": "privacy_and_credentials",
+      "status": "PASS",
+      "zh": {
+        "title": "未发现明文凭据或 .env",
+        "evidence": "提取正文命中=0; 路径命中=[]; env=[]"
+      },
+      "en": {
+        "title": "No plaintext credential or .env was found",
+        "evidence": "extracted-text hits=0; path hits=[]; env=[]"
+      }
+    },
+    {
+      "check_id": "bilingual_documentation",
+      "status": "PASS",
+      "zh": {
+        "title": "中英文项目文档齐全",
+        "evidence": "缺失=[]"
+      },
+      "en": {
+        "title": "Bilingual project documentation is present",
+        "evidence": "missing=[]"
+      }
+    }
+  ]
+}

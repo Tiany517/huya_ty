@@ -36,6 +36,7 @@
 | `projects/user-profile-analysis/` | 用户画像 TGI 与 KMeans 复盘：设备三组、斯诺克拉新、世锦赛观看和 10 分钟以上观看队列；含 3 份 SQL、4 份历史报告、匿名 TGI/聚类附件、源清单和 49 项校验 |
 | `projects/molata-cooperation-acu-review/` | 六位主播合作前后有效 ACU 复盘：四窗口匿名日序列、组内增长、平台基准、13 日勾稽残差、双语文档/结果工作簿和 21 项校验 |
 | `projects/ai-live-room-operations/` | AI 直播间 2026-07 至 2026-09 月度快照：运行版/注释版 SQL、匿名主播×品类汇总、跨月覆盖、13 项 SQL 静态风险、双语文档/结果工作簿和 21 项校验 |
+| `projects/causal-inference-handbook/` | PSM/SCM 教学手册：5 个源版本、74 个可编辑代码块、11 项方法风险、正式项目复用清单、源哈希和中英文校验报告 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `vault/migration-secrets.aesgcm` | AES-256-GCM 加密的 `.env` 与数据平台凭据包；解密密钥单独保存 |
 | `vault/env-files.aesgcm` | 旧版 `.env` 加密包，保留作历史副本；新电脑优先使用 `migration-secrets.aesgcm` |
