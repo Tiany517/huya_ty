@@ -1,0 +1,5 @@
+﻿cluster_name,users,share_pct,male_share,average_age,top_age_band,car_ownership,home_ownership,device_average_price,ios_share,top_device,wealth_score,high_activity_game_share,top_primary_app_affinity,top_secondary_app_affinity,married_share,parenting_share,value_rating_from_report,risk_flag
+IPAD视频派 (9.9%),107,9.85267034990792,64.5%,30.4岁,26-30岁,0.0% (缺失),0.0% (缺失),"RMB4,797",98.1%,iPad(72.9%),0.36/7,14.0%,"音乐,视频,工具","在线视频,在线音乐",3.7%,9.3%,★★★★ 高潜,
+华为购物派 (18.3%),199,18.32412523020258,88.4%,32.5岁,26-30岁,75.9%,66.8%,"RMB3,367",0.0%,华为(42.7%),2.33/7,13.1%,"音乐,购物,视频","直播,在线音乐,语言",20.6%,12.1%,★★★ 成长,
+小米视频派 (33.0%),358,32.96500920810313,100.0% ⚠,22.2岁 ⚠,21-25岁(99.7%),99.4% ⚠,99.7% ⚠,"RMB4,899",0.0%,小米(98.0%),6.92/7 ⚠,0.0% ⚠,音乐(98.6%),电子书(98%),0.3%,0.0%,⚠ 存疑,suspected_fake_registration_not_verified
+华为视频派 (38.9%),422,38.858195211786374,90.8%,34.7岁,36-45岁,58.5%,48.8%,"RMB3,510",0.0%,华为(51.0%),1.81/7,10.4%,"音乐,视频,阅读","直播,在线视频,在线音乐",26.1%,18.2%,★★★★★ 核心,

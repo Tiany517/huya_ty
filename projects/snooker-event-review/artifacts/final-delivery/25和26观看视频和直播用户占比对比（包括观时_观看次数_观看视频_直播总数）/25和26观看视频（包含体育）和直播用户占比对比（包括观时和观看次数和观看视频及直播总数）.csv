@@ -1,0 +1,4 @@
+﻿label, total_laxin_cnt , total_watch_user_cnt , video_watch_user_cnt , live_watch_user_cnt , video_watch_cnt , live_watch_cnt , video_watch_duration , live_watch_duration , video_watch_cnt_per_user , live_watch_cnt_per_user , video_watch_duration_per_user , live_watch_duration_per_user ,total_watch_user_ratio,video_watch_user_ratio,live_watch_user_ratio
+2026世锦赛,"783,875","519,409","422,584","383,149","29,832,168","14,523,708","1,603,355","2,257,715",38.1,18.5,2,2.9,66.30%,53.90%,48.90%
+2025世锦赛,"384,036","254,789","187,314","201,968","9,658,689","6,934,130","795,181","1,718,322",25.2,18.1,2.1,4.5,66.30%,48.80%,52.60%
+YoY,104.10%,103.90%,125.60%,89.70%,208.90%,109.50%,101.60%,31.40%,51.30%,2.60%,-1.20%,-35.60%,-0.1pp,5.1pp,-3.7pp

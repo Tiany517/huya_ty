@@ -1,0 +1,8 @@
+﻿finding_id,severity,finding,impact,status
+SNK-QF-01,medium,2025 世锦赛最终 CSV 和工作簿页签内嵌为“2026 世锦赛期间”，但数值实际位于 2024/25 对照槽位；本项目按页签位置识别赛季，并保留源标签。,不能只依赖行内标签判断赛季。,documented_and_normalized_in_summary
+SNK-QF-02,high,`LPL1_LPL2_王者_斯诺克_转化情况.csv` 实际内容是 2025/2026 世锦赛视频与直播观看占比，不是文件名承诺的四赛事转化比较。,该文件仅作来源证据保留，已从标准化比较表隔离。,quarantined_from_analysis
+SNK-QF-03,medium,"上海大师赛基准人数在多个结果间冲突：2024/25 为 91,295 与 87,485；2025/26 为 278,071 与 265,175。",方向性留存可参考，绝对留存人数在确认分母口径前不能混用。,open_requires_business_dictionary
+SNK-QF-04,high,"画像报告把 1,086 名唯一用户中的 358 人（33.0%）标记为疑似虚假注册，但目前没有风控或设备/IP 证据，不能据此直接剔除 33% ROI 或 DAU。",疑似造假仍是待验证假设，不能升级为已证实结论。,open_high_risk_hypothesis
+SNK-QF-05,medium,最终汇报中的 ROI 0.9 和 +7.5% 无法用本项目保留的匿名工作簿和 CSV 独立复算。,只能作为历史汇报原文引用，不能写成已复核计算。,unreconciled_source_narrative
+SNK-QF-06,medium,秀场打赏率工作簿中的“变化”行没有统一使用百分点，可能把比率变化误写成比例变化；本项目不使用该变化行下结论。,避免引用错误变化幅度。,excluded_from_summary_calculations
+SNK-QF-07,high,"两个超大原始工作簿、含 `user_uid` 的 19,456 行留存 CSV 和含 `user_ukey` 的画像特征 CSV 均未上传。",新电脑可在有源文件时重建用户级分析；仅靠 GitHub 不能重建。,excluded_by_privacy_boundary

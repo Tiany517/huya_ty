@@ -1,0 +1,37 @@
+﻿check_id,category,status,expected,actual,note
+SNK-V01,coverage,PASS,89,89,All original final-delivery files are represented
+SNK-V02,coverage,PASS,"{"".csv"": 38, "".xlsx"": 14, "".pptx"": 9, "".sql"": 28}","{"".csv"": 38, "".xlsx"": 14, "".pptx"": 9, "".sql"": 28}",Final-delivery extension counts match the source inventory
+SNK-V03,coverage,PASS,61,61,All project SQL files are retained
+SNK-V04,bilingual,PASS,20,20,All bilingual CSV files exist
+SNK-V05,bilingual,PASS,"""equal row counts""","{""audience"": [4, 4], ""path"": [4, 4], ""tipping"": [4, 4], ""unique_share"": [2, 2], ""retention"": [36, 36], ""affinity"": [20, 20], ""supply"": [9, 9], ""clusters"": [4, 4], ""quality"": [7, 7], ""manifest"": [204, 204]}",Chinese and English datasets have matching row counts
+SNK-V06,reconciliation,PASS,403.6454,"""403.6454""",2025 World Championship viewers match the source workbook
+SNK-V07,reconciliation,PASS,631.2202,"""631.2202""",2026 World Championship viewers match the source workbook
+SNK-V08,reconciliation,PASS,"[38.4036, 78.3875]","[""38.4036"", ""78.3875""]",World Championship new-user counts match
+SNK-V09,metric,PASS,"[56.37988194588617, 104.11497880407046]","[56.37988194588617, 104.11497880407046]",Year-over-year viewer and new-user growth are reproducible
+SNK-V10,reconciliation,PASS,"{""('2025', 'snooker new users')"": [18.6953, 3.789, 0.0744, 0.2115], ""('2025', 'non-snooker new users')"": [54.8156, 11.398, 0.2493, 0.6074], ""('2026', 'snooker new users')"": [42.2332, 13.2921, 0.1825, 0.3833], ""('2026', 'non-snooker new users')"": [55.806, 15.2334, 0.2663, 0.5109]}","{""('2025', 'snooker new users')"": [18.6953, 3.789, 0.0744, 0.2115], ""('2025', 'non-snooker new users')"": [54.8156, 11.398, 0.2493, 0.6074], ""('2026', 'snooker new users')"": [42.2332, 13.2921, 0.1825, 0.3833], ""('2026', 'non-snooker new users')"": [55.806, 15.2334, 0.2663, 0.5109]}",World Championship new-user funnel rows match the final workbook
+SNK-V11,grain,PASS,4,4,New-user funnel has one row per season and comparison group
+SNK-V12,reconciliation,PASS,"[0.5507296190982096, 0.488981023760165]","[""0.550729619098209"", ""0.488981023760165""]",Snooker new-user tipping rates match the source
+SNK-V13,metric,PASS,"""0..100""","[""0.550729619098209"", ""0.45167306425298404"", ""0.488981023760165"", ""0.437470565569208""]",All tipping rates are in a valid percentage range
+SNK-V35,reconciliation,PASS,"{""2025"": [28.4593111, 52.5909029], ""2026"": [30.332132, 48.8788391]}","{""2025"": [28.4593111, 52.5909029], ""2026"": [30.332132, 48.8788391]}",Independent final-CSV video and live viewer coverage matches the source
+SNK-V14,grain,PASS,36,36,"Five baseline events, two seasons, and available phases are unique"
+SNK-V15,grain,PASS,"""one baseline denominator per event-season""","[true, true, true, true, true, true, true, true]",Stage retention uses a stable denominator within each event-season
+SNK-V16,correction,PASS,"[38.930938167479, 39.2245146023857]","[38.930938167479, 39.2245146023857]",Shanghai Masters sheets are mapped by sheet-name season rather than workbook order
+SNK-V17,metric,PASS,1086,1086,Profile clusters add to the reported unique-user total
+SNK-V18,metric,PASS,100.0,100.0,Profile cluster shares close to 100%
+SNK-V19,risk,PASS,32.96500920810313,"{""cluster_name"": ""小米视频派 (33.0%)"", ""users"": ""358"", ""share_pct"": ""32.96500920810313"", ""male_share"": ""100.0% ⚠"", ""average_age"": ""22.2岁 ⚠"", ""top_age_band"": ""21-25岁(99.7%)"", ""car_ownership"": ""99.4% ⚠"", ""home_ownership"": ""99.7% ⚠"", ""device_average_price"": ""RMB4,899"", ""ios_share"": ""0.0%"", ""top_device"": ""小米(98.0%)"", ""wealth_score"": ""6.92/7 ⚠"", ""high_activity_game_share"": ""0.0% ⚠"", ""top_primary_app_affinity"": ""音乐(98.6%)"", ""top_secondary_app_affinity"": ""电子书(98%)"", ""married_share"": ""0.3%"", ""parenting_share"": ""0.0%"", ""value_rating_from_report"": ""⚠ 存疑"", ""risk_flag"": ""suspected_fake_registration_not_verified""}",The 33% suspected-fake cluster remains explicitly unverified
+SNK-V20,metric,PASS,"{""category"": ""奇闻趣事"", ""difference_pp"": 14.99}","{""category"": ""奇闻趣事"", ""snooker_video_view_share_pct"": ""30.36"", ""nonsnooker_video_view_share_pct"": ""15.370000000000001"", ""view_share_difference_pp"": ""14.989999999999998"", ""snooker_video_duration_share_pct"": ""28.389999999999997"", ""nonsnooker_video_duration_share_pct"": ""8.67"", ""duration_share_difference_pp"": ""19.72""}",The top video-affinity category reproduces the source
+SNK-V21,metric,PASS,"""奇闻趣事 all-video share 1.2%""","{""category"": ""奇闻趣事"", ""video_count"": ""114970.0"", ""share_within_target_categories_pct"": ""24.6"", ""share_of_all_huya_video_pct"": ""1.2""}",The content-supply benchmark is preserved
+SNK-V22,quality,PASS,"""SNK-QF-01..07""",7,All reviewed quality findings are retained
+SNK-V23,provenance,PASS,176,176,Every local source file is represented in the source manifest
+SNK-V24,privacy,PASS,"""<source-root>/""","""none""",Git does not contain absolute local source paths
+SNK-V25,provenance,PASS,158,158,"All 158 included copy entries are represented, including duplicate SQL/result paths"
+SNK-V26,provenance,PASS,[],[],Every included manifest repo path exists
+SNK-V27,provenance,PASS,[],[],Every copied artifact matches its recorded repository SHA-256
+SNK-V28,provenance,PASS,[],[],Every manifest row matches the current source SHA-256
+SNK-V29,privacy,PASS,5,5,Large or user-level identifier sources are excluded
+SNK-V30,privacy,PASS,[],[],Notebooks with potential embedded user output are excluded
+SNK-V31,privacy,PASS,[],[],Final-delivery CSV schemas contain no user or streamer identifiers
+SNK-V32,source-quality,PASS,[],[],No formula error values appear in retained Excel workbooks
+SNK-V33,privacy,PASS,[],[],Text artifacts contain no absolute Windows user paths
+SNK-V34,status,PASS,"""reviewed with documented risks and no raw user data""","{""status"": ""reviewed_with_documented_label_denominator_and_profile_risks"", ""raw_user_level_data_included"": false}",Project status is explicit
+SNK-V36,documentation,PASS,"""separate Chinese/English guides with GitHub maps and validation status""","{""zh_readme"": true, ""en_readme"": true, ""zh_map"": true, ""en_map"": true}",Both language guides exist and expose the repository map and validation status

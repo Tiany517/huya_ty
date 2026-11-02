@@ -1,0 +1,22 @@
+{
+  "project": "snooker-event-review",
+  "source_latest_modified": 1785476432.538934,
+  "source_file_count": 176,
+  "included_final_delivery_files": 89,
+  "included_sql_files": 61,
+  "included_supplemental_files": 4,
+  "included_profile_files": 4,
+  "world_championship_2025_viewers_wan": 403.6454,
+  "world_championship_2026_viewers_wan": 631.2202,
+  "world_championship_2025_new_users_wan": 38.4036,
+  "world_championship_2026_new_users_wan": 78.3875,
+  "four_event_weighted_world_championship_retention_pct": {
+    "2024/25": 42.33675701007576,
+    "2025/26": 39.41998331744519
+  },
+  "profile_unique_users": 1086,
+  "profile_suspected_fake_share_pct": 32.96500920810313,
+  "quality_findings": 7,
+  "raw_user_level_data_included": false,
+  "status": "reviewed_with_documented_label_denominator_and_profile_risks"
+}

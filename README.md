@@ -42,6 +42,7 @@
 | `projects/ai-live-room-operations/` | AI 直播间 2026-07 至 2026-09 月度快照：运行版/注释版 SQL、匿名主播×品类汇总、跨月覆盖、13 项 SQL 静态风险、双语文档/结果工作簿和 21 项校验 |
 | `projects/ai-tool-guide/` | AI 工具选择与恢复：mav-slidecraft-skill 的 HTML 幻灯片、HyperFrames 的 HTML 动效视频、五个插件 skills、工具边界和新电脑恢复步骤；12 项归档检查 |
 | `projects/event-summary-review/` | LPL、KPL、FISSURE、BLAST 赛事总结：16 个赛事组的 DAU/拉新/回流、同比与阶段比较、11 个赛事的平台份额、原发布值与去重更正版、20 条重复行和 LPL Final 页错位审计；中英文分开，25 项校验 |
+| `projects/snooker-event-review/` | 斯诺克与世锦赛专题：89 个最终交付快照、61 份 SQL、世锦赛拉新/付费/视频直播覆盖、五个赛事到世锦赛留存、视频偏好、匿名画像、7 项质量风险和 36 项校验；中英文分开并附 GitHub 路径地图 |
 | `projects/causal-inference-handbook/` | PSM/SCM 教学手册：5 个源版本、74 个可编辑代码块、11 项方法风险、正式项目复用清单、源哈希和中英文校验报告 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `mcp/bigdata/README.md` / `.en.md`、`config.example.toml`、`tool-catalog.json` | bigdata MCP 的网关配置模板、11 个工具的调用契约、Presto/Spark/下载规范和故障排查；不含账号或 API secret |
