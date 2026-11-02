@@ -2,6 +2,20 @@
 
 This repository hands reusable work materials over to a new computer: working rules, skills, SQL references, project context, and selected project evidence. It does not replace ChatGPT account history or machine-local configuration.
 
+## Top-Level Directory Responsibilities
+
+| Top-level path | Responsibility |
+| --- | --- |
+| `projects/README.md` / `README.en.md` | Bilingual index of every reviewed project and its project path |
+| `projects/` | Project context, methods, SQL/scripts, anonymous results, validation, and project-level maps |
+| `vault/` | Encrypted bundles for cross-project migration credentials. It is parallel to `projects/`, not an attachment to one project, and must not be nested under `projects/` |
+| `archive/` | Encrypted local ChatGPT/Codex work-history archive |
+| `instructions/` | AGENTS rules, SQL validation workflow, and templates |
+| `skills/` | Source-aware skill snapshots and restore guidance |
+| `sql/` | Cross-project SQL index, topics, and remediations |
+| `mcp/` | Bigdata MCP template, tool contract, and recovery guidance |
+| `inventory/` | Source inventory, completion status, skipped items, and review queue |
+
 ## GitHub Repository Map
 
 | Repository path | Contents |
@@ -15,6 +29,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
 | `sql/topics/retention-analytics/` | Retention SQL index, dependencies, definitions, versions, and known defects for external Douyu/Bilibili/Douyin and Huya Star Show danmu/gift behavior |
 | `sql/topics/retention-analytics/remediation/`, `sql/topics/retention-analytics/artifacts/` | Huya Star Show denominator fix and validation SQL, plus anonymous January 2025 through October 2026 overall comparisons |
+| `projects/README.md` / `README.en.md` | Bilingual index of all projects; use it first to locate a project, then open that project's README |
 | `projects/<project-slug>/README.md` / `README.en.md` | Project purpose, scope, metric definitions, findings, limitations, and sources; reviewed projects are listed in the project paths below |
 | `projects/<project-slug>/scripts/` | Reproducible project scripts; the FPS project includes 7 cleaning and analysis scripts |
 | `projects/<project-slug>/artifacts/` | Important result files; the FPS project includes an anonymized live-time quantile CSV |
@@ -45,11 +60,15 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/event-summary-review/` | LPL, KPL, FISSURE, and BLAST event-summary review: DAU/acquisition/return for 16 event groups, YoY and phase comparisons, platform shares for 11 events, published and deduplicated views, a 20-row duplication audit, and the LPL final-sheet label mismatch; bilingual and 25 checks |
 | `projects/snooker-event-review/` | Snooker and World Championship review: 89 final-delivery files, 61 SQL files, World Championship acquisition/tipping/video-live coverage, five event-to-World-Championship retention paths, video affinity, anonymous profiles, seven quality risks, and 36 checks; separate Chinese/English guides with a GitHub path map |
 | `projects/causal-inference-handbook/` | PSM/SCM teaching handbook: five source editions, 74 editable code blocks, eleven method risks, a production checklist, source hashes, and bilingual validation reports |
+| `projects/world-cup-content-review/` | World Cup review: acquisition/reactivation, balanced PSM, D7/D14 retention, profiles, search-interest migration, context, methods, historical estimates, and limitations; raw user detail and the 38 GB source tree were excluded |
+| `projects/daily-alerting-automation/` | Alerting automation: modules, thresholds, pipeline, and reuse risks for head-streamer live rate, acquisition/reactivation versus churn, retention, supply, long-term decline, category KPI, dual broadcasting, and the 奶块 report; plaintext credentials remain only in the encrypted vault |
+| `projects/console-game-revenue-review/` | Console-game request: January-May 2025 versus 2026 streamer-month revenue, payment structure, rankings, supply efficiency, anonymous monthly aggregates, V1/V2 formula defects, and lineage limits |
+| `projects/honor-of-kings-streamer-departure-impact/` | Honor of Kings decline and streamer departure: daily/monthly attributed DAU, April-May overlap, retention/content migration, guild/head-streamer spillover, historical estimates, de-identified SQL, and reproducibility limits |
 | `archive/codex-work-history/` | Codex local work-history and memory digest: 300 threads, 3,453 user requests, and 6,962 final/unspecified-phase replies; AES-256-GCM encrypted with exporter and validation record |
 | `mcp/bigdata/README.md` / `.en.md`, `config.example.toml`, `tool-catalog.json` | Bigdata MCP gateway template, 11-tool contract, Presto/Spark/download rules, and troubleshooting; no account or API secret |
 | `vault/migration-secrets-v2.aesgcm` | AES-256-GCM encrypted `.env`, data-platform credential, and legacy alert-script credential copy for this migration; decryption key stored separately |
 | `vault/migration-secrets.aesgcm`, `vault/env-files.aesgcm` | Prior encrypted bundles retained as historical copies; use `migration-secrets-v2.aesgcm` on the new computer |
-| `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue; explicitly skipped projects are recorded here with no project GitHub path |
+| `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory, completion status, and review queue; migrated projects are located through `projects/README.md`, while explicitly skipped items retain their reason and exclusion boundary |
 | `local-source-map.md` / `local-source-map.en.md` | Chinese / English local machine paths; kept locally and ignored by Git |
 
 GitHub repository: <https://github.com/Tiany517/huya_ty>
@@ -71,7 +90,7 @@ These are repository-relative GitHub paths. For example, `instructions/AGENTS.md
 3. Restore skills from `skills/` and read their source and version notes.
 4. Follow `mcp/bigdata/README.en.md` to merge the MCP configuration template, restart Codex, and confirm the bigdata tools appear.
 5. Recreate local paths using `local-source-map.md`; transfer `huya_ty-env-files.key` from outside the repository to the new computer through a secure channel, then use `vault/decrypt-env-files.mjs` to decrypt `vault/migration-secrets-v2.aesgcm` into a staging directory and restore files individually.
-6. Read project context and result artifacts under `projects/` before continuing work.
+6. Read `projects/README.md` to locate a project, then open its bilingual README, SQL/scripts, and anonymous result attachments.
 7. Reconnect approved data services and validate access before running saved SQL.
 
 ## Syncing Future Work

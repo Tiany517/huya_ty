@@ -2,6 +2,20 @@
 
 本仓库用于把可复用的工作资料交接到新电脑，包括工作规则、skills、SQL 参考、项目背景和经过筛选的项目证据。它不替代 ChatGPT 账号历史或本机配置。
 
+## 顶层目录责任
+
+| 顶层路径 | 责任 |
+| --- | --- |
+| `projects/README.md` / `README.en.md` | 全部已复盘项目的中英文总索引，逐项列出项目目录和材料 |
+| `projects/` | 各项目的业务背景、方法、SQL/脚本、匿名结果、验收和项目级路径地图 |
+| `vault/` | 跨项目迁移的加密凭据包。它与 `projects/` 平级，不属于某一个项目，也不应放进 `projects/` |
+| `archive/` | ChatGPT/Codex 本地工作历史的加密归档 |
+| `instructions/` | AGENTS 规则、SQL 验证工作流和模板 |
+| `skills/` | 来源化的 skills 快照和恢复说明 |
+| `sql/` | 跨项目 SQL 总索引、主题和修复版本 |
+| `mcp/` | bigdata MCP 配置模板、工具契约和恢复说明 |
+| `inventory/` | 来源盘点、完成状态、已跳过事项和待复核清单 |
+
 ## GitHub 路径地图
 
 | 仓库内路径 | 内容 |
@@ -15,6 +29,7 @@
 | `sql/README.md`、`sql/source/<file>` | SQL 归档说明和来自现有目录的原名脚本；后续可按主题建立索引 |
 | `sql/topics/retention-analytics/` | 站外斗鱼/B站/抖音及虎牙星秀的弹幕、打赏留存 SQL 索引、依赖、口径、版本和已知缺陷 |
 | `sql/topics/retention-analytics/remediation/`、`sql/topics/retention-analytics/artifacts/` | 虎牙星秀分母修复 CTE、验证 SQL，以及 2025-01 至 2026-10 的匿名整体对比结果 |
+| `projects/README.md` / `README.en.md` | 全部项目的中英文总索引；新电脑应先从这里定位项目，再进入各项目 README |
 | `projects/<project-slug>/README.md` / `README.en.md` | 项目目的、范围、指标口径、发现、限制和来源；已复盘项目清单见下方各路径 |
 | `projects/<project-slug>/scripts/` | 可复现项目的脚本；FPS 项目收录 7 个清洗和分析脚本 |
 | `projects/<project-slug>/artifacts/` | 支持理解或继续项目的重要结果文件；FPS 项目含匿名时长分位 CSV |
@@ -45,11 +60,15 @@
 | `projects/event-summary-review/` | LPL、KPL、FISSURE、BLAST 赛事总结：16 个赛事组的 DAU/拉新/回流、同比与阶段比较、11 个赛事的平台份额、原发布值与去重更正版、20 条重复行和 LPL Final 页错位审计；中英文分开，25 项校验 |
 | `projects/snooker-event-review/` | 斯诺克与世锦赛专题：89 个最终交付快照、61 份 SQL、世锦赛拉新/付费/视频直播覆盖、五个赛事到世锦赛留存、视频偏好、匿名画像、7 项质量风险和 36 项校验；中英文分开并附 GitHub 路径地图 |
 | `projects/causal-inference-handbook/` | PSM/SCM 教学手册：5 个源版本、74 个可编辑代码块、11 项方法风险、正式项目复用清单、源哈希和中英文校验报告 |
+| `projects/world-cup-content-review/` | 世界杯专题：拉新/回流、平衡版 PSM、D7/D14 留存、用户画像、搜索兴趣迁移、业务背景、方法、历史项目估计和限制；原始用户明细与 38 GB 源目录未上传 |
+| `projects/daily-alerting-automation/` | 报警邮件：头部主播开播、拉新回流与流失、存量留存、主播供给、中长期衰退、品类 KPI、双开和奶块日报的模块、阈值、数据流程与复用风险；明文凭据只在加密包中 |
+| `projects/console-game-revenue-review/` | 主机游戏需求：2025/2026 年 1–5 月主播×月营收同比、付费结构、排名、供给效率、匿名月度汇总、V1/V2 公式问题和血缘限制 |
+| `projects/honor-of-kings-streamer-departure-impact/` | 王者下跌和主播离开影响：日/月归因 DAU、4→5 月重合、留存与内容迁移、公会/头部主播溢出、历史项目估计、去标识 SQL 和不可复算边界 |
 | `archive/codex-work-history/` | Codex 本地工作记录与记忆摘要：300 个线程、3,453 条用户请求、6,962 条最终/无阶段答复；AES-256-GCM 加密，附导出脚本和校验记录 |
 | `mcp/bigdata/README.md` / `.en.md`、`config.example.toml`、`tool-catalog.json` | bigdata MCP 的网关配置模板、11 个工具的调用契约、Presto/Spark/下载规范和故障排查；不含账号或 API secret |
 | `vault/migration-secrets-v2.aesgcm` | AES-256-GCM 加密的 `.env`、数据平台凭据和原告警脚本凭据副本；解密密钥单独保存 |
 | `vault/migration-secrets.aesgcm`、`vault/env-files.aesgcm` | 前两版加密包，保留作历史副本；新电脑优先使用 `migration-secrets-v2.aesgcm` |
-| `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单；明确跳过的项目只在此登记状态，不生成项目的 GitHub 路径 |
+| `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点、完成状态和待复核清单；已迁移项目通过 `projects/README.md` 定位，明确跳过的事项仍记录原因和未上传边界 |
 | `local-source-map.md` / `local-source-map.en.md` | 中文 / 英文本机路径映射，仅保存在本机并由 Git 忽略 |
 
 GitHub 仓库地址：<https://github.com/Tiany517/huya_ty>
@@ -71,7 +90,7 @@ GitHub 仓库地址：<https://github.com/Tiany517/huya_ty>
 3. 从 `skills/` 恢复 skills，并查看来源和版本说明。
 4. 按 `mcp/bigdata/README.md` 合并 MCP 配置模板，重启 Codex 并确认 bigdata 工具出现。
 5. 参考 `local-source-map.md` 重建本机路径；将仓库外单独保存的 `huya_ty-env-files.key` 安全转移到新电脑，再用 `vault/decrypt-env-files.mjs` 解密 `vault/migration-secrets-v2.aesgcm` 到暂存目录并逐项恢复。
-6. 阅读 `projects/` 中的项目背景和结果附件，再继续相关工作。
+6. 先读 `projects/README.md` 定位项目，再进入对应项目的中英文 README、SQL/脚本和匿名结果附件。
 7. 重新连接获准的数据服务，并在运行 SQL 前验证权限。
 
 ## 后续工作同步
