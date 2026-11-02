@@ -7,7 +7,8 @@ This directory preserves local skill snapshots by installation source:
 | `codex/` | 56 | 503 tracked | Codex user and system-managed skills |
 | `shared-agent/` | 45 | 82 | Shared agent skills |
 | `claude/` | 54 | 503 tracked | Claude skills |
+| `plugins/hyperframes/0.1.2/` | 5 | 69 | Complete offline snapshot of the HyperFrames v0.1.2 Codex plugin containing `gsap`, `hyperframes`, `hyperframes-cli`, `hyperframes-registry`, and `website-to-hyperframes` |
 
 The local snapshot contains 1,182 copied source files; 1,088 skill files are tracked in this repository, plus these two guide files. Same-named copies are retained under each source for provenance. `.git`, caches, virtual environments, dependency folders, bytecode, and real `.env` files were excluded; `.env.example` files may be retained. Another 94 files ignored by the source directories' `.gitignore` files were not pushed. They include `.superpowers/sdd` task reports/diffs and the Excel files, scripts, images, and temporary JSON under `douyin-playwright`; they remain queued for project review. Test tokens and environment-variable examples remain unchanged; no real `.env` files or common token formats were found.
 
-Chinese version: `README.md`.
+`plugins/` is an additional Codex-plugin archive and is not mixed into the file counts of the three user/agent skill source directories. HyperFrames comes from <https://github.com/heygen-com/hyperframes>; the plugin manifest declares version `0.1.2` and Apache-2.0. Prefer reinstalling through the Codex plugin interface on the new computer and use the repository snapshot for offline inspection and recovery. Chinese version: `README.md`.

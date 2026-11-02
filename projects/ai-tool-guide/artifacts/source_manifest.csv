@@ -1,0 +1,6 @@
+asset,repository_path,sha256,notes
+user_note,projects/ai-tool-guide/artifacts/source-zh/mav-slidecraft与hyperframes说明.md,37e92b947237de4d8aef3c6891f04377b4268be4f647898458ea817a29117d9e,Original Chinese usage note retained unchanged
+mav_skill_definition,skills/codex/mav-slide-craft-skill/SKILL.md,a75863e21ecc329b8c75a7131dc19c2478713f10070cf7b86478de3b4e32dfec,Complete skill entrypoint retained
+mav_readme,skills/codex/mav-slide-craft-skill/README.md,7d0f9a660fc97d37ba78b0a075614b14ea94a5d133710386ea97dfeb7d8663dc,Upstream usage and installation notes retained
+hyperframes_plugin_manifest,skills/plugins/hyperframes/0.1.2/.codex-plugin/plugin.json,1bf2d37cf9860b92db0d3117bd600f18f8d8fd203e78a724b42bb8ed46e234d0,Plugin name hyperframes version 0.1.2
+hyperframes_plugin_readme,skills/plugins/hyperframes/0.1.2/README.md,12c051e92d1e296f573696a6faa655452daf35cd95dc971d11396c1c9137b7cd,Plugin scope dependencies and source-of-truth notes retained

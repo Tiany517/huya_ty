@@ -11,6 +11,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `instructions/sql-validation-workflow.md` / `.en.md` | General seven-stage SQL proof chain, static review, risk profile, nine validation dimensions, delivery reconciliation, and recurrence controls |
 | `instructions/templates/sql-validation-record.md` / `.en.md` | Bilingual delivery card required for every formal SQL task; records the contract, risk profile, eight-gate evidence, independent recomputation, delivery reconciliation, and completion status |
 | `skills/README.md`, `skills/<source>/<skill-name>/` | Skills archive guide and full snapshots by installation source |
+| `skills/plugins/hyperframes/0.1.2/` | Offline snapshot of the HyperFrames v0.1.2 Codex plugin and its five presentation/video skills; prefer reinstalling the plugin on the new computer |
 | `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
 | `sql/topics/retention-analytics/` | Retention SQL index, dependencies, definitions, versions, and known defects for external Douyu/Bilibili/Douyin and Huya Star Show danmu/gift behavior |
 | `sql/topics/retention-analytics/remediation/`, `sql/topics/retention-analytics/artifacts/` | Huya Star Show denominator fix and validation SQL, plus anonymous January 2025 through October 2026 overall comparisons |
@@ -39,6 +40,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/xingxiu-interest-index/` | January–July 2026 Xingxiu interest-index review: monthly DAU/interest, streamer status, July DAU deciles, eleven hypothesis groups, bilingual anonymous outputs, and 34 checks |
 | `projects/molata-cooperation-acu-review/` | Six-anchor cooperation ACU review: four-window anonymous daily series, group growth, platform benchmarks, 13 reconciliation failures, bilingual workbooks, and 21 checks |
 | `projects/ai-live-room-operations/` | AI live-room snapshots for July through September 2026: runtime and annotated SQL, anonymous anchor-category summaries, cross-month coverage, 13 SQL risks, bilingual workbooks, and 21 checks |
+| `projects/ai-tool-guide/` | AI-tool selection and recovery: mav-slidecraft-skill for HTML slides, HyperFrames for HTML-driven motion video, five plugin skills, boundaries, and new-computer restore steps; 12 archive checks |
 | `projects/causal-inference-handbook/` | PSM/SCM teaching handbook: five source editions, 74 editable code blocks, eleven method risks, a production checklist, source hashes, and bilingual validation reports |
 | `archive/chatgpt-export/` | Reviewed ChatGPT export archive, encrypted when retained |
 | `mcp/bigdata/README.md` / `.en.md`, `config.example.toml`, `tool-catalog.json` | Bigdata MCP gateway template, 11-tool contract, Presto/Spark/download rules, and troubleshooting; no account or API secret |

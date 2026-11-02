@@ -1,0 +1,13 @@
+check,status,evidence
+bilingual_pages,pass,README.md and README.en.md exist
+mav_skill_entrypoint,pass,mav SKILL.md exists
+mav_readme,pass,mav README.md exists
+hyperframes_manifest,pass,plugin.json exists
+hyperframes_readme,pass,HyperFrames README.md exists
+plugin_version,pass,plugin.json version is 0.1.2
+five_plugin_skills,pass,gsap hyperframes hyperframes-cli hyperframes-registry website-to-hyperframes
+plugin_file_count,pass,69 files
+no_local_absolute_paths,pass,No user-local absolute path in project pages
+repo_relative_paths,pass,Both snapshots referenced by repository-relative path
+manifest_hashes,pass,Key-file hashes match source_manifest.csv
+no_plaintext_credentials,pass,No common credential pattern in project pages

@@ -11,6 +11,7 @@
 | `instructions/sql-validation-workflow.md` / `.en.md` | 通用 SQL 七阶段证明链、静态审查、风险画像、九类校验维度、交付对账和复发控制框架 |
 | `instructions/templates/sql-validation-record.md` / `.en.md` | 每份正式 SQL 必须填写的双语验收卡；记录结果契约、风险画像、八类闸门证据、独立复算、交付对账和完成状态 |
 | `skills/README.md`、`skills/<source>/<skill-name>/` | Skills 归档说明及按安装来源保留的完整快照 |
+| `skills/plugins/hyperframes/0.1.2/` | Codex 插件 HyperFrames v0.1.2 的离线快照，含 5 个演示/视频 skills；新电脑优先重装插件 |
 | `sql/README.md`、`sql/source/<file>` | SQL 归档说明和来自现有目录的原名脚本；后续可按主题建立索引 |
 | `sql/topics/retention-analytics/` | 站外斗鱼/B站/抖音及虎牙星秀的弹幕、打赏留存 SQL 索引、依赖、口径、版本和已知缺陷 |
 | `sql/topics/retention-analytics/remediation/`、`sql/topics/retention-analytics/artifacts/` | 虎牙星秀分母修复 CTE、验证 SQL，以及 2025-01 至 2026-10 的匿名整体对比结果 |
@@ -39,6 +40,7 @@
 | `projects/xingxiu-interest-index/` | 星秀兴趣指数 2026 年 1–7 月复盘：月度 DAU/兴趣指数、主播状态、7 月 DAU 十分位、11 个假设分组、中英文匿名结果和 34 项校验 |
 | `projects/molata-cooperation-acu-review/` | 六位主播合作前后有效 ACU 复盘：四窗口匿名日序列、组内增长、平台基准、13 日勾稽残差、双语文档/结果工作簿和 21 项校验 |
 | `projects/ai-live-room-operations/` | AI 直播间 2026-07 至 2026-09 月度快照：运行版/注释版 SQL、匿名主播×品类汇总、跨月覆盖、13 项 SQL 静态风险、双语文档/结果工作簿和 21 项校验 |
+| `projects/ai-tool-guide/` | AI 工具选择与恢复：mav-slidecraft-skill 的 HTML 幻灯片、HyperFrames 的 HTML 动效视频、五个插件 skills、工具边界和新电脑恢复步骤；12 项归档检查 |
 | `projects/causal-inference-handbook/` | PSM/SCM 教学手册：5 个源版本、74 个可编辑代码块、11 项方法风险、正式项目复用清单、源哈希和中英文校验报告 |
 | `archive/chatgpt-export/` | 复核后保留的 ChatGPT 导出归档；需要时使用加密形式 |
 | `mcp/bigdata/README.md` / `.en.md`、`config.example.toml`、`tool-catalog.json` | bigdata MCP 的网关配置模板、11 个工具的调用契约、Presto/Spark/下载规范和故障排查；不含账号或 API secret |

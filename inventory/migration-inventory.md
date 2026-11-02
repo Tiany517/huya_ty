@@ -38,14 +38,14 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 | 视频号 DAU 和周期报告 | 月报_虎牙外部生态DAU；月报_附录；周报_附录（用户明确跳过）；周报监控模型 |
 | 主播价值、增长和反挖 | 反挖；快手王者荣耀主播反挖数据；无畏契约份额增长；王者主播潜力分析（用户明确跳过）；斗鱼潜力主播挖掘（用户明确跳过） |
 | 用户行为和留存 | 用户画像分析；各类留存率取数（用户明确跳过）；社区评估（用户明确跳过）；星秀兴趣指数分析（已完成）；兴趣指数（用户明确跳过） |
-| AI 工坊 | AI工具说明（其余 AI 工坊与直播间项目已完成复盘） |
+| AI 工坊 | AI工具说明（已完成；其余 AI 工坊与直播间项目已完成复盘） |
 | 游戏和赛事专题 | 世界杯专题；斯诺克专题；王者下跌和吕德华离开影响；主机游戏需求；赛事总结 |
 
 ### 首轮文件盘点（仅元数据）
 
 以下候选项目的数量、扩展名和修改时间来自文件系统元数据；除下方列出的已完成项目外，其他候选尚未复盘或复制项目文件。
 
-已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/monthly-report-appendix/`、`projects/weekly-ecosystem-monitoring/`、`projects/wechat-channel-dau-attribution/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`、`projects/external-streamer-reverse-poaching/`、`projects/kuaishou-honor-of-kings-reverse-poaching/`、`projects/user-profile-analysis/`、`projects/xingxiu-interest-index/`、`projects/molata-cooperation-acu-review/`、`projects/ai-live-room-operations/`、`projects/causal-inference-handbook/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
+已完成并推送的项目复盘：`projects/valorant-5937-p50-live-time/`、`projects/fps-anchor-cleaning/`、`projects/monthly-external-ecosystem-dau/`、`projects/monthly-report-appendix/`、`projects/weekly-ecosystem-monitoring/`、`projects/wechat-channel-dau-attribution/`、`projects/ai-workshop-commercialization/`、`projects/buxiucup-popup-psm/`、`projects/valorant-fps-cross-broadcast/`、`projects/valorant-watchtime-contribution-knee/`、`projects/valorant-yuezi-event-costream/`、`projects/valorant-ob-costream-scenario/`、`projects/huya-douyin-valorant-acu-threshold/`、`projects/valorant-big-pot-share-scenario/`、`projects/valorant-anti-fraud-event-review/`、`projects/non-douyin-valorant-streamer-discovery/`、`projects/valorant-streamer-potential-analysis/`、`projects/external-streamer-reverse-poaching/`、`projects/kuaishou-honor-of-kings-reverse-poaching/`、`projects/user-profile-analysis/`、`projects/xingxiu-interest-index/`、`projects/molata-cooperation-acu-review/`、`projects/ai-live-room-operations/`、`projects/ai-tool-guide/`、`projects/causal-inference-handbook/`。FPS 项目纳入 7 个分析脚本和匿名分位汇总 CSV；未纳入主播明细附件。FPS 模型中的 2.6489% 已标注为跨品类范围不匹配的原表比例，不作为份额结论。
 
 外部生态 DAU 月报已整理至 `projects/monthly-external-ecosystem-dau/`：归档取数 SQL 和 2025-07 至 2026-05-18 的匿名平台月度聚合；含主播 UID、昵称、合同及收入信息的两份源 Excel 未复制。
 
@@ -56,6 +56,8 @@ Codex、Claude 和共享 agent 配置目录共发现 155 个 skill 文件夹。�
 视频号两周观众数变化归因已整理至 `projects/wechat-channel-dau-attribution/`：归档完整去标识主播×日底表 2,067 行、107 个两周窗口主播汇总、28 天日度汇总、活动/内容/时长拆分、匿名结果工作簿、中英文路径地图和 40 项校验。2026-09-21 至 09-27 对比 09-14 至 09-20 的主播维度观众数之和从日均 `6,760,166` 升至 `7,163,321`（`+6.0%`），但正向贡献前三抵消后，剔除这三人转为 `-1,338,970/日`（`-21.2%`）；棋牌类为 `+564,583/日`，非棋牌类为 `-161,428/日`。旧文本把 W2 未开播写成 10，而当前源和工作簿为 7；旧脚本不能解析当前斜杠日期；旧两因子分项相加 `369,885` 不等于净变化 `403,155`，迁移版均已修复并记录。原始昵称、平台 ID、分类 JSON、日志和身份工作簿未上传。
 
 AI 工坊商业化价值已整理至 `projects/ai-workshop-commercialization/`：归档 PSM7/PSM8 聚合报告、最终单页、版本转换报告、3 张匿名匹配质量图、13 个一级类目与 26 个二级类目的匿名汇总、品类/ACU/曝光汇总，以及核心 SQL、打标、版本和 PSM 脚本。PSM7 后 7 日整体打赏金额 DID 为 `84.9967` 元/人/日，95% CI `46.3997–123.5937`，p=`1.652e-05`，1,804 对匹配；PSM8 匹配 3,520 对，后 6 日总打赏金额 DID 为 `169.64` 元，p=`0.0490`。项目页明确区分付费留存原始组间差与 DID 净差，并标注最终单页采用 81 元/用户天与报告 84.9967 元尚未勾稽、ROI 约 40 与旧版 17.9/18 的版本差异。约 27.6 GB `.pkl` 缓存、约 11.76 GB PSM 源 CSV、用户/主播/礼物明细均未上传。
+
+AI 工具说明已整理至 `projects/ai-tool-guide/`：中英文分别记录 `mav-slidecraft-skill` 的 HTML 幻灯片用途与边界，以及 HyperFrames 的 HTML/CSS/GSAP 动效视频能力、Node.js 22 和 FFmpeg 依赖、真实素材需求、五个插件 skills 和新电脑恢复步骤。归档 `skills/codex/mav-slide-craft-skill/`，并新增 `skills/plugins/hyperframes/0.1.2/` 完整离线快照（69 个文件、插件清单版本 `0.1.2`）。原始中文说明、关键文件 SHA-256 和 12 项归档检查通过；没有历史幻灯片或视频成品，也没有本机完成全部渲染参数的证据。
 
 不朽杯弹窗 PSM 实验已整理至 `projects/buxiucup-popup-psm/`：归档三套独立分析，即打卡活动（13,846 对、最大匹配后 SMD `0.0403`）、当天观看 DOTA2 用户曝光（7,631 对、`0.0350`）和 4 月兴趣为 DOTA2 用户曝光（7,175 对、`0.0589`）。保留最终 DOCX、XLSX、4 个匿名汇总 CSV、3 张匿名匹配图、3 个最终脚本和 3 个核心 SQL，并新增自动校验。旧的 2026-06-12 报告同时写“全部 SMD < 0.1”和最大 |SMD| `0.2028`，已明确替代；最终报告“差异完全由活动导致”等过强因果表述、1 天曝光限制、付费转化率单位错误及 5 处中位数显著性标签异常均已记录。约 9.71 GB 全量用户 CSV、831 MB 未参与用户明细、320 MB 打卡分析源 CSV、曝光用户级源数据和全部历史迭代文件未上传。
 
@@ -99,6 +101,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 | 各类留存率取数 | 13 个文件：9 个 SQL、4 个 XLSX，合计约 125 KB | 用户于 2026-11-02 明确跳过；后续复查概率低，不继续审计、不提交项目页或结果 |
 | 兴趣指数 | 1 个约 163.9 MB 归档包；含 8 个 LightGBM 模型、2,141 个运行日志、2 个赛事 DAU 文本和运行时文件 | 用户于 2026-11-02 明确跳过；后续复查概率低，继续解析模型和日志的时间收益不足。未提交项目页、脚本、模型、匿名结果或校验产物 |
 | AI工坊专题 | 已完成核心项目复盘 | 已迁移至 `projects/ai-workshop-commercialization/`；大型缓存、逐用户/主播明细和礼物提示词不放入 Git |
+| AI工具说明 | 1 个 Markdown；关联 mav-slidecraft-skill 与 HyperFrames v0.1.2 插件 | 已完成并迁移至 `projects/ai-tool-guide/`；保留独立中英文说明、原始中文快照、mav skill、69 文件 HyperFrames 插件快照、SHA-256 清单和 12 项校验 |
 | AI直播间信息；AI直播间监控UID | 已完成核心项目复盘 | 已迁移至 `projects/ai-live-room-operations/`；保留匿名汇总、两份 SQL、双语文档和校验；原始 UID/昵称快照未上传，正式 SQL 执行仍标记未运行 |
 | 因果推断实操 | 项目复盘完成 | 已迁移至 `projects/causal-inference-handbook/`；5 个源版本、11 项方法风险、双语文档和 12 项校验齐全；明确教学示例不能作为真实因果证据 |
 | 不朽杯弹窗PSM实验 | 已完成核心项目复盘 | 已迁移至 `projects/buxiucup-popup-psm/`；三套最终报告、匿名结果、核心脚本/SQL 和校验已归档；用户级源数据与历史迭代未上传 |
@@ -116,7 +119,7 @@ FPS 跨播精简版已复盘至 `projects/valorant-fps-cross-broadcast/`：归�
 
 ## 待办状态
 
-- 继续复盘其余候选：因果推断与事件评估、留存与兴趣、AI 工具说明和游戏赛事专题。`Documents/ChatGPT/异动归因` 已完成。
+- 继续复盘其余候选：因果推断与事件评估、留存与兴趣和游戏赛事专题。`Documents/ChatGPT/异动归因` 与 AI 工具说明已完成。
 - `社区评估` 已按用户 2026-11-02 的明确要求跳过：用户判断后续再复查的概率很低，继续复盘的时间收益不足。未提交项目页、匿名结果、SQL 或校验产物；本地半成品已移出迁移仓库并保留在仓库外。
 - `王者主播潜力分析` 已按用户 2026-11-02 的明确要求跳过：用户判断后续再复查的概率很低，继续复盘的时间收益不足。未提交项目页、匿名结果、校验产物、原始 CSV 或含主播身份的工作簿。
 - `斗鱼潜力主播挖掘` 已按用户 2026-11-02 的明确要求跳过：用户判断后续再复查的概率很低，继续复盘的时间收益不足。未提交项目页、SQL、匿名结果或校验产物；本地半成品已移出迁移仓库并保留在仓库外。
