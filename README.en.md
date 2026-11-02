@@ -20,6 +20,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/<project-slug>/artifacts/` | Important result files; the FPS project includes an anonymized live-time quantile CSV |
 | `projects/monthly-external-ecosystem-dau/` | External ecosystem DAU workflow, SQL definitions, and anonymized monthly aggregates |
 | `projects/monthly-report-appendix/` | Monthly-report appendix: daily and monthly video-channel stream-type DAU, external-platform DAU, Douyin MCN category DAU, APP retention, and game exclusivity; includes anonymous artifacts, four SQL files, hashes, and known defects |
+| `projects/douyin-playwright-video-analysis/` | Four public video-analysis XLSX examples from the `douyin-playwright` skill, 40 Top 10 records, bilingual indexes, source hashes, and structural validation |
 | `projects/weekly-ecosystem-monitoring/` | Weekly ecosystem monitoring: daily category and streamer SQL, six anonymized snapshots, platform DAU, template structure, and reproducible validation |
 | `projects/wechat-channel-dau-attribution/` | Two-week WeChat Channel audience attribution: complete de-identified anchor-day basis, corrected decomposition, activity/content/duration splits, anonymous workbook, path map, and 40 checks |
 | `projects/ai-workshop-commercialization/` | AI Workshop commercialization: PSM7/PSM8, DID, paid retention, version conversion, manual gift tagging, anonymous category/ACU summaries, final business page, and reproducible validation |

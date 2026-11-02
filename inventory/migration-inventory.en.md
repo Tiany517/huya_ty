@@ -8,7 +8,7 @@ Status: as of 2026-11-02, the migration repository has been committed and pushed
 | --- | --- | --- |
 | Data-analysis working rules | `instructions/AGENTS.md` is based on the attached text; its credential-bearing line was replaced with a secure-storage instruction | Included; checked against the attachment in this conversation |
 | Desktop AGENTS version | `Desktop/agents_md/AGENTS.md` | Differs from the attachment; retained for comparison |
-| Codex and Claude rules | `.codex/AGENTS.md`, `.claude/AGENTS.md` | The plaintext data-platform credential in `.codex/AGENTS.md` has been replaced by a secure-storage rule; remaining differences still need review |
+| Codex and Claude rules | `.codex/AGENTS.md`, `.claude/AGENTS.md` | Review complete: `.codex` is the fuller superset and adds two SQL rules for join-side filtering and credential security, the SQL validation workflow, GitHub-sync rules, and an expanded checklist; `.claude` omits them, so the migration uses a credential-redacted copy of `.codex` |
 
 The attachment matches the AGENTS content shared in this conversation. Compared with the Desktop version, it adds two rules; one contained a plaintext API credential. The migration copy and local `.codex/AGENTS.md` now use a secure-storage instruction; the actual credential exists only in the encrypted vault.
 
@@ -22,7 +22,7 @@ The high-priority retention index is at `sql/topics/retention-analytics/`. The r
 
 ## Skills
 
-There are 155 skill folders across Codex, Claude, and shared-agent configuration roots. A total of 1,182 source files were copied by source; 1,088 skill files are tracked in the repository, retaining same-named copies and references. Another 94 files ignored by source `.gitignore` files were not pushed. The `douyin-playwright` folder has Excel files, scripts, images, and temporary JSON that may be project results; review whether to include them under a project directory. Common credential formats were not found; test tokens and environment-variable examples remain unchanged.
+There are 155 skill folders across Codex, Claude, and shared-agent configuration roots. A total of 1,182 source files were copied by source; 1,088 skill files are tracked in the repository, retaining same-named copies and references. Another 94 files are excluded by source `.gitignore` files. Four public Top 10 video-analysis XLSX files from `douyin-playwright` were reviewed and moved into `projects/douyin-playwright-video-analysis/`; individualized generators, screenshots, temporary JSON, `.superpowers` task diffs, and caches remain excluded. Common credential formats were not found; test tokens and environment-variable examples remain unchanged.
 
 ## Bigdata MCP
 
@@ -99,9 +99,9 @@ The single-streamer Huya-affiliated Douyin co-streaming case is documented in de
 
 | Priority candidate | Current size and latest modification | Review focus |
 | --- | --- | --- |
-| 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | The 5937, OB co-streaming, HuShi/HuXiao ACU-threshold, Big Pot, anti-fraud, non-Douyin discovery, and streamer-potential/external-pool subprojects are documented separately; remaining subprojects still need review |
-| FPS主播清洗_20261023 | 76 files; latest 2026-10-23; 6 Excel, 28 CSV, 6 NDJSON | Select estimate outputs and scripts; distinguish detailed data from inspection artifacts |
-| 周报监控模型 | 55 files; latest 2026-10-23; 8 SQL, 1 Python, 25 Excel, 21 CSV; largest workbook about 291 MB | Core workflow is documented at `projects/weekly-ecosystem-monitoring/`; remaining large templates, streamer detail, and unreviewed weeks stay out of bulk upload |
+| 无畏契约份额增长 | 201 files; latest 2026-10-29; 90 Python, 41 Excel, 21 CSV | Core review complete: the 5937, OB co-streaming, HuShi/HuXiao ACU-threshold, Big Pot, anti-fraud, non-Douyin discovery, streamer-potential/external-pool, Yuezi event co-streaming, and watch-time-knee projects are documented separately; remaining files are identity detail, source workbooks, export intermediates, and duplicates and are not uploaded in bulk |
+| FPS主播清洗_20261023 | 76 files; latest 2026-10-23; 6 Excel, 28 CSV, 6 NDJSON | Review complete at `projects/fps-anchor-cleaning/`: seven cleaning/mapping/model scripts, the anonymized quantile CSV, definitions, and source notes are retained; identity detail, audit workbooks, and inspection artifacts are excluded |
+| 周报监控模型 | 55 files; latest 2026-10-23; 8 SQL, 1 Python, 25 Excel, 21 CSV; largest workbook about 291 MB | Core review complete at `projects/weekly-ecosystem-monitoring/`: nine SQL/Python files, six anonymized weekly snapshots, and validation pass; later weeks and large templates/streamer detail follow the same local workflow and are not bulk-uploaded |
 | 各类留存率取数 | 13 files: 9 SQL and 4 XLSX, about 125 KB total | Explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low; no further audit or committed project/result |
 | 兴趣指数 | One archive of about 163.9 MB containing eight LightGBM models, 2,141 run logs, two match-DAU text files, and runtime files | Explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further model/log parsing would not justify the time. No project page, script, model, anonymized result, or validation artifact was committed |
 | AI工坊专题 | Core review complete | Documented at `projects/ai-workshop-commercialization/`; large caches, user/streamer detail, and gift prompts stay out of Git |
@@ -122,14 +122,14 @@ The single-streamer Huya-affiliated Douyin co-streaming case is documented in de
 | Community-evaluation settlement | Explicitly skipped by the user | No project page, anonymous result, SQL, or validation artifact was committed; the local partial draft was moved outside the migration repository and retained locally |
 | Molata cooperation ACU review | Core project review complete | Migrated to `projects/molata-cooperation-acu-review/`; anonymous daily series, four-window summaries, bilingual workbooks, and 21 checks retained; identity workbook/script excluded and 13 platform reconciliation failures remain |
 | 月报_附录 | 27 files: 4 SQL, 5 XLSX, 1 CSV, and 17 PPTX | Core review complete at `projects/monthly-report-appendix/`; anonymous aggregates, four SQL files, source hashes, and validation retained, while identity/contract/revenue workbooks and all source decks were excluded |
-| 月报_虎牙外部生态DAU | 3 files: 1 SQL and 2 template workbooks | Small footprint; review templates for inclusion |
+| 月报_虎牙外部生态DAU | 3 files: 1 SQL and 2 template workbooks | Review complete at `projects/monthly-external-ecosystem-dau/`; the full SQL and anonymized monthly aggregate are retained, while two source workbooks with streamer IDs, nicknames, contracts, and revenue are excluded |
 | Documents/ChatGPT/异动归因 | 12 Python scripts and outputs; includes summary workbooks and a workbook named as detail; Git working tree has no commit history | Review complete at `projects/wechat-channel-dau-attribution/`; retains the complete de-identified anchor-day basis, anonymous workbook, source/script hashes, and 40 checks, while identity-bearing original workbooks, JSON, and logs were excluded |
 
-The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workbooks, scripts, images, and temporary JSON ignored by the source `.gitignore`. They are not in the repository and will be reviewed separately as project evidence.
+The four Top 10 video-analysis XLSX files that the source `.gitignore` excluded from `douyin-playwright` have been reviewed and migrated to `projects/douyin-playwright-video-analysis/`; screenshots, temporary JSON, caches, `.superpowers` diffs, and individualized hardcoded generators remain excluded.
 
 ## Remaining Work
 
-- Continue with the remaining candidates: causal/event reviews, retention and interest indexes, and game/event topics. `Documents/ChatGPT/异动归因`, the AI tool guide, the event-summary review, and the Snooker review are complete.
+- Project candidates have been worked down individually: causal/event reviews, retention, interest, game/event topics, all Valorant subtopics, the external-ecosystem monthly report, FPS cleaning, weekly monitoring, and the `douyin-playwright` examples are migrated or explicitly skipped.
 - `社区评估` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further review would not justify the time. No project page, anonymous result, SQL, or validation artifact was committed; the local partial draft was moved outside the migration repository and retained locally.
 - `王者主播潜力分析` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further review would not justify the time. No project page, anonymized result, validation artifact, raw CSV, or identity-bearing workbook was committed.
 - `斗鱼潜力主播挖掘` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further review would not justify the time. No project page, SQL, anonymized result, or validation artifact was committed; the local partial draft was moved outside the migration repository and retained locally.
@@ -140,8 +140,7 @@ The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workb
 - `王者下跌和吕德华离开影响` was explicitly skipped by the user on 2026-11-02 because a later re-check is unlikely and further work on the deck, workbooks, and migration artifacts would consume too much time. No project page, script, anonymized result, validation artifact, raw workbook, deck, or user/streamer-level detail was committed; the source directory remains unchanged.
 - `世界杯专题` was explicitly skipped by the user on 2026-11-02 because a later re-check is unlikely and further work on the approximately 38 GB collection of historical reports, user-level data, search tagging, and PSM intermediates would consume too much time. No partial package exists in the repository; no project page, script, anonymized result, validation artifact, report, deck, SQL, user-level detail, or raw data was committed, and the source directory remains unchanged.
 - `主机游戏需求` was explicitly skipped by the user on 2026-11-02 because a later re-check is unlikely and continued auditing and migration would not justify the time. No project page, script, anonymized result, validation artifact, or raw workbook was committed; no partial repository package exists, and the source directory remains unchanged.
-- Other projects in this inventory remain pending review, not archived. For each completed review, update this inventory and the root path map, inspect the full diff, and push the changes.
-- A raw ChatGPT export has not been archived. Confirm whether the company API account offers an account-level export; API work records may not be part of a ChatGPT web-account export.
+- The only separate open item is the raw ChatGPT conversation export. Confirm whether the company API/workspace offers an account-level export; API work records may not be part of a ChatGPT web-account export.
 
 For each selected project, record purpose, population, metric definitions, time windows, known findings, open questions, and links to code and deliverables. Include important artifacts that support findings or follow-up work. Detailed user-level Excel remains excluded under the original requirement unless the user explicitly changes that boundary.
 

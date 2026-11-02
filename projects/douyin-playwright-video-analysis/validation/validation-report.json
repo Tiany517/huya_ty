@@ -1,0 +1,57 @@
+{
+  "project": "douyin-playwright-video-analysis",
+  "checks": [
+    {
+      "file": "2026-06-25_世界杯_Top10视频分析.xlsx",
+      "passed": true,
+      "issues": [],
+      "bytes": 17592,
+      "sha256": "dd433ebd4a9530be5c972ca62ae9b8ee6e103a37550b6d63b7ced11532f357a1",
+      "worksheets": 3,
+      "max_rows": [6, 11, 11],
+      "formula_count": 0,
+      "formula_error_count": 0
+    },
+    {
+      "file": "2026-06-25_小钟Johnny_Top10视频分析.xlsx",
+      "passed": true,
+      "issues": [],
+      "bytes": 19549,
+      "sha256": "835138adecac01f558869ddb21cf1bd6fcb6962816f5401445dbfa7e688fe135",
+      "worksheets": 3,
+      "max_rows": [25, 13, 13],
+      "formula_count": 0,
+      "formula_error_count": 0
+    },
+    {
+      "file": "2026-06-25_小Lin说_Top10视频分析.xlsx",
+      "passed": true,
+      "issues": [],
+      "bytes": 19282,
+      "sha256": "758f4004b37a907945fc61fb11618ef3cf8f1940ac40ee48da314acd21b7d9ea",
+      "worksheets": 3,
+      "max_rows": [11, 13, 13],
+      "formula_count": 0,
+      "formula_error_count": 0
+    },
+    {
+      "file": "黄士铨看世界_Top10视频分析.xlsx",
+      "passed": true,
+      "issues": [],
+      "bytes": 19212,
+      "sha256": "4d603cb3c806291ee7b0899839e67ae293e7b860b503e131eca8ce16728b797c",
+      "worksheets": 3,
+      "max_rows": [12, 13, 13],
+      "formula_count": 0,
+      "formula_error_count": 0
+    }
+  ],
+  "summary": {
+    "files": 4,
+    "passed": 4,
+    "failed": 0,
+    "total_video_records": 40,
+    "formula_errors": 0
+  },
+  "status": "passed"
+}
