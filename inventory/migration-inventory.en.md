@@ -36,7 +36,7 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 | --- | --- |
 | Causal and event evaluation | 不朽杯弹窗PSM实验; 游戏主播跨播带来的影响 (explicitly skipped by the user); 莫拉塔合作效果分析 |
 | Video-channel DAU and recurring reports | 月报_虎牙外部生态DAU; 月报_附录; 周报_附录 (explicitly skipped by the user); 周报监控模型 |
-| Streamer value, growth, and anti-fraud | 反挖; 快手王者荣耀主播反挖数据; 无畏契约份额增长; 王者主播潜力分析 (explicitly skipped by the user); 斗鱼潜力主播挖掘 |
+| Streamer value, growth, and anti-fraud | 反挖; 快手王者荣耀主播反挖数据; 无畏契约份额增长; 王者主播潜力分析 (explicitly skipped by the user); 斗鱼潜力主播挖掘 (explicitly skipped by the user) |
 | User behavior and retention | 用户画像分析; 各类留存率取数 (explicitly skipped by the user); 社区评估; 星秀兴趣指数分析; 兴趣指数 |
 | AI workshop | AI工具说明; other AI Workshop and live-room projects are reviewed |
 | Game and event topics | 世界杯专题; 斯诺克专题; 王者下跌和吕德华离开影响; 主机游戏需求; 赛事总结 |
@@ -113,6 +113,7 @@ The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workb
 
 - Continue with the remaining candidates: causal/event reviews, retention and interest indexes, AI tool documentation, and game/event topics. `Documents/ChatGPT/异动归因` is complete.
 - `王者主播潜力分析` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further review would not justify the time. No project page, anonymized result, validation artifact, raw CSV, or identity-bearing workbook was committed.
+- `斗鱼潜力主播挖掘` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further review would not justify the time. No project page, SQL, anonymized result, or validation artifact was committed; the local partial draft was moved outside the migration repository and retained locally.
 - `游戏主播跨播带来的影响` was explicitly skipped by the user on 2026-11-02. No project page, script, or result was committed; the local draft was moved outside the repository and the temporary matched-data cache was deleted.
 - `周报_附录` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low. No project page, script, or result was committed; the completed `projects/weekly-ecosystem-monitoring/` remains valid.
 - `各类留存率取数` (snooker event retention) was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low. No project page, SQL copy, anonymized result, or validation artifact was committed; the local partial draft remains outside the repository.
