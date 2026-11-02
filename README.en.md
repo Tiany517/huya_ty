@@ -18,6 +18,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `projects/<project-slug>/scripts/` | Reproducible project scripts; the FPS project includes 7 cleaning and analysis scripts |
 | `projects/<project-slug>/artifacts/` | Important result files; the FPS project includes an anonymized live-time quantile CSV |
 | `projects/monthly-external-ecosystem-dau/` | External ecosystem DAU workflow, SQL definitions, and anonymized monthly aggregates |
+| `projects/monthly-report-appendix/` | Monthly-report appendix: daily and monthly video-channel stream-type DAU, external-platform DAU, Douyin MCN category DAU, APP retention, and game exclusivity; includes anonymous artifacts, four SQL files, hashes, and known defects |
 | `projects/weekly-ecosystem-monitoring/` | Weekly ecosystem monitoring: daily category and streamer SQL, six anonymized snapshots, platform DAU, template structure, and reproducible validation |
 | `projects/ai-workshop-commercialization/` | AI Workshop commercialization: PSM7/PSM8, DID, paid retention, version conversion, manual gift tagging, anonymous category/ACU summaries, final business page, and reproducible validation |
 | `projects/buxiucup-popup-psm/` | Three separate Buxiucup PSM/DID reviews: check-in campaign, same-day DOTA2 exposure, and April-interest exposure; final reports, anonymous results, core SQL/scripts, defect review, and automated validation |

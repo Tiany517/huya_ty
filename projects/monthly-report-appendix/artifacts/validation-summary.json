@@ -1,0 +1,163 @@
+{
+  "external_platform_monthly": {
+    "rows": 10,
+    "minimum_month": "2026-01",
+    "maximum_month": "2026-10",
+    "maximum_platform_sum_difference": 0.0
+  },
+  "video_channel_stream_type_monthly": {
+    "rows": 14,
+    "minimum_month": "2025-09",
+    "maximum_month": "2026-10",
+    "maximum_stream_sum_difference": 0.0,
+    "monthly_means": {
+      "25年9月": {
+        "single_stream_dau": 3339468.3666666667,
+        "double_stream_old_content_dau": 393344.9666666667
+      },
+      "25年10月": {
+        "single_stream_dau": 3902459.806451613,
+        "double_stream_old_content_dau": 379153.12903225806
+      },
+      "25年11月": {
+        "single_stream_dau": 4594421.533333333,
+        "double_stream_old_content_dau": 381076.4666666667
+      },
+      "25年12月": {
+        "single_stream_dau": 5147475.870967742,
+        "double_stream_old_content_dau": 362574.8387096774
+      },
+      "26年1月": {
+        "single_stream_dau": 6105404.0,
+        "double_stream_old_content_dau": 274686.8064516129
+      },
+      "26年2月": {
+        "single_stream_dau": 6384324.928571428,
+        "double_stream_old_content_dau": 262168.96428571426
+      },
+      "26年3月": {
+        "single_stream_dau": 6236087.451612903,
+        "double_stream_old_content_dau": 249610.16129032258
+      },
+      "26年4月": {
+        "single_stream_dau": 6038902.066666666,
+        "double_stream_old_content_dau": 239785.3
+      },
+      "26年5月": {
+        "single_stream_dau": 5896848.548387097,
+        "double_stream_old_content_dau": 263909.2580645161
+      },
+      "26年6月": {
+        "single_stream_dau": 5990931.0,
+        "double_stream_old_content_dau": 255589.0
+      },
+      "26年7月": {
+        "single_stream_dau": 6658570.0,
+        "double_stream_old_content_dau": 198391.0
+      },
+      "26年8月": {
+        "single_stream_dau": 6049965.0,
+        "double_stream_old_content_dau": 187112.0
+      },
+      "26年9月": {
+        "single_stream_dau": 6231947.0,
+        "double_stream_old_content_dau": 224381.0
+      },
+      "26年10月": {
+        "single_stream_dau": 6842755.0,
+        "double_stream_old_content_dau": 194244.0
+      }
+    }
+  },
+  "douyin_mcn_categories_monthly": {
+    "rows": 10,
+    "minimum_month": "2026-01",
+    "maximum_month": "2026-10",
+    "maximum_category_sum_difference": 377465.451612873
+  },
+  "app_game_exclusive_monthly": {
+    "rows": 56,
+    "minimum_month": "2022-01",
+    "maximum_month": "2026-08",
+    "maximum_recomputed_share_difference": 0.0,
+    "maximum_share_sum_difference": 1.1102230246251565e-16
+  },
+  "app_next_month_retention_monthly": {
+    "rows": 62,
+    "minimum_month": "2021-01",
+    "maximum_month": "2026-02"
+  },
+  "video_channel_mcn_daily": {
+    "rows": 170,
+    "unique_dates": 85,
+    "minimum_date": "2026-05-25",
+    "maximum_date": "2026-08-18",
+    "duplicate_date_stream_type_keys": 0,
+    "dates_without_exactly_two_stream_types": [],
+    "missing_calendar_dates": [
+      "2026-08-01"
+    ],
+    "monthly_means": {
+      "2026-05|单播": 4959354.571428572,
+      "2026-05|双播": 250938.2857142857,
+      "2026-06|单播": 5990930.833333333,
+      "2026-06|双播": 255589.3,
+      "2026-07|单播": 6658570.322580645,
+      "2026-07|双播": 198391.48387096773,
+      "2026-08|单播": 5968938.0,
+      "2026-08|双播": 196260.23529411765
+    }
+  },
+  "source_manifest": [
+    {
+      "source_file": "月报外生态/外生态通报_1024.pptx",
+      "bytes": 422779,
+      "sha256": "b3f7ba0adf09e6b87c7860a143a3ada565d5093d46bae4d83231e9ac6e4ff83d"
+    },
+    {
+      "source_file": "月报外生态/视频号MCN日均_单播_双播_DAU_0820.csv",
+      "bytes": 9177,
+      "sha256": "83ed949be6f16f80f0d1bf3743ff78bb3066d6e05522993a68371949bce733fc"
+    },
+    {
+      "source_file": "月报APP端DAU_游戏独占DAU/月报附录_202604.pptx",
+      "bytes": 369304,
+      "sha256": "4215af195bc3a7a8de6ea4a054ccbaa534650326f36df4b6c9b744d1569ae085"
+    },
+    {
+      "source_file": "月报APP端DAU_游戏独占DAU/游戏独占用户_处理模板.xlsx",
+      "bytes": 19402,
+      "sha256": "e6666f0d84567c8dbfd16a130e3b8bbafaeef3983a2aebedc86eef837ce5515f"
+    },
+    {
+      "source_file": "月报外生态/视频号月报_单播_双播_DAU取数.sql",
+      "bytes": 1618,
+      "sha256": "d8c3a2e57b8d9ec0f7d3453ddc9dd77d0187ad224eab6d7abc3a97b7ae313f48"
+    },
+    {
+      "source_file": "月报APP端DAU_游戏独占DAU/视频号DAU_分单播和双播_主播下钻.sql",
+      "bytes": 2824,
+      "sha256": "7f102d37e7d0c9ea25d6ca5f91df8a3899e487a0203f004a2022acfba6a971dd"
+    },
+    {
+      "source_file": "月报APP端DAU_游戏独占DAU/视频号单双播主播下钻_final.sql",
+      "bytes": 3725,
+      "sha256": "7f94bc56b0d47d5da71f26d271306008cd1bf222e18041c55abdeea00d8ad040"
+    },
+    {
+      "source_file": "月报APP端DAU_游戏独占DAU/游戏独占用户取数模板.sql",
+      "bytes": 749,
+      "sha256": "500da4d9a56ecaac8f684eb2c1fd92c793f7240e2a23fdb0146284026e3eeb57"
+    }
+  ],
+  "review": {
+    "status": "reviewed_with_known_source_gaps",
+    "known_limitations": [
+      "October 2026 external ecosystem values are partial through 2026-10-20.",
+      "The daily video-channel CSV omits 2026-08-01; the missing day is disclosed and is not filled as zero.",
+      "The Douyin MCN category chart does not fully reconcile to its total in 2026-04 through 2026-08; source values are retained without adjustment.",
+      "Full source workbooks and decks are excluded because they contain anchor identities, contracts, or commercial detail.",
+      "The APP next-month retention series is recovered from a deck chart because no underlying query was present in the reviewed folder."
+    ]
+  }
+}
