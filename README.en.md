@@ -44,7 +44,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `mcp/bigdata/README.md` / `.en.md`, `config.example.toml`, `tool-catalog.json` | Bigdata MCP gateway template, 11-tool contract, Presto/Spark/download rules, and troubleshooting; no account or API secret |
 | `vault/migration-secrets.aesgcm` | AES-256-GCM encrypted `.env` and data-platform credential bundle; decryption key stored separately |
 | `vault/env-files.aesgcm` | Legacy `.env` bundle retained as a historical copy; use `migration-secrets.aesgcm` on the new computer |
-| `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue |
+| `inventory/migration-inventory.md` / `.en.md` | Chinese / English source inventory and review queue; explicitly skipped projects are recorded here with no project GitHub path |
 | `local-source-map.md` / `local-source-map.en.md` | Chinese / English local machine paths; kept locally and ignored by Git |
 
 GitHub repository: <https://github.com/Tiany517/huya_ty>

@@ -37,7 +37,7 @@ These candidates are based only on Desktop folder names. Do not copy entire fold
 | Causal and event evaluation | 不朽杯弹窗PSM实验; 游戏主播跨播带来的影响 (explicitly skipped by the user); 莫拉塔合作效果分析 |
 | Video-channel DAU and recurring reports | 月报_虎牙外部生态DAU; 月报_附录; 周报_附录 (explicitly skipped by the user); 周报监控模型 |
 | Streamer value, growth, and anti-fraud | 反挖; 快手王者荣耀主播反挖数据; 无畏契约份额增长; 王者主播潜力分析 (explicitly skipped by the user); 斗鱼潜力主播挖掘 (explicitly skipped by the user) |
-| User behavior and retention | 用户画像分析; 各类留存率取数 (explicitly skipped by the user); 社区评估; 星秀兴趣指数分析 (reviewed); 兴趣指数 |
+| User behavior and retention | 用户画像分析; 各类留存率取数 (explicitly skipped by the user); 社区评估; 星秀兴趣指数分析 (reviewed); 兴趣指数 (explicitly skipped by the user) |
 | AI workshop | AI工具说明; other AI Workshop and live-room projects are reviewed |
 | Game and event topics | 世界杯专题; 斯诺克专题; 王者下跌和吕德华离开影响; 主机游戏需求; 赛事总结 |
 
@@ -97,6 +97,7 @@ The single-streamer Huya-affiliated Douyin co-streaming case is documented in de
 | FPS主播清洗_20261023 | 76 files; latest 2026-10-23; 6 Excel, 28 CSV, 6 NDJSON | Select estimate outputs and scripts; distinguish detailed data from inspection artifacts |
 | 周报监控模型 | 55 files; latest 2026-10-23; 8 SQL, 1 Python, 25 Excel, 21 CSV; largest workbook about 291 MB | Core workflow is documented at `projects/weekly-ecosystem-monitoring/`; remaining large templates, streamer detail, and unreviewed weeks stay out of bulk upload |
 | 各类留存率取数 | 13 files: 9 SQL and 4 XLSX, about 125 KB total | Explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low; no further audit or committed project/result |
+| 兴趣指数 | One archive of about 163.9 MB containing eight LightGBM models, 2,141 run logs, two match-DAU text files, and runtime files | Explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further model/log parsing would not justify the time. No project page, script, model, anonymized result, or validation artifact was committed |
 | AI工坊专题 | Core review complete | Documented at `projects/ai-workshop-commercialization/`; large caches, user/streamer detail, and gift prompts stay out of Git |
 | AI直播间信息; AI直播间监控UID | Core review complete | Documented at `projects/ai-live-room-operations/`; anonymous summaries, both SQL files, bilingual documentation, and validation are retained, while raw UID/nickname snapshots were excluded and formal SQL execution remains not run |
 | 因果推断实操 | Project review complete | Documented at `projects/causal-inference-handbook/`; five source editions, eleven method risks, bilingual documentation, and twelve checks are retained, with the teaching examples explicitly barred from use as real causal evidence |
@@ -120,6 +121,7 @@ The `douyin-playwright` skill snapshot also contains Top 10 video-analysis workb
 - `游戏主播跨播带来的影响` was explicitly skipped by the user on 2026-11-02. No project page, script, or result was committed; the local draft was moved outside the repository and the temporary matched-data cache was deleted.
 - `周报_附录` was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low. No project page, script, or result was committed; the completed `projects/weekly-ecosystem-monitoring/` remains valid.
 - `各类留存率取数` (snooker event retention) was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low. No project page, SQL copy, anonymized result, or validation artifact was committed; the local partial draft remains outside the repository.
+- `兴趣指数` (user-evaluation and LightGBM pipeline) was explicitly skipped by the user on 2026-11-02 because the expected value of a later re-check is low and further parsing of its models, training scripts, and 2,141 historical logs would not justify the time. No partial repository package exists; no project page, de-identified script, model summary, anonymized run aggregate, or validation certificate was committed, and the source directory remains unchanged.
 - Other projects in this inventory remain pending review, not archived. For each completed review, update this inventory and the root path map, inspect the full diff, and push the changes.
 - A raw ChatGPT export has not been archived. Confirm whether the company API account offers an account-level export; API work records may not be part of a ChatGPT web-account export.
 

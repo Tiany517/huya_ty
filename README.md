@@ -44,7 +44,7 @@
 | `mcp/bigdata/README.md` / `.en.md`、`config.example.toml`、`tool-catalog.json` | bigdata MCP 的网关配置模板、11 个工具的调用契约、Presto/Spark/下载规范和故障排查；不含账号或 API secret |
 | `vault/migration-secrets.aesgcm` | AES-256-GCM 加密的 `.env` 与数据平台凭据包；解密密钥单独保存 |
 | `vault/env-files.aesgcm` | 旧版 `.env` 加密包，保留作历史副本；新电脑优先使用 `migration-secrets.aesgcm` |
-| `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单 |
+| `inventory/migration-inventory.md` / `.en.md` | 中文 / 英文来源盘点和待复核清单；明确跳过的项目只在此登记状态，不生成项目的 GitHub 路径 |
 | `local-source-map.md` / `local-source-map.en.md` | 中文 / 英文本机路径映射，仅保存在本机并由 Git 忽略 |
 
 GitHub 仓库地址：<https://github.com/Tiany517/huya_ty>
