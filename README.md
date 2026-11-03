@@ -27,6 +27,7 @@
 | `skills/README.md`、`skills/<source>/<skill-name>/` | Skills 归档说明及按安装来源保留的完整快照 |
 | `skills/plugins/hyperframes/0.1.2/` | Codex 插件 HyperFrames v0.1.2 的离线快照，含 5 个演示/视频 skills；新电脑优先重装插件 |
 | `sql/README.md`、`sql/source/<file>` | SQL 归档说明和来自现有目录的原名脚本；后续可按主题建立索引 |
+| `sql/reference/common-anchor-and-game-id-maps.md` / `.en.md` | 常用主播 ID、主播业务归属品类和常用 `game_id` 的中英文 SQL 参考映射；不替代平台维表 |
 | `sql/topics/retention-analytics/` | 站外斗鱼/B站/抖音及虎牙星秀的弹幕、打赏留存 SQL 索引、依赖、口径、版本和已知缺陷 |
 | `sql/topics/retention-analytics/remediation/`、`sql/topics/retention-analytics/artifacts/` | 虎牙星秀分母修复 CTE、验证 SQL，以及 2025-01 至 2026-10 的匿名整体对比结果 |
 | `projects/README.md` / `README.en.md` | 全部项目的中英文总索引；新电脑应先从这里定位项目，再进入各项目 README |

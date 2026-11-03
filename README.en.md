@@ -27,6 +27,7 @@ This repository hands reusable work materials over to a new computer: working ru
 | `skills/README.md`, `skills/<source>/<skill-name>/` | Skills archive guide and full snapshots by installation source |
 | `skills/plugins/hyperframes/0.1.2/` | Offline snapshot of the HyperFrames v0.1.2 Codex plugin and its five presentation/video skills; prefer reinstalling the plugin on the new computer |
 | `sql/README.md`, `sql/source/<file>` | SQL archive guide and source files under their original names; topic indexes can be added later |
+| `sql/reference/common-anchor-and-game-id-maps.md` / `.en.md` | Bilingual SQL reference maps for common anchor IDs, assigned business categories, and `game_id` values; not a replacement for platform dimensions |
 | `sql/topics/retention-analytics/` | Retention SQL index, dependencies, definitions, versions, and known defects for external Douyu/Bilibili/Douyin and Huya Star Show danmu/gift behavior |
 | `sql/topics/retention-analytics/remediation/`, `sql/topics/retention-analytics/artifacts/` | Huya Star Show denominator fix and validation SQL, plus anonymous January 2025 through October 2026 overall comparisons |
 | `projects/README.md` / `README.en.md` | Bilingual index of all projects; use it first to locate a project, then open that project's README |

@@ -8,4 +8,6 @@
 
 复制前对 SQL 文本做了常见密钥格式扫描，未发现命中。`topics/` 下保留经复核的主题索引；第一个主题为 [`topics/retention-analytics/`](topics/retention-analytics/README.md)，说明站外斗鱼/B站/抖音和虎牙星秀的弹幕、打赏留存 SQL 依赖、口径、版本选择及已知缺陷。源归档保持原样。
 
+`reference/` 下维护跨项目 SQL 常用值映射。当前包含 [`common-anchor-and-game-id-maps.md`](reference/common-anchor-and-game-id-maps.md)，记录用户于 2026-11-03 提供的常用主播 ID、业务归属品类和常用 `game_id`；这些是筛选便利表，不替代平台维表。
+
 English version: `README.en.md`.

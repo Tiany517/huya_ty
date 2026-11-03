@@ -8,4 +8,6 @@ The source directory also contains 54 CSV files, 22 Excel files, 25 Python scrip
 
 A scan for common credential formats found no matches in the copied SQL text. Reviewed topic indexes are kept under `topics/`; the first is [`topics/retention-analytics/`](topics/retention-analytics/README.en.md), covering external Douyu/Bilibili/Douyin and Huya Star Show danmu/gift retention dependencies, definitions, version choices, and known defects. The source archive remains unchanged.
 
+The `reference/` directory stores cross-project SQL lookup values. It currently includes [`common-anchor-and-game-id-maps.en.md`](reference/common-anchor-and-game-id-maps.en.md), which records the common anchor IDs, assigned business categories, and `game_id` values supplied by the user on 2026-11-03. These are convenience filters, not substitutes for the platform dimension tables.
+
 Chinese version: `README.md`.
