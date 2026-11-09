@@ -51,6 +51,7 @@
 ## 4. 已完成静态验证
 
 - 使用 `sqlglot` Spark 方言解析通过：脚本被识别为 `CREATE TABLE`、`INSERT OVERWRITE` 和一个结束符，未发现语法解析错误。
+- 已修复 `target_room_window` 仅输出日期、但后续引用 `creator_uid/live_id` 的字段缺失问题；窗口表现保留 `event_dt + creator_uid + live_id + window_dt` 四个关联字段。
 - 三类触发事件均按同一目标场次集合、同一 VIP/普通用户分类规则、同一 ACU 分箱和同一前后窗口汇总。
 - 发弹幕触发事件按日期、用户、主播、`live_id`、时间和内容去重。
 - 送礼触发事件按日期和 `order_id` 去重。

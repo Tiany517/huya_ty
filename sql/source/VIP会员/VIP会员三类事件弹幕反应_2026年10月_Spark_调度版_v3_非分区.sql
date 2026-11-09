@@ -104,17 +104,25 @@ target_room as (
 ),
 
 target_room_window as (
-    -- 粒度：目标场次+弹幕分区日期；额外投影前后一天，用于保留跨日事件的前后 3 分钟窗口。
-    select distinct event_dt, event_dt as window_dt
+    -- 粒度：目标场次+弹幕分区日期；保留场次键并额外投影前后一天，用于保留跨日事件的前后 3 分钟窗口。
+    select distinct
+        event_dt,
+        creator_uid,
+        live_id,
+        event_dt as window_dt
     from target_room
     union all
     select distinct
         event_dt,
+        creator_uid,
+        live_id,
         date_format(date_sub(to_date(event_dt), 1), 'yyyy-MM-dd') as window_dt
     from target_room
     union all
     select distinct
         event_dt,
+        creator_uid,
+        live_id,
         date_format(date_add(to_date(event_dt), 1), 'yyyy-MM-dd') as window_dt
     from target_room
 ),
