@@ -77,6 +77,8 @@ Prefer SQL files under the relevant topic directory in `C:\Users\tiany\Desktop\S
 
 Before writing SQL, search for similar queries, tables, definitions, and time windows. Reuse existing logic where possible and state where it came from.
 
+Before writing scheduled SQL, search `sql/source` for comparable scheduling templates and follow `instructions/sql-scheduling-conventions.en.md`. Before delivery, reconcile non-partition target columns, partition columns, the `PARTITION` clause, and the final `SELECT` column count. A parseable query or a visually similar historical template is not sufficient evidence that it can run.
+
 Complex SQL must follow these rules:
 
 1. Use layered CTEs.
