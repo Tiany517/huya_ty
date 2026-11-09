@@ -1,5 +1,5 @@
--- 调度说明：本文件按仓库既有 Spark 调度模板组织，包含建表和静态分区覆盖写入。
--- 不依赖宏变量；月度结果固定写入 dt='2026-10-31'。
+-- 调度说明：本文件按仓库既有 Spark 调度模板组织，包含建表和动态分区覆盖写入。
+-- 不依赖宏变量；最终查询返回 dt='2026-10-31'，并显式启用动态分区 nonstrict 模式。
 -- 最终输出不区分小时；粒度为用户组+整体/品类+ACU分层。
 -- 目的：比较 2026 年 10 月 VIP 用户与普通用户进房前后各 3 分钟的直播间弹幕反应。
 -- 引擎：Spark SQL
@@ -505,8 +505,10 @@ summary as (
     )
 )
 
+set hive.exec.dynamic.partition.mode=nonstrict;
+
 insert overwrite table zhgametemp.zty_ads_huya_vip_entry_danmu_reaction_month_v1
-partition (dt = '2026-10-31')
+partition (dt)
 
 select
     user_group,
@@ -526,7 +528,8 @@ select
     non_overlap_event_cnt,
     round(non_overlap_avg_before_3m, 4) as non_overlap_avg_before_3m,
     round(non_overlap_avg_after_3m, 4) as non_overlap_avg_after_3m,
-    round(non_overlap_avg_change, 4) as non_overlap_avg_change
+    round(non_overlap_avg_change, 4) as non_overlap_avg_change,
+    '2026-10-31' as dt
 from summary;
 
 -- 调度版结束

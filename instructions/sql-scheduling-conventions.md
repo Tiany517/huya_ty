@@ -83,6 +83,12 @@ from final_cte;
 
 适用场景：一次查询写入多个分区，或分区值来自查询结果。
 
+很多 Spark/Hive 环境默认使用 `hive.exec.dynamic.partition.mode=strict`。完全动态分区需要在写入前显式设置：
+
+~~~sql
+set hive.exec.dynamic.partition.mode=nonstrict;
+~~~
+
 ~~~sql
 insert overwrite table 数据库.目标表
 partition (dt)
@@ -99,6 +105,7 @@ from final_cte;
 - 目标表共 18 个普通字段和 1 个分区字段时，动态分区查询必须返回 19 列。
 - 分区字段必须出现在最终 `SELECT` 中，Spark 按位置匹配，通常要求和目标表分区字段顺序一致。
 - 分区字段不得为 NULL。上线前必须单独检查动态分区值的覆盖和唯一性。
+- strict mode 下只有动态分区、没有静态分区列时，Spark 会在执行阶段报 `Dynamic partition strict mode requires at least one static partition column`。此时要么启用 `nonstrict`，要么改为静态分区。
 
 ### 3.3 常见错误
 
@@ -201,9 +208,9 @@ select metric_1, metric_2, ..., '2026-10-31' as dt from final_cte;
 - SQL 使用了动态分区 `PARTITION (dt)`。
 - 最终查询只返回 18 个普通字段。
 - Spark 报错：目标表 19 列，插入数据 18 列，且分区列没有常量值。
-- 第二次重跑仍使用未更新的 `PARTITION (dt)` 版本，又先触发 strict mode 错误：动态分区模式至少需要一个静态分区列，或需要显式设置 `hive.exec.dynamic.partition.mode=nonstrict`。
+- 第二次重跑已补 `dt` 查询列，但平台默认 strict mode，仍被完全动态分区限制拒绝：动态分区模式至少需要一个静态分区列，或需要显式设置 `hive.exec.dynamic.partition.mode=nonstrict`。
 
-根因不是 CTE 放在 `INSERT OVERWRITE` 前面，而是动态分区要求最终查询额外返回分区字段；在 strict mode 下，只有全动态分区还会更早被拒绝。固定月度结果改为静态分区 `PARTITION (dt = '2026-10-31')` 后，18 列查询与 18 个普通字段对应。修改仓库文件不等于调度任务已更新，重跑前必须确认 Lighthouse 中实际执行 SQL 已重新发布。
+根因不是 CTE 放在 `INSERT OVERWRITE` 前面。动态分区要求最终查询额外返回分区字段；只有全动态分区时还必须启用 nonstrict，或改用静态分区。最终采用 `PARTITION (dt)`、查询末列 `dt='2026-10-31'` 和 `SET hive.exec.dynamic.partition.mode=nonstrict`。修改仓库文件不等于调度任务已更新，重跑前必须确认 Lighthouse 中实际执行 SQL 已重新发布。
 
 ## 12. 相关文档
 

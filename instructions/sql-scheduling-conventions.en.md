@@ -83,6 +83,12 @@ Column-count rule:
 
 Use when one query writes multiple partitions or when partition values are produced by the query.
 
+Many Spark/Hive environments default to `hive.exec.dynamic.partition.mode=strict`. A fully dynamic insert must explicitly enable nonstrict mode before writing:
+
+~~~sql
+set hive.exec.dynamic.partition.mode=nonstrict;
+~~~
+
 ~~~sql
 insert overwrite table database.target_table
 partition (dt)
@@ -99,6 +105,7 @@ Column-count rule:
 - If the target has 18 regular fields and one partition field, the dynamic-partition query must return 19 columns.
 - The partition field must appear in the final `SELECT`. Spark normally matches partition columns by position, consistent with target-table order.
 - Partition values must not be NULL. Validate dynamic-partition coverage and uniqueness before production.
+- In strict mode, a fully dynamic insert without any static partition column fails during execution with `Dynamic partition strict mode requires at least one static partition column`. Enable nonstrict mode or switch to a static partition.
 
 ### 3.3 Common Mistake
 
@@ -200,9 +207,9 @@ The VIP entry-danmu reaction scheduling task on 2026-11-09 had:
 - 18 regular target columns and one partition column `dt`, for 19 total columns.
 - A dynamic `PARTITION (dt)` clause.
 - A final query returning only 18 regular columns.
-- A second rerun still used the unupdated `PARTITION (dt)` SQL and first triggered strict mode: dynamic partitioning requires at least one static partition column unless `hive.exec.dynamic.partition.mode=nonstrict` is explicitly set.
+- A second rerun included `dt` in the query, but the platform still defaulted to strict mode, so a fully dynamic insert was rejected: dynamic partitioning requires at least one static partition column unless `hive.exec.dynamic.partition.mode=nonstrict` is explicitly set.
 
-Spark failed because the target had 19 columns while the insert returned 18, with no constant partition value. The root cause was not placing CTEs before `INSERT OVERWRITE`; dynamic partitioning requires the query to return the partition field. In strict mode, a fully dynamic insert is rejected even earlier. For this fixed monthly result, switching to the static `PARTITION (dt = '2026-10-31')` aligned the 18-column query with the 18 regular target columns. Updating a repository file does not update the deployed Lighthouse task; confirm that the actual SQL was republished before rerunning.
+Spark first failed because the target had 19 columns while the insert returned 18, with no constant partition value. The root cause was not placing CTEs before `INSERT OVERWRITE`; dynamic partitioning requires the query to return the partition field. A fully dynamic insert also requires nonstrict mode or a static partition field. The final implementation uses `PARTITION (dt)`, a final `dt='2026-10-31'` column, and `SET hive.exec.dynamic.partition.mode=nonstrict`. Updating a repository file does not update the deployed Lighthouse task; confirm that the actual SQL was republished before rerunning.
 
 ## 12. Related Documents
 
