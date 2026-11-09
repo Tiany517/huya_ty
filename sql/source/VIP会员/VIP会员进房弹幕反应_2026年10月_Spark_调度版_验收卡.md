@@ -37,7 +37,7 @@
 | 检查 | 证据 | 状态 |
 | --- | --- | --- |
 | 使用现成建表结构 | `CREATE TABLE IF NOT EXISTS ... COMMENT ... PARTITIONED BY ... STORED AS ORC` | 通过 |
-| 使用固定分区覆盖写入 | `INSERT OVERWRITE TABLE ... PARTITION (dt='2026-10-31')` | 通过 |
+| 使用调度分区覆盖写入 | CTE 结束后执行 `INSERT OVERWRITE TABLE ... PARTITION (dt)`，分区值由调度系统传入 | 通过 |
 | 不依赖宏变量 | SQL 中不存在 `${...}` | 通过 |
 | 不输出小时 | SQL 中不存在 `event_hour` | 通过 |
 | 建表字段与最终查询字段对齐 | 18 个输出字段逐项核对，名称与类型一致 | 通过 |

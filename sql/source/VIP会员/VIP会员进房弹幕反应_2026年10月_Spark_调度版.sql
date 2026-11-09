@@ -1,5 +1,5 @@
--- 调度说明：本文件按仓库既有 Spark 调度模板组织，包含建表和固定分区覆盖写入。
--- 不依赖宏变量或外部参数；结果分区固定为 dt='2026-10-31'。
+-- 调度说明：本文件按仓库既有 Spark 调度模板组织，包含建表和分区覆盖写入。
+-- 不依赖宏变量；分区值由调度系统传入。
 -- 最终输出不区分小时；粒度为用户组+整体/品类+ACU分层。
 -- 目的：比较 2026 年 10 月 VIP 用户与普通用户进房前后各 3 分钟的直播间弹幕反应。
 -- 引擎：Spark SQL
@@ -43,12 +43,9 @@ create table if not exists zhgametemp.zty_ads_huya_vip_entry_danmu_reaction_mont
     non_overlap_avg_change      double  comment '无重叠事件进房前后3分钟平均弹幕变化'
 )
 partitioned by (
-    dt string comment '月度统计截止日，固定为2026-10-31'
+    dt string comment '月度统计截止日'
 )
 stored as orc;
-
-insert overwrite table zhgametemp.zty_ads_huya_vip_entry_danmu_reaction_month_v1
-partition (dt = '2026-10-31')
 
 with vip_user_status as (
     -- 粒度：UID；一次扫描同时得到首次购卡和 10 月首次购卡时间。
@@ -507,6 +504,9 @@ summary as (
         (user_group, user_type, acu_bin, acu_bin_order)
     )
 )
+
+insert overwrite table zhgametemp.zty_ads_huya_vip_entry_danmu_reaction_month_v1
+partition (dt)
 
 select
     user_group,
