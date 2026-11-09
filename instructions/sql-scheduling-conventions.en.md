@@ -200,8 +200,9 @@ The VIP entry-danmu reaction scheduling task on 2026-11-09 had:
 - 18 regular target columns and one partition column `dt`, for 19 total columns.
 - A dynamic `PARTITION (dt)` clause.
 - A final query returning only 18 regular columns.
+- A second rerun still used the unupdated `PARTITION (dt)` SQL and first triggered strict mode: dynamic partitioning requires at least one static partition column unless `hive.exec.dynamic.partition.mode=nonstrict` is explicitly set.
 
-Spark failed because the target had 19 columns while the insert returned 18, with no constant partition value. The root cause was not placing CTEs before `INSERT OVERWRITE`; dynamic partitioning requires the query to return the partition field. For this fixed monthly result, switching to the static `PARTITION (dt = '2026-10-31')` aligned the 18-column query with the 18 regular target columns.
+Spark failed because the target had 19 columns while the insert returned 18, with no constant partition value. The root cause was not placing CTEs before `INSERT OVERWRITE`; dynamic partitioning requires the query to return the partition field. In strict mode, a fully dynamic insert is rejected even earlier. For this fixed monthly result, switching to the static `PARTITION (dt = '2026-10-31')` aligned the 18-column query with the 18 regular target columns. Updating a repository file does not update the deployed Lighthouse task; confirm that the actual SQL was republished before rerunning.
 
 ## 12. Related Documents
 

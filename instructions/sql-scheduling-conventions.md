@@ -201,8 +201,9 @@ select metric_1, metric_2, ..., '2026-10-31' as dt from final_cte;
 - SQL 使用了动态分区 `PARTITION (dt)`。
 - 最终查询只返回 18 个普通字段。
 - Spark 报错：目标表 19 列，插入数据 18 列，且分区列没有常量值。
+- 第二次重跑仍使用未更新的 `PARTITION (dt)` 版本，又先触发 strict mode 错误：动态分区模式至少需要一个静态分区列，或需要显式设置 `hive.exec.dynamic.partition.mode=nonstrict`。
 
-根因不是 CTE 放在 `INSERT OVERWRITE` 前面，而是动态分区要求最终查询额外返回分区字段。固定月度结果改为静态分区 `PARTITION (dt = '2026-10-31')` 后，18 列查询与 18 个普通字段对应。
+根因不是 CTE 放在 `INSERT OVERWRITE` 前面，而是动态分区要求最终查询额外返回分区字段；在 strict mode 下，只有全动态分区还会更早被拒绝。固定月度结果改为静态分区 `PARTITION (dt = '2026-10-31')` 后，18 列查询与 18 个普通字段对应。修改仓库文件不等于调度任务已更新，重跑前必须确认 Lighthouse 中实际执行 SQL 已重新发布。
 
 ## 12. 相关文档
 
