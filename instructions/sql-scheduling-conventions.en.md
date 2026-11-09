@@ -22,11 +22,11 @@ A scheduled SQL file should normally contain, in order:
 1. Header comments: purpose, engine, time range, input snapshot, target table, output grain, and partition definition.
 2. `CREATE TABLE IF NOT EXISTS`: create only when the target table is absent; never drop existing tables automatically in the script.
 3. Complete CTEs: business filters, grain preparation, joins, windows, and final aggregation.
-4. `INSERT OVERWRITE TABLE ... PARTITION (...)`: after all CTEs and before the final `SELECT`.
+4. `INSERT OVERWRITE TABLE ...`: after all CTEs and before the final `SELECT`; add `PARTITION (...)` only when the target is physically partitioned.
 5. Final `SELECT`: return only target-table fields, with no debug fields or presentation-only ordering.
 6. No diagnostic query at the end. Keep diagnostics separate or run them temporarily before finalizing the production SQL.
 
-General skeleton:
+General skeleton for a partitioned target:
 
 ~~~sql
 -- Purpose, engine, time range, input snapshot, target table, output grain, and rerun behavior
@@ -57,9 +57,41 @@ select
 from cte_2;
 ~~~
 
-## 3. Static and Dynamic Partitions
+## 3. Non-Partitioned, Static, and Dynamic Targets
 
-### 3.1 Static Partition
+### 3.1 Non-Partitioned Table
+
+Scheduled SQL does not require `dt` or any partition field. When the target has no `PARTITIONED BY`, overwrite the whole table directly:
+
+~~~sql
+create table if not exists database.target_table (
+    cohort_mth date,
+    tag string,
+    metric double
+)
+stored as orc;
+
+with final_cte as (
+    select ...
+)
+
+insert overwrite table database.target_table
+
+select
+    cohort_mth,
+    tag,
+    metric
+from final_cte;
+~~~
+
+Rules:
+
+- Never add `PARTITION` to a non-partitioned table.
+- The final `SELECT` column count equals the total target-table column count.
+- `INSERT OVERWRITE` replaces the entire table. Use it only for a table owned by one job or when the whole batch must be replaced.
+- The user-validated `zty_huya_linshi_20260826_left_important_anchor_monitor_qingchun_v1` is a non-partitioned scheduling example.
+
+### 3.2 Static Partition
 
 Use for one-off analyses, monthly summaries, fixed observation windows, or cases where the partition date is already defined by the business scope.
 
@@ -79,7 +111,7 @@ Column-count rule:
 - Do not return `dt` again in the final `SELECT`.
 - If there are multiple static partition fields, specify all values in the `PARTITION` clause.
 
-### 3.2 Dynamic Partition
+### 3.3 Dynamic Partition
 
 Use when one query writes multiple partitions or when partition values are produced by the query.
 
@@ -107,7 +139,7 @@ Column-count rule:
 - Partition values must not be NULL. Validate dynamic-partition coverage and uniqueness before production.
 - In strict mode, a fully dynamic insert without any static partition column fails during execution with `Dynamic partition strict mode requires at least one static partition column`. Enable nonstrict mode or switch to a static partition.
 
-### 3.3 Common Mistake
+### 3.4 Common Mistake
 
 Do not mix the two patterns:
 
@@ -136,7 +168,7 @@ Prefer a static partition for a fixed-period analysis. For reusable daily jobs, 
 
 ## 5. Separate the Analysis Window from the Output Partition
 
-Source-data coverage and the target partition are different concepts.
+Source-data coverage and target partitioning are different concepts. A non-partitioned target has no output partition, but source-data filters are still required.
 
 Example:
 
@@ -152,8 +184,8 @@ If source partitions are incomplete, do not silently produce a seemingly valid m
 Before delivery, verify:
 
 1. Target regular-column list.
-2. Target partition-column list.
-3. Whether the insert uses static or dynamic partitioning.
+2. Whether the target is partitioned; if so, list its partition columns.
+3. Whether a non-partitioned insert correctly omits `PARTITION`, or a partitioned insert uses static or dynamic partitioning.
 4. Final `SELECT` field list and order.
 5. Static partition: selected columns equal regular target columns.
 6. Dynamic partition: selected columns equal regular plus partition target columns.
@@ -164,7 +196,7 @@ Run at least one static check for DDL and final-query field counts, then manuall
 
 ## 7. Rerun and Idempotency
 
-1. Production results normally use `INSERT OVERWRITE` so rerunning the same partition replaces rather than appends data.
+1. Production results normally use `INSERT OVERWRITE`. A non-partitioned rerun replaces the whole table, while a partitioned rerun replaces its target partition; neither should append.
 2. Do not use `INSERT INTO` for a production daily or monthly partition unless append semantics are explicitly required and protected by a unique-key design.
 3. A rerun must overwrite the same logical partition. Do not let the execution date silently write to an unrelated partition.
 4. Do not automatically drop or recreate an existing target table. Structural changes require downstream-impact review and explicit confirmation.
@@ -190,9 +222,10 @@ Run at least one static check for DDL and final-query field counts, then manuall
 1. Did you search and reuse repository scheduling templates first?
 2. Does the header state purpose, engine, time range, snapshot, target table, grain, and partition behavior?
 3. Is the order create table, CTEs, `INSERT OVERWRITE`, final `SELECT`?
-4. Are target regular columns, partition columns, and query columns reconciled one by one?
-5. For a static partition, is the partition field absent from the final `SELECT`?
-6. For a dynamic partition, is a non-null partition field present in the final `SELECT`?
+4. Was the target confirmed as partitioned or non-partitioned?
+5. For a non-partitioned table, is `PARTITION` absent and does the query return all target columns?
+6. For a static partition, is the partition field absent from the final `SELECT`?
+7. For a dynamic partition, is a non-null partition field present in the final `SELECT`?
 7. Did you verify whether scheduler parameters are actually substituted into SQL?
 8. Does `INSERT OVERWRITE` provide idempotent reruns?
 9. Is the analysis window clearly separated from the output partition?

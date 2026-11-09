@@ -76,7 +76,7 @@ SQL 文件优先放在 `C:\Users\tiany\Desktop\SQL` 下对应主题目录。
 
 写新 SQL 前，必须先查找是否已有相似 SQL、表名、口径或时间窗。已有可复用逻辑时，应优先沿用并说明复用位置。
 
-编写调度版 SQL 前，必须先检索 `sql/source` 中的同类调度模板，并遵循 `instructions/sql-scheduling-conventions.md`。交付前必须核对目标表普通列数、分区列数、`PARTITION` 写法与最终 `SELECT` 列数；不得仅凭 SQL 可解析或历史模板形式相似就判定可运行。
+编写调度版 SQL 前，必须先检索 `sql/source` 中的同类调度模板，并遵循 `instructions/sql-scheduling-conventions.md`。先确认目标表是否分区：非分区表不得写 `PARTITION`；分区表再核对普通列数、分区列数、`PARTITION` 写法与最终 `SELECT` 列数。不得仅凭 SQL 可解析或历史模板形式相似就判定可运行。
 
 复杂 SQL 必须遵守以下规则：
 
