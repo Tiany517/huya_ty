@@ -98,12 +98,13 @@ SQL 文件优先放在 `C:\Users\tiany\Desktop\SQL` 下对应主题目录。
 9. SQL 中不使用单独的参数区 CTE，时间范围和关键条件应直接写在对应 CTE 或主查询里。
 10. SQL 中尽量避免 `cross join`，除非语法或逻辑上确有必要且能清楚说明原因。
 11. SQL 必须符合 Presto 语法，避免使用非 Presto 的函数、语法或隐式行为。
-12. 跑数前必须先检查 `C:\Users\tiany\Desktop\SQL` 下是否已有对应 SQL、字段命名和指标口径，优先直接沿用。
-13. 如果是通过 bigdata MCP 执行下载任务，默认先用 Presto；Presto 报错后再改写为 Spark；Spark 仍不可用时再尝试 Hive。
-14. 复用现成 SQL 时，原则上保持原字段名、原中文列名、原指标拆分方式，不得把多个指标擅自汇总成一个总指标。
-15. 如果用户明确区分 `SDK DAU`、`SDK MAU`、`APP DAU`、`APP MAU`、`视频号DAU` 等指标，输出文件和表头必须与指标名称一一对应，不得混装、混名或重复表达同一指标。
-16. 明细事实表必须先在独立 CTE 中完成分区时间和业务条件过滤；后续与主播或赛事信息关联时，`left join` 的关联条件只保留业务关联键，例如 `dt`、`luid`，不得把 `tag`、`htime`、端类型、金额条件等过滤条件写进 `join`。
-16. 若用户要求使用虎牙数据平台取数，应通过已授权的 bigdata MCP 执行；凭据从本机安全存储读取，不写入文档或仓库。
+12. JSON 字段提取必须按执行引擎选择函数：Presto 非必需不得使用 `get_json_object`，优先使用性能更好的 `json_extract_scalar`；Spark 优先使用 `from_json` 解析为 struct 后再取字段；仅在 Hive、旧版 Spark 或 Spark 未提供等价能力时使用 `get_json_object`，并注明兼容原因。
+13. 跑数前必须先检查 `C:\Users\tiany\Desktop\SQL` 下是否已有对应 SQL、字段命名和指标口径，优先直接沿用。
+14. 如果是通过 bigdata MCP 执行下载任务，默认先用 Presto；Presto 报错后再改写为 Spark；Spark 仍不可用时再尝试 Hive。
+15. 复用现成 SQL 时，原则上保持原字段名、原中文列名、原指标拆分方式，不得把多个指标擅自汇总成一个总指标。
+16. 如果用户明确区分 `SDK DAU`、`SDK MAU`、`APP DAU`、`APP MAU`、`视频号DAU` 等指标，输出文件和表头必须与指标名称一一对应，不得混装、混名或重复表达同一指标。
+17. 明细事实表必须先在独立 CTE 中完成分区时间和业务条件过滤；后续与主播或赛事信息关联时，`left join` 的关联条件只保留业务关联键，例如 `dt`、`luid`，不得把 `tag`、`htime`、端类型、金额条件等过滤条件写进 `join`。
+18. 若用户要求使用虎牙数据平台取数，应通过已授权的 bigdata MCP 执行；凭据从本机安全存储读取，不写入文档或仓库。
 
 涉及 PSM、DID、PSM-DID 的 SQL 必须保留：
 
