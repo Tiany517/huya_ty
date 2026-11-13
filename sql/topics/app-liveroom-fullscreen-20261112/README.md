@@ -13,3 +13,6 @@
 详见validation.md。English: README.en.md。
 
 补充：不限制ety的全量检查（RID1241320559786855936）仅观察到custom_event，截图事件行数与原查询一致；ety限制未漏计该事件。同类检索另发现usr/click/fullscreenbutton、click/minilive/fullscreen，未验证与目标动作等价，不合并。1570641仅指截图事件，不代表所有横屏放大操作。详见validation.md。
+
+## 观看人数交叉验证
+用户追加要求后，已在线查询观看血缘并执行三来源全UID对账。事件2886207 vs behavior/会话表2908223，差0.7570%；限定观看区间与11月12日重叠后，两表各2893808，差0.2627%，均通过用户3%总量阈值。不设最短观时、未额外剔除黑产；正时长口径不适用此通过结论。事件来自实际ID检索，不是字典；观看直播分区的已查上游使用system_event，不能证明pageview/liveroom是其上游。详见watch-validation.md、watch-reconciliation.sql、watch-independent.sql。
