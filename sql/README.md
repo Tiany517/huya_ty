@@ -10,4 +10,6 @@
 
 `reference/` 下维护跨项目 SQL 常用值映射。当前包含 [`common-anchor-and-game-id-maps.md`](reference/common-anchor-and-game-id-maps.md)，记录用户于 2026-11-03 提供的常用主播 ID、业务归属品类和常用 `game_id`；这些是筛选便利表，不替代平台维表。
 
+[`SQL学习笔记.md`](SQL学习笔记.md) 持续记录函数解释和分析写法，当前包括普通用户观察起点分配、CRC32与取余、数组与Lambda、活跃门槛及日期加权。示例为学习片段，不代表已验证的生产SQL。
+
 English version: `README.en.md`.

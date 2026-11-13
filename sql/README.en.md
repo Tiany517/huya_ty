@@ -10,4 +10,6 @@ A scan for common credential formats found no matches in the copied SQL text. Re
 
 The `reference/` directory stores cross-project SQL lookup values. It currently includes [`common-anchor-and-game-id-maps.en.md`](reference/common-anchor-and-game-id-maps.en.md), which records the common anchor IDs, assigned business categories, and `game_id` values supplied by the user on 2026-11-03. These are convenience filters, not substitutes for the platform dimension tables.
 
+[`SQL学习笔记.en.md`](SQL学习笔记.en.md) provides learning notes on observation-start assignment, CRC32 and modulo, arrays and Lambda expressions, activity thresholds, and date weighting. Examples are teaching snippets, not validated production SQL.
+
 Chinese version: `README.md`.
