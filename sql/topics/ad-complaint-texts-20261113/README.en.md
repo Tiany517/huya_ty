@@ -17,3 +17,10 @@ Classification remains a rule-based first pass: approximately 53.22% of records 
 Regression examples validate rule behavior, not population semantic accuracy. Raw records, UIDs, workbooks, and local source mappings are intentionally absent.
 
 [中文](README.md)
+
+## Subsequent execution and definition revision, 2026-11-13
+
+- The user authorized direct retrieval. The original unexecuted Spark drafts remain intact. [Executed Presto SQL and acceptance record](validated-denominator-20261113/) document 669-day exact agreement between the main query, direct distinct-UID recomputation, and the local keyword-record counts. This validates the denominator only.
+- [Semantic labeling protocol v3](语义打标协议_v3.md) reflects the user's final choices: read identical text once and map to original records; include bare ad mentions and ambiguous targets or possible sarcasm by default; exclude explicit sponsored promotion, other targets, genuine support, or voluntary rewarded viewing. The metric is not a strict negative-sentiment rate.
+- The user rejected Python classification rules. Subagents read each text and record reasons; code only partitions, stores metadata, validates, maps and aggregates UIDs. Semantic labeling remains in progress; no final monthly average of daily complaint rates has been delivered.
+- Review lesson: Chinese numeric slang such as 4000+ can be a curse rather than a count of supporters. Revenue and no-ad statements must be interpreted under the user's definition. Preserve initial judgments and exact-text adjudications, inspect exclusions, and distinguish regression behavior from semantic review.
