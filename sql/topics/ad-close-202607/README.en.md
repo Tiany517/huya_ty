@@ -10,3 +10,12 @@ After all source partitions and daily writes are verified, run `monthly.sql`.
 Monthly percentage = segment users with any close / all users in that segment; this is not an exposure conversion rate.
 Check source readiness, schema, unique keys, join cardinality, daily cohort size, 31-day coverage and independent source reconciliation before reporting results.
 See `validation.sql` and `validation-record.md`. SQL delivery does not establish execution success.
+
+## v3: daily watched rooms
+
+`daily-v3.sql` writes a separate v3 table with four data columns plus static date partition.
+watch_room_cnt counts distinct luid per ukey among positive-duration viewing records, preserving July segmentation filters.
+Multiple sessions for one creator count as one room; NULL luid is excluded. Missing daily viewing counts are zero-filled.
+Aggregated viewing joins are one-to-zero-or-one and must preserve the fixed cohort size.
+To use v3 with monthly.sql, replace its v2 source table name with v3; the monthly denominator remains unchanged.
+Room counts are not ad impressions and do not attribute close events to rooms. Execution remains unverified.
