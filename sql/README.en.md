@@ -13,3 +13,5 @@ The `reference/` directory stores cross-project SQL lookup values. It currently 
 [`SQL学习笔记.en.md`](SQL学习笔记.en.md) provides learning notes on observation-start assignment, CRC32 and modulo, arrays and Lambda expressions, activity thresholds, and date weighting. Examples are teaching snippets, not validated production SQL.
 
 Chinese version: `README.md`.
+
+[Daily denominator SQL and sarcasm-classification lessons](topics/ad-complaint-texts-20261113/README.en.md) for ad viewing-experience complaints. Preserves the supplied user definition; SQL remains unexecuted and unvalidated.

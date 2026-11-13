@@ -13,3 +13,5 @@
 [`SQL学习笔记.md`](SQL学习笔记.md) 持续记录函数解释和分析写法，当前包括普通用户观察起点分配、CRC32与取余、数组与Lambda、活跃门槛及日期加权。示例为学习片段，不代表已验证的生产SQL。
 
 English version: `README.en.md`.
+
+广告观看体验抱怨的[每日分母 SQL 与反讽识别复盘](topics/ad-complaint-texts-20261113/README.md)：沿用原用户口径，SQL待执行、待验证。
