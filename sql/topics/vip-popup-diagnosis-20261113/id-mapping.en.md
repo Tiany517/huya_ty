@@ -17,3 +17,5 @@ Presto precheck 1241313482664119296 returned five November 7 records with eventi
 The previous direct numeric eventid filter is therefore invalid for these observed records; preserve it only as issue history.
 Use vip-popup-users-by-material-id-presto-v2.sql. Audience labels remain unchanged and ety remains unrestricted.
 Full Spark aggregation 1241314352503114752 and independent November 7 Presto reconciliation 1241314630111516160 are pending results.
+
+Update: positive valid-UID samples confirm November 3, 4, 5, 7 and 8. November 7 independent Presto counts are 585,257 reports and 567,855 distinct valid UIDs. Full twelve-day Spark aggregation failed without a result file; remaining dates and per-configuration counts are not verified.
