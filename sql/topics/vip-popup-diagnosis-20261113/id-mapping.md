@@ -29,3 +29,10 @@
 源表eventid是否真为这些数字，以及这些记录是否专门代表曝光而非其他动作，均须以小样本和埋点定义核实后，才能用于正式曝光分析。
 历史诊断曾发现其他事件类型的分区目录缺失，不能将读失败或数据缺失计为0。
 验收状态见id-mapping-validation.md。
+
+## 更正：源样本确认ID位于material_id
+
+2026-11-13新预检rid=1241313482664119296成功返回11月7日5条记录：eventid=show/activity_layer，ety=custom_event，prop.material_id=14559。
+因此此前将后台数字ID直接当源eventid的草稿不成立。旧版保留作问题记录，请改用vip-popup-users-by-material-id-presto-v2.sql。
+12个ID与人群标签对应不变；不限制ety。其他配置是否有数及所有日期是否覆盖，待全范围实际查询结果确认。
+完整Spark汇总rid=1241314352503114752；独立7日Presto对账rid=1241314630111516160，目前尚未获取结果。

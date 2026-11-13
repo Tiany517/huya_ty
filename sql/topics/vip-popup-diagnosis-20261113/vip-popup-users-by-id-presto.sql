@@ -1,3 +1,4 @@
+-- 已发现字段映射错误：请勿使用此旧版统计曝光；改用vip-popup-users-by-material-id-presto-v2.sql。
 -- Presto查询版；草稿/待验证；不写表、不执行调度。
 -- 按用户转述的埋点同事确认：后台ID对应源表eventid，尚未以源记录独立复核。
 -- 排除无关ID 12499、10041、91，不沿用旧show/activity_layer或material_id=14569过滤。

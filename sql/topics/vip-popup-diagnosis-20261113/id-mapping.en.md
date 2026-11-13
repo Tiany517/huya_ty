@@ -10,3 +10,10 @@ Configuration audience labels come from the supplied screenshots; they are not i
 Users may overlap across configurations and types. Current configuration validity dates do not establish complete historical schedules because operators reuse configurations.
 Before interpreting reports as exposures, verify both the numeric eventid mapping and exposure-action semantics with source samples and the tracking definition.
 See id-mapping.md for the ID mapping and id-mapping-validation.md for outstanding validation.
+
+## Correction: source samples locate the ID in material_id
+
+Presto precheck 1241313482664119296 returned five November 7 records with eventid=show/activity_layer, ety=custom_event and prop.material_id=14559.
+The previous direct numeric eventid filter is therefore invalid for these observed records; preserve it only as issue history.
+Use vip-popup-users-by-material-id-presto-v2.sql. Audience labels remain unchanged and ety remains unrestricted.
+Full Spark aggregation 1241314352503114752 and independent November 7 Presto reconciliation 1241314630111516160 are pending results.
