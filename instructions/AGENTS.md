@@ -85,6 +85,8 @@ SQL 文件优先放在 `C:\Users\tiany\Desktop\SQL` 下对应主题目录。
 
 编写调度版 SQL 前，必须先检索 `sql/source` 中的同类调度模板，并遵循 `instructions/sql-scheduling-conventions.md`。先确认目标表是否分区：非分区表不得写 `PARTITION`；分区表再核对普通列数、分区列数、`PARTITION` 写法与最终 `SELECT` 列数。不得仅凭 SQL 可解析或历史模板形式相似就判定可运行。
 
+调度 SQL 默认采用“建表语句；WITH CTE 完成过滤、JSON 解析、关联和聚合；INSERT OVERWRITE TABLE ... [PARTITION (...)] SELECT 显式字段 FROM 最终CTE;”结构，INSERT 后只接简单字段投影，避免在写入部分嵌套复杂子查询。WITH 与 INSERT 属于同一条语句，中间不得加分号；静态分区字段不重复出现在最终 SELECT。此项是平台调度的优先编写规范，不代表 Spark 不支持 INSERT 后接子查询。源表查询成功不能代替调度写入验证；出现空结果时，必须核对实际发布及宏展开后的 SQL、业务日期、源分区就绪时间、INSERT 执行日志和目标分区，并在同日期、同数据快照、同过滤条件下对比写法。没有日志或对照证据，不得将空结果归因于 CTE/子查询结构或调度平台限制。
+
 复杂 SQL 必须遵守以下规则：
 
 1. 使用 CTE 分层。

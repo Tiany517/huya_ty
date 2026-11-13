@@ -57,6 +57,10 @@ select
 from cte_2;
 ~~~
 
+### 2.1 Keep the Query after INSERT Simple
+
+For scheduled SQL, default to `CREATE TABLE ...; WITH ... INSERT OVERWRITE TABLE ... [PARTITION (...)] SELECT explicit_columns FROM final_cte;`. Put filtering, JSON parsing, joins, and aggregation in CTEs; keep only a simple explicit-column projection after INSERT, avoiding nested complex subqueries in the write section. WITH and INSERT form one statement and must not be separated by a semicolon. Do not repeat static partition fields in the final SELECT. This is the preferred platform scheduling convention, not a claim that Spark rejects INSERT queries containing subqueries. A successful source query does not validate the scheduled write. For empty output, inspect the deployed and macro-expanded SQL, business date, source-partition readiness, INSERT execution logs, and target partition; compare structures using the same date, data snapshot, and filters. Without logs or a controlled comparison, do not attribute empty output to CTE/subquery placement or a scheduler limitation.
+
 ## 3. Non-Partitioned, Static, and Dynamic Targets
 
 ### 3.1 Non-Partitioned Table

@@ -79,6 +79,8 @@ Before writing SQL, search for similar queries, tables, definitions, and time wi
 
 Before writing scheduled SQL, search `sql/source` for comparable scheduling templates and follow `instructions/sql-scheduling-conventions.en.md`. First determine whether the target table is partitioned: never add `PARTITION` to a non-partitioned target. For partitioned targets, reconcile regular columns, partition columns, the `PARTITION` clause, and the final `SELECT` column count. A parseable query or a visually similar historical template is not sufficient evidence that it can run.
 
+For scheduled SQL, default to `CREATE TABLE ...; WITH ... INSERT OVERWRITE TABLE ... [PARTITION (...)] SELECT explicit_columns FROM final_cte;`. Put filtering, JSON parsing, joins, and aggregation in CTEs; keep only a simple explicit-column projection after INSERT, avoiding nested complex subqueries in the write section. WITH and INSERT form one statement and must not be separated by a semicolon. Do not repeat static partition fields in the final SELECT. This is the preferred platform scheduling convention, not a claim that Spark rejects INSERT queries containing subqueries. A successful source query does not validate the scheduled write. For empty output, inspect the deployed and macro-expanded SQL, business date, source-partition readiness, INSERT execution logs, and target partition; compare structures using the same date, data snapshot, and filters. Without logs or a controlled comparison, do not attribute empty output to CTE/subquery placement or a scheduler limitation.
+
 Complex SQL must follow these rules:
 
 1. Use layered CTEs.
