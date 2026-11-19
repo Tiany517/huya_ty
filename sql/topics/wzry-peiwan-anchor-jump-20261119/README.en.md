@@ -20,6 +20,13 @@ Results:
 
 2026Q4 is incomplete and should not be compared directly with full-quarter Q3 on absolute volume. The broad companion-play keywords may create false positives.
 
-Files: `monthly-jump-spark.sql`, `quarterly-jump-revenue-spark.sql`, matching independent validation SQL, anonymized result CSVs, and `validation-record.md`.
+Supplementary quarterly anchor and full-consumption view (Presto): revenue is limited to Honor of Kings `game_id=2336` without a `consume_order_type` filter.
+
+| Quarter | Companion-play anchors | Share of active anchors | Jumping share of companion-play anchors | Total Honor of Kings consumption | Companion-play revenue share | Jumping share of companion-play revenue |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2026Q3 | 2,788 | 5.5915% | 50.6456% | 45,580,810.30 | 58.1891% | 81.7255% |
+| 2026Q4 through November 18 | 1,892 | 5.0472% | 44.0275% | 18,375,359.80 | 52.1443% | 67.2194% |
+
+Files: `monthly-jump-spark.sql`, `quarterly-jump-revenue-spark.sql`, `quarterly-active-denominator-presto.sql`, `quarterly-peiwan-denominator-presto.sql`, matching validation SQL, anonymized result CSVs, and `validation-record.md`.
 
 Chinese version: `README.md`.

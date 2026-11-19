@@ -20,6 +20,13 @@
 
 2026Q4 为不完整季度，不能与完整 Q3 直接作绝对值趋势比较。陪玩关键词沿用用户提供版本，宽泛关键词可能带来误命中。
 
-文件：`monthly-jump-spark.sql`、`quarterly-jump-revenue-spark.sql`、对应独立验证 SQL、匿名汇总 CSV 和 `validation-record.md`。
+季度人数与全量消费流水补充口径（Presto）：收入仅限制王者荣耀 `game_id=2336`，不限制 `consume_order_type`。
+
+| 季度 | 陪玩主播数 | 陪玩主播占活跃主播 | 跳动主播占陪玩主播 | 王者荣耀全量流水 | 陪玩主播流水占比 | 跳动主播流水占陪玩主播流水 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2026Q3 | 2,788 | 5.5915% | 50.6456% | 45,580,810.30 | 58.1891% | 81.7255% |
+| 2026Q4（截至 11 月 18 日） | 1,892 | 5.0472% | 44.0275% | 18,375,359.80 | 52.1443% | 67.2194% |
+
+文件：`monthly-jump-spark.sql`、`quarterly-jump-revenue-spark.sql`、`quarterly-active-denominator-presto.sql`、`quarterly-peiwan-denominator-presto.sql`、对应验证 SQL、匿名汇总 CSV 和 `validation-record.md`。
 
 English version: `README.en.md`.
