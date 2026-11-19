@@ -12,6 +12,8 @@
 
 王者荣耀陪玩主播的月内及季度内跳动分析见 [`topics/wzry-peiwan-anchor-jump-20261119/`](topics/wzry-peiwan-anchor-jump-20261119/README.md)，包含 Spark SQL、独立复算、匿名季度收入结果和已知限制。
 
+游戏品类月度收入、观看用户、观看主播及开播主播汇总见 [`topics/game-category-monthly-core-metrics-20261119/`](topics/game-category-monthly-core-metrics-20261119/README.md)。
+
 [`SQL学习笔记.md`](SQL学习笔记.md) 持续记录函数解释和分析写法，当前包括普通用户观察起点分配、CRC32与取余、数组与Lambda、活跃门槛及日期加权。示例为学习片段，不代表已验证的生产SQL。
 
 English version: `README.en.md`.

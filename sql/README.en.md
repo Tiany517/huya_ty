@@ -12,6 +12,8 @@ The `reference/` directory stores cross-project SQL lookup values. It currently 
 
 See [`topics/wzry-peiwan-anchor-jump-20261119/`](topics/wzry-peiwan-anchor-jump-20261119/README.en.md) for within-month and within-quarter companion-play anchor transitions for Honor of Kings, including Spark SQL, independent validation, anonymized quarterly revenue results, and known limitations.
 
+See [`topics/game-category-monthly-core-metrics-20261119/`](topics/game-category-monthly-core-metrics-20261119/README.en.md) for the monthly game-category summary of revenue, watching users, watched anchors, and live anchors.
+
 [`SQL学习笔记.en.md`](SQL学习笔记.en.md) provides learning notes on observation-start assignment, CRC32 and modulo, arrays and Lambda expressions, activity thresholds, and date weighting. Examples are teaching snippets, not validated production SQL.
 
 Chinese version: `README.md`.
