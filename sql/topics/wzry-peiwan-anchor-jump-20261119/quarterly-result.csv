@@ -1,0 +1,3 @@
+period_name,active_anchor_cnt,jump_anchor_cnt,jump_anchor_ratio,peiwan_to_non_anchor_cnt,non_to_peiwan_anchor_cnt,round_trip_same_anchor_cnt,total_gift_revenue,jump_anchor_gift_revenue,jump_anchor_revenue_ratio
+2026Q3,49861,1412,0.0283187260584425,400,456,556,43096023.7,20950773.6,0.48614168550345416
+2026Q4_partial_20261118,37486,833,0.0222216294083124,249,297,287,17332236.7,6279723.6,0.3623146688276478
