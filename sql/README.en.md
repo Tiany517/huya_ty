@@ -14,6 +14,8 @@ See [`topics/wzry-peiwan-anchor-jump-20261119/`](topics/wzry-peiwan-anchor-jump-
 
 See [`topics/game-category-monthly-core-metrics-20261119/`](topics/game-category-monthly-core-metrics-20261119/README.en.md) for the monthly game-category summary of revenue, watching users, watched anchors, and live anchors.
 
+See [`topics/game-revenue-detail-event-period-peiwan-20261120/`](topics/game-revenue-detail-event-period-peiwan-20261120/README.en.md) for the latest game payment-user drilldown Spark SQL, covering event period, event users, month-start companion-play identity, latest SCID guild names, anchor nicknames, big-R status, games and anchors.
+
 [`SQL学习笔记.en.md`](SQL学习笔记.en.md) provides learning notes on observation-start assignment, CRC32 and modulo, arrays and Lambda expressions, activity thresholds, and date weighting. Examples are teaching snippets, not validated production SQL.
 
 Chinese version: `README.md`.

@@ -14,6 +14,8 @@
 
 游戏品类月度收入、观看用户、观看主播及开播主播汇总见 [`topics/game-category-monthly-core-metrics-20261119/`](topics/game-category-monthly-core-metrics-20261119/README.md)。
 
+游戏支付用户下钻最新版 Spark SQL 见 [`topics/game-revenue-detail-event-period-peiwan-20261120/`](topics/game-revenue-detail-event-period-peiwan-20261120/README.md)，覆盖赛事期间、赛事用户、月初陪玩身份、最新 SCID 公会名称、主播昵称、大 R、游戏及主播维度。
+
 [`SQL学习笔记.md`](SQL学习笔记.md) 持续记录函数解释和分析写法，当前包括普通用户观察起点分配、CRC32与取余、数组与Lambda、活跃门槛及日期加权。示例为学习片段，不代表已验证的生产SQL。
 
 English version: `README.en.md`.
