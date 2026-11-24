@@ -16,6 +16,7 @@ projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.mjs tex
 projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.json text eol=lf
 projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.csv text eol=lf
 projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.yaml text eol=lf
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/.gitignore text eol=lf
 projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.sql text eol=lf -whitespace
 projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.xlsx binary
 projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.png binary

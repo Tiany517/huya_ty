@@ -36,8 +36,8 @@
     },
     "template": {
       "path": "C:\\Users\\Huya\\.codex\\skills\\huya-ecology-dashboard-refresh\\assets\\dashboard_template_multidim.html",
-      "bytes": 86996,
-      "sha256": "4d03e863c7f672316f339b56779442ce118c651220f4e69ea2970303cd484069"
+      "bytes": 87606,
+      "sha256": "6a1651d36c08a76fcbbb6a9e6e911ae5439c1d76b07dc58d08aa60f9433ea256"
     }
   },
   "outputs": {
@@ -48,8 +48,8 @@
     },
     "dashboardHtml": {
       "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\ecology_dashboard_W47_active_anchor_v2.html",
-      "bytes": 57890221,
-      "sha256": "64fe7a7f40b6feaaab10d9f4d91b2bba909a22082bbbf70801017279d931e698"
+      "bytes": 20167667,
+      "sha256": "80e54d51ab47d541b33ea3691e7dc83bdd7c45d6c69d8697301516c208a397d9"
     },
     "validationReport": {
       "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\validation_report_W47_active_anchor_v2.json",
@@ -59,7 +59,7 @@
     "browserSmokeReport": {
       "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\browser_smoke_report_W47_active_anchor_v2.json",
       "bytes": 428,
-      "sha256": "5c4cd2ff5f9d2c5b8f5c2ec69e04989846d8c205b31e1a3277b5791c6a73e7da"
+      "sha256": "9518bf4a856e6d00c797410b74e217f7d2d49d00aa9f6b3ee521252ea0e2c758"
     }
   },
   "commands": {
@@ -160,5 +160,12 @@
     },
     "domBytes": 57921647,
     "stderrTail": ""
+  },
+  "embedding": {
+    "dataEncoding": "gzip-base64",
+    "compression": "gzip",
+    "base64InsideHtml": true,
+    "rawJsonBytes": 57802480,
+    "compressedBytes": 15059489
   }
 }

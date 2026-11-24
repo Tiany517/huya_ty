@@ -2,7 +2,7 @@
 
 版本日期：2026-11-24
 
-本资料包用于复盘当前单文件 HTML 看板，并支持在另一台电脑上替换新周期 CSV 后重建、验证和发布同一看板。
+本资料包用于迁移互动看板的取数、构建、验证和刷新工作流。GitHub 仓库不提交运行版 HTML 或内嵌 JSON；新电脑按 SQL 重新取数后，在本机生成单文件 HTML。
 
 ## 先看什么
 
@@ -14,7 +14,7 @@
 
 ## 当前成品
 
-- 看板：`dashboard/生态监控看板_多维度MVP_新增开播主播数_2026-11-24.html`
+- 运行版看板：不进入 GitHub，由 `refresh_dashboard.py` 在当前电脑生成；目录边界见 `dashboard/README.md`
 - 新增指标：开播主播数，按当天 `is_live=1` 的 `luid` 去重后计算周期日均
 - 源表：`zhgametemp.zty_category_ecology_health_daily_d_i_0827_v1`
 - 品类/平台日数据：2026-01-01 至 2026-11-23
@@ -51,7 +51,7 @@ python scripts/refresh_dashboard.py \
 |   |-- 看板全流程与表格口径_2026-11-24.md
 |   `-- 表格口径与SQL资源_2026-11-24_新增开播主播数.xlsx
 |-- dashboard/
-|   `-- 生态监控看板_多维度MVP_新增开播主播数_2026-11-24.html
+|   `-- README.md（不提交运行版 HTML 和 JSON 的边界说明）
 |-- examples/
 |   `-- W47_active_anchor_v2/（新增开播主播数后的验证、冒烟与运行清单样例）
 |-- assets/

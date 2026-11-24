@@ -177,11 +177,15 @@
 </head>
 <body>
   <main class="page" id="app"><div class="loading">正在读取多维度看板数据...</div></main>
-  <script>const DATA=__DASHBOARD_DATA__;</script>
+  <script id="dashboard-data-gzip" type="text/plain">__DASHBOARD_DATA_GZIP_BASE64__</script>
   <script>
-  (() => {
+  (async () => {
     "use strict";
     const app=document.getElementById("app");
+    const encoded=document.getElementById("dashboard-data-gzip").textContent.trim();
+    const compressed=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));
+    const dataText=await new Response(new Blob([compressed]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    const DATA=JSON.parse(dataText);
     const M=DATA.meta;
     const groups=M.contentGroups;
     const cats=M.categories;
@@ -757,7 +761,11 @@
       const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`生态监控_复层_${pathSummary().replace(/[\\/:*?"<>|]/g,"_")}_${m.label}.csv`;a.click();URL.revokeObjectURL(a.href);
     }
     render();
-  })();
+  })().catch(error=>{
+    const app=document.getElementById("app");
+    app.innerHTML='<div class="empty">看板数据解压失败。请使用较新的 Chrome 或 Edge 打开，并保留完整的 HTML 文件。</div>';
+    console.error(error);
+  });
   </script>
 </body>
 </html>

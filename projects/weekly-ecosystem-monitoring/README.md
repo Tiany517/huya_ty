@@ -6,11 +6,11 @@
 
 最新交付快照位于 `interactive-dashboard-20261124/`，入口为该目录的 `README.md` 和 `RELEASE_NOTES.md`。内容包括：
 
-- 单文件 HTML 看板：`interactive-dashboard-20261124/dashboard/生态监控看板_多维度MVP_新增开播主播数_2026-11-24.html`。
+- 可复现看板工程：`interactive-dashboard-20261124/`，包含构建脚本、HTML 模板、口径工作簿和验证样例。
 - 口径与 SQL 资源工作簿、全流程文档、生产 SQL、构建/验证脚本和跨电脑刷新 Skill。
 - W47 的 13/13 数据检查、171/171 源表独立复算、8/8 开播主播数 UI 专项和浏览器冒烟证据。
 
-该 HTML 内嵌主播级聚合数据和 UID、昵称、RoomID，仅限当前私有仓库和本机使用。三类原始核心 CSV、看板 JSON 和用户级明细未上传。
+运行版 HTML 会内嵌主播级聚合数据和 UID、昵称、RoomID，因此由新电脑在本机生成，不进入仓库。三类原始核心 CSV、看板 JSON、运行版 HTML 和用户级明细均未上传。
 
 ## 项目背景
 

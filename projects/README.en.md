@@ -43,7 +43,7 @@ This directory contains transferable reviews of completed projects. Every `proje
 | `projects/valorant-watchtime-contribution-knee/` | 无畏契约观时贡献率拐点与稳定候选筛选 | Valorant watch-time contribution knee and stable-candidate screen | Monthly knee, Top-N coverage, scripts, and anonymous results |
 | `projects/valorant-yuezi-event-costream/` | 无畏契约赛事二路节目化案例复盘（去标识版） | Valorant event co-streaming case review (de-identified) | Window summaries, scripts, and identity-exclusion boundary |
 | `projects/wechat-channel-dau-attribution/` | 视频号两周观众数变化归因复盘（去标识版） | Two-week WeChat Channel audience attribution review | De-identified anchor-day basis, corrected two-factor analysis, decomposition, and validation |
-| `projects/weekly-ecosystem-monitoring/` | 周报生态监控与互动看板 | Weekly ecosystem monitoring and interactive dashboard | Latest dashboard, metric workbook, refresh skill, production SQL, historical anonymized snapshots, and validation evidence |
+| `projects/weekly-ecosystem-monitoring/` | 周报生态监控与互动看板 | Weekly ecosystem monitoring and interactive dashboard | Dashboard build package, metric workbook, refresh skill, production SQL, historical anonymized snapshots, and validation evidence |
 | `projects/world-cup-content-review/` | 世界杯内容与大盘影响复盘 | World Cup content and platform-impact review | Acquisition/reactivation, PSM, retention, profiles, search tagging, methods, and limitations |
 | `projects/xingxiu-interest-index/` | 星秀兴趣指数分析 | Xingxiu interest-index analysis | Monthly DAU/interest, streamer status, deciles, hypothesis groups, and validation |
 

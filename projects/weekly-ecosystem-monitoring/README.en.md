@@ -6,11 +6,11 @@ Status as of 2026-11-24: the project now includes an interactive HTML dashboard 
 
 The latest delivery snapshot is in `interactive-dashboard-20261124/`; start with that directory's `README.md` and `RELEASE_NOTES.md`. It contains:
 
-- The single-file dashboard at `interactive-dashboard-20261124/dashboard/生态监控看板_多维度MVP_新增开播主播数_2026-11-24.html`.
+- The reproducible dashboard package at `interactive-dashboard-20261124/`, including build scripts, the HTML template, the metric workbook, and validation evidence.
 - The metric/SQL workbook, end-to-end documentation, production SQL, build and verification scripts, and the cross-computer refresh skill.
 - W47 evidence for 13/13 data checks, 171/171 independent source reconciliations, 8/8 live-anchor UI checks, and browser smoke testing.
 
-The HTML embeds streamer-level aggregates plus UIDs, nicknames, and RoomIDs. It is limited to the private repository and local use. The three raw core CSVs, dashboard JSON, and user-level detail are not uploaded.
+The generated HTML embeds streamer-level aggregates plus UIDs, nicknames, and RoomIDs, so each computer builds it locally. The three raw core CSVs, dashboard JSON, generated HTML, and user-level detail are not uploaded.
 
 ## Project Background
 
