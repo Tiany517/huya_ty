@@ -1,0 +1,3 @@
+interface:
+  display_name: "虎牙生态监控看板刷新"
+  short_description: "跨电脑更新数据、重建 HTML、对账、冒烟和发布看板"

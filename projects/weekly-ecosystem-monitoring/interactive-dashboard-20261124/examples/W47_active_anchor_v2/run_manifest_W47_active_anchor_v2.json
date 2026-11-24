@@ -1,0 +1,164 @@
+{
+  "runName": "W47_active_anchor_v2",
+  "status": "passed",
+  "sourceLatestPartition": "2026-11-23",
+  "aggregateStartDate": "2026-01-01",
+  "aggregateEndDate": "2026-11-23",
+  "anchorWeeks": [
+    "2026-10-12",
+    "2026-10-19",
+    "2026-10-26",
+    "2026-11-02",
+    "2026-11-09",
+    "2026-11-16"
+  ],
+  "rowCounts": {
+    "categoryInput": 143691,
+    "anchorWeeklyInput": 318127,
+    "anchorDailyInput": 955107,
+    "eventInput": 0
+  },
+  "inputs": {
+    "categoryCsv": {
+      "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\category_daily_all_20261123_with_live_anchor.csv",
+      "bytes": 13097883,
+      "sha256": "7a2b875f12c58123361c12bccd70210c4ab4c462929e56d5fa34136b04d97d31"
+    },
+    "anchorWeeklyCsv": {
+      "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\anchor_weekly_guild_20261012_20261122_with_live_days.csv",
+      "bytes": 45517326,
+      "sha256": "2cb0bbebe3a373cf844793fd828bff85ed7aeff758399a12b007ad302fc34c43"
+    },
+    "anchorDailyCsv": {
+      "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\anchor_daily_focus_20261012_20261122_with_is_live.csv",
+      "bytes": 120756629,
+      "sha256": "07ca41637c9cad7dd1a7797085f2332637de92cbde5b0b162589d6bacb900616"
+    },
+    "template": {
+      "path": "C:\\Users\\Huya\\.codex\\skills\\huya-ecology-dashboard-refresh\\assets\\dashboard_template_multidim.html",
+      "bytes": 86996,
+      "sha256": "4d03e863c7f672316f339b56779442ce118c651220f4e69ea2970303cd484069"
+    }
+  },
+  "outputs": {
+    "dataJson": {
+      "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\dashboard_data_W47_active_anchor_v2.json",
+      "bytes": 57802480,
+      "sha256": "88b7ab18eb78b7fc6e21950825eebdb277488fe1ceef77afa08c9e6dd42cf6f7"
+    },
+    "dashboardHtml": {
+      "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\ecology_dashboard_W47_active_anchor_v2.html",
+      "bytes": 57890221,
+      "sha256": "64fe7a7f40b6feaaab10d9f4d91b2bba909a22082bbbf70801017279d931e698"
+    },
+    "validationReport": {
+      "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\validation_report_W47_active_anchor_v2.json",
+      "bytes": 1509,
+      "sha256": "3fa92fb31733dae9b37ee0188338b663ef49f3a49849de50ed184a913bde484f"
+    },
+    "browserSmokeReport": {
+      "path": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\browser_smoke_report_W47_active_anchor_v2.json",
+      "bytes": 428,
+      "sha256": "5c4cd2ff5f9d2c5b8f5c2ec69e04989846d8c205b31e1a3277b5791c6a73e7da"
+    }
+  },
+  "commands": {
+    "buildData": [
+      "C:\\Users\\Huya\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "C:\\Users\\Huya\\.codex\\skills\\huya-ecology-dashboard-refresh\\scripts\\build_dashboard_data_multidim.py",
+      "--category-csv",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\category_daily_all_20261123_with_live_anchor.csv",
+      "--anchor-weekly-csv",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\anchor_weekly_guild_20261012_20261122_with_live_days.csv",
+      "--anchor-daily-csv",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\anchor_daily_focus_20261012_20261122_with_is_live.csv",
+      "--event-csv",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\event_user_revenue_missing.csv",
+      "--output",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\dashboard_data_W47_active_anchor_v2.json",
+      "--week-start",
+      "2026-10-12,2026-10-19,2026-10-26,2026-11-02,2026-11-09,2026-11-16",
+      "--source-latest-partition",
+      "2026-11-23"
+    ],
+    "buildDashboard": [
+      "C:\\Users\\Huya\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "C:\\Users\\Huya\\.codex\\skills\\huya-ecology-dashboard-refresh\\scripts\\build_dashboard.py",
+      "C:\\Users\\Huya\\.codex\\skills\\huya-ecology-dashboard-refresh\\assets\\dashboard_template_multidim.html",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\dashboard_data_W47_active_anchor_v2.json",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\ecology_dashboard_W47_active_anchor_v2.html"
+    ],
+    "verify": [
+      "C:\\Users\\Huya\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "C:\\Users\\Huya\\.codex\\skills\\huya-ecology-dashboard-refresh\\scripts\\verify_dashboard_package.py",
+      "--data",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\dashboard_data_W47_active_anchor_v2.json",
+      "--report",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\validation_report_W47_active_anchor_v2.json"
+    ],
+    "browserSmokeTest": [
+      "C:\\Program Files\\WindowsApps\\OpenAI.CodexPrimaryRuntime.v26-1119-907-0_26.1119.907.0_x64__3k8sg7r9htsxt\\dependencies\\node\\bin\\node.EXE",
+      "C:\\Users\\Huya\\.codex\\skills\\huya-ecology-dashboard-refresh\\scripts\\smoke_test_dashboard.mjs",
+      "--html",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\ecology_dashboard_W47_active_anchor_v2.html",
+      "--report",
+      "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\browser_smoke_report_W47_active_anchor_v2.json"
+    ]
+  },
+  "validation": {
+    "status": "passed",
+    "data": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\dashboard_data_W47_active_anchor_v2.json",
+    "bytes": 57802480,
+    "checks": {
+      "topLevelSchema": true,
+      "dateFormat": true,
+      "consecutiveWeeks": true,
+      "categoryUniqueKeys": true,
+      "anchorWeeklyUniqueKeys": true,
+      "anchorDailyUniqueKeys": true,
+      "indexRanges": true,
+      "diagnosticCountsMatch": true,
+      "searchCoverage": true,
+      "finiteNumbers": true,
+      "eventStatusConsistent": true,
+      "liveAnchorCountsValid": true,
+      "nonEmptyCoreData": true
+    },
+    "diagnostics": {
+      "categoryDailyRows": 143691,
+      "categoryCount": 1915,
+      "anchorWeeklyRows": 318076,
+      "anchorCount": 111438,
+      "guildCount": 893,
+      "anchorDailyRows": 545030,
+      "eventDailyRows": 0,
+      "eventStatus": "pending",
+      "anchorDailyStatus": "ready",
+      "nicknameCoverage": 1.0,
+      "roomidCoverage": 1.0,
+      "interactionOverDauRows": 1505,
+      "liveAnchorCountCoverage": "category/group/total daily counts and weekly live-days present",
+      "aggregateStartDate": "2026-01-01",
+      "aggregateEndDate": "2026-11-23",
+      "anchorStartDate": "2026-10-12",
+      "anchorEndDate": "2026-11-22"
+    },
+    "warnings": [
+      "互动人数大于主播 DAU 的记录存在；跨场次/跨主播人数未去重，只能用于相对趋势。",
+      "赛事支付属性尚未回刷，赛事筛选不可用于 DAU/归属/互动对比。"
+    ]
+  },
+  "browserSmokeTest": {
+    "status": "passed",
+    "html": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\ecology_dashboard_W47_active_anchor_v2.html",
+    "chrome": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    "checks": {
+      "processExitZero": true,
+      "dashboardTitleRendered": true,
+      "rankingRendered": true,
+      "loadingCleared": true
+    },
+    "domBytes": 57921647,
+    "stderrTail": ""
+  }
+}

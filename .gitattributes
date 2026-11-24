@@ -7,5 +7,18 @@ projects/user-profile-analysis/sql/*.sql -whitespace
 # AI live-room SQL copies are hash-checked against their local sources.
 projects/ai-live-room-operations/scripts/*.sql -text -whitespace
 
+# The interactive dashboard package is hash-checked after transfer. Preserve LF
+# line endings and archived reference SQL whitespace across Windows and Unix.
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.md text eol=lf
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.html text eol=lf
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.py text eol=lf
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.mjs text eol=lf
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.json text eol=lf
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.csv text eol=lf
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.yaml text eol=lf
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.sql text eol=lf -whitespace
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.xlsx binary
+projects/weekly-ecosystem-monitoring/interactive-dashboard-20261124/**/*.png binary
+
 # Causal-inference source editions are preserved byte-for-byte for hash validation.
 projects/causal-inference-handbook/sources/* -text -whitespace

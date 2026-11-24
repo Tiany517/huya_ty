@@ -1,0 +1,152 @@
+{
+  "status": "passed",
+  "checks": {
+    "rootMetricAvailable": true,
+    "rootHasPositiveValues": true,
+    "chartsSwitched": true,
+    "tableRendered": true,
+    "groupDrilldownRendered": true,
+    "anchorMetricAvailable": true,
+    "anchorModeSimplified": true,
+    "noRuntimeExceptions": true
+  },
+  "root": {
+    "title": "全品类生态监控看板",
+    "primary": "20,314 人/日均",
+    "kpiLabels": [
+      "开播主播数",
+      "观看 DAU",
+      "打赏流水",
+      "互动人数（主播汇总）",
+      "互动率（主播汇总）"
+    ],
+    "chartTitles": [
+      "开播主播数 · 按周",
+      "归属 DAU · 按周"
+    ],
+    "headers": [
+      "层级 / 节点",
+      "对比期日均",
+      "当前期日均",
+      "日均变化",
+      "环比",
+      "父层贡献*",
+      "总盘贡献*",
+      "互动率",
+      "互动人数"
+    ],
+    "rows": [
+      {
+        "kind": "group",
+        "name": "游戏",
+        "previous": "13,499 人",
+        "current": "13,467 人",
+        "delta": "-31"
+      },
+      {
+        "kind": "group",
+        "name": "娱乐（非秀场）",
+        "previous": "5,100 人",
+        "current": "5,124 人",
+        "delta": "+24"
+      },
+      {
+        "kind": "group",
+        "name": "娱乐（秀场）",
+        "previous": "3,024 人",
+        "current": "3,037 人",
+        "delta": "+13"
+      },
+      {
+        "kind": "group",
+        "name": "未匹配",
+        "previous": "0 人",
+        "current": "1 人",
+        "delta": "+1.14"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "游戏",
+        "current": 13467.42857142857,
+        "previous": 13498.57142857143,
+        "delta": -31.142857142858702
+      },
+      {
+        "name": "娱乐（非秀场）",
+        "current": 5124.428571428572,
+        "previous": 5100.285714285715,
+        "delta": 24.142857142856883
+      },
+      {
+        "name": "娱乐（秀场）",
+        "current": 3037.285714285714,
+        "previous": 3024.1428571428573,
+        "delta": 13.142857142856883
+      },
+      {
+        "name": "未匹配",
+        "current": 1.1428571428571428,
+        "previous": 0,
+        "delta": 1.1428571428571428
+      }
+    ]
+  },
+  "groupDrilldown": {
+    "path": [
+      {
+        "dim": "group",
+        "value": 0
+      }
+    ],
+    "rows": [
+      {
+        "kind": "category",
+        "name": "第五人格",
+        "current": "192 人"
+      },
+      {
+        "kind": "category",
+        "name": "三角洲行动",
+        "current": "909 人"
+      },
+      {
+        "kind": "category",
+        "name": "命运方舟",
+        "current": "75 人"
+      },
+      {
+        "kind": "category",
+        "name": "穿越火线",
+        "current": "270 人"
+      },
+      {
+        "kind": "category",
+        "name": "影之刃零",
+        "current": "70 人"
+      }
+    ]
+  },
+  "anchorMode": {
+    "title": "DANK1NG",
+    "metricLabels": [
+      "观看 DAU",
+      "归属 DAU",
+      "打赏流水",
+      "互动人数",
+      "互动率",
+      "开播主播数"
+    ],
+    "metricValues": [
+      "191,148 人",
+      "108,057 人",
+      "¥1,422.00",
+      "19,714 人",
+      "10.31%",
+      "1 人"
+    ],
+    "dimensionVisible": false,
+    "multiVisible": false
+  },
+  "exceptions": []
+}

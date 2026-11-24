@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "html": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\ecology_dashboard_W47_active_anchor_v2.html",
+  "chrome": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+  "checks": {
+    "processExitZero": true,
+    "dashboardTitleRendered": true,
+    "rankingRendered": true,
+    "loadingCleared": true
+  },
+  "domBytes": 57921647,
+  "stderrTail": ""
+}

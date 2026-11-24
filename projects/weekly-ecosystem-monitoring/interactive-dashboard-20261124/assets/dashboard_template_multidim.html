@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>生态监控 · 多维看板</title>
+  <style>
+    :root {
+      --bg:#f4f0f8; --paper:rgba(255,255,255,.9); --text:#252230; --muted:#817b8d;
+      --line:#eee9f3; --purple:#7558d5; --purple2:#a06ee8; --green:#16a36a; --red:#e15361;
+      --radius:20px; --shadow:0 16px 42px rgba(57,43,96,.07); font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--text); background:
+      radial-gradient(circle at 8% 0%,rgba(179,145,244,.24),transparent 34%),
+      radial-gradient(circle at 92% 9%,rgba(250,204,219,.24),transparent 26%),
+      linear-gradient(180deg,#f8f5fb 0%,#f2eef6 52%,#f8f6fa 100%); min-height:100vh; }
+    button,select,input { font:inherit; }
+    button { cursor:pointer; }
+    .page { width:min(100% - 34px,1480px); margin:0 auto; padding:16px 0 36px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .brand { display:flex; align-items:center; gap:10px; }
+    .logo { width:38px; height:38px; border-radius:13px; display:grid; place-items:center; color:#fff;
+      background:linear-gradient(145deg,#8769e7,#5e42bd); box-shadow:0 9px 24px rgba(101,72,194,.3); font-weight:900; }
+    .brand-title { font-size:12px; font-weight:800; }
+    .brand-sub { color:var(--muted); font-size:10px; margin-top:2px; }
+    .source-pill { display:flex; gap:8px; align-items:center; border:1px solid #eee9f3; background:rgba(255,255,255,.7);
+      border-radius:999px; padding:8px 12px; font-size:11px; color:#57515f; }
+    .dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 4px rgba(22,163,106,.11); }
+    .hero { padding:18px 22px 17px; border-radius:24px; border:1px solid rgba(113,87,180,.14); background:rgba(255,255,255,.88);
+      box-shadow:var(--shadow); position:relative; overflow:hidden; }
+    .hero::before { content:""; position:absolute; width:220px; height:220px; border-radius:50%; right:-70px; top:-110px;
+      background:linear-gradient(145deg,rgba(161,118,231,.16),rgba(249,174,209,.18)); }
+    .hero-head { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; position:relative; }
+    h1 { margin:0; font-size:27px; letter-spacing:-.7px; }
+    .hero-copy { margin:6px 0 0; color:#6c6577; font-size:11px; }
+    .latest-badge { border-radius:10px; padding:7px 11px; color:#6548ba; background:#f0ebff; font-weight:800; font-size:11px; white-space:nowrap; }
+    .time-compare { margin-top:14px; padding:13px; border:1px solid #e7e0f0; border-radius:16px; background:#fbfafd; position:relative; }
+    .compare-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .compare-title { font-size:12px; font-weight:900; }
+    .compare-help { margin-left:7px; color:var(--muted); font-size:10px; font-weight:400; }
+    .mode-tabs { display:flex; gap:4px; padding:3px; border-radius:11px; background:#f0ecf7; flex-wrap:wrap; }
+    .mode-tabs button { border:0; border-radius:8px; background:transparent; color:var(--muted); padding:7px 10px; font-size:10px; font-weight:900; }
+    .mode-tabs button.active { background:#fff; color:#6045b7; box-shadow:0 3px 12px rgba(66,49,118,.1); }
+    .mode-tabs button:disabled { opacity:.4; cursor:not-allowed; }
+    .compare-fields { display:grid; grid-template-columns:repeat(2,minmax(150px,1fr)); gap:9px; margin-top:10px; max-width:620px; }
+    .anchor-mode-banner { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; padding:11px 13px; border-radius:14px; background:#f1ecff; border:1px solid #ddd1fb; }
+    .anchor-mode-banner strong { display:block; font-size:12px; }
+    .anchor-mode-banner span { color:var(--muted); font-size:10px; }
+    .controls { margin-top:12px; display:grid; grid-template-columns:repeat(4,minmax(120px,1fr)); gap:9px; position:relative; }
+    .control { background:#fbfafd; border:1px solid #ece7f2; border-radius:13px; padding:9px 11px; min-height:56px; }
+    .control label { display:block; color:var(--muted); font-size:10px; margin-bottom:4px; }
+    .control select,.control input { width:100%; border:0; outline:0; background:transparent; color:var(--text); font-weight:800; font-size:12px; }
+    .control input::placeholder { color:#a49dad; font-weight:600; }
+    .dimension-builder { margin-top:13px; padding:13px 14px; border:1px solid #e7e0f0; border-radius:16px; background:rgba(251,250,253,.92); }
+    .dimension-builder-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:9px; }
+    .dimension-builder-title { font-size:12px; font-weight:900; }
+    .dimension-builder-help { color:var(--muted); font-size:10px; }
+    .dimension-stack { display:flex; align-items:center; flex-wrap:wrap; gap:7px; min-height:42px; padding:3px; border-radius:13px; outline:1px dashed transparent; }
+    .dimension-stack.drag-over { outline-color:#b7a5e6; background:#f5f1ff; }
+    .dimension-chip { display:flex; align-items:center; gap:5px; border:1px solid #e4dcf0; border-radius:12px; padding:7px 8px; background:#fff; box-shadow:0 4px 12px rgba(76,55,127,.05); }
+    .dimension-chip.selected { border-color:#ccbdec; background:#f7f3ff; }
+    .dimension-chip.next { border-color:#8f75dd; background:#eee8ff; box-shadow:0 5px 16px rgba(102,73,187,.13); }
+    .dimension-chip.dragging { opacity:.45; }
+    .dimension-chip.drag-over { border-color:#8466db; }
+    .drag-handle { color:#a096ad; font-weight:900; letter-spacing:-2px; padding:0 2px; cursor:grab; }
+    .chip-order { display:grid; place-items:center; width:18px; height:18px; border-radius:6px; background:#f0ebf8; color:#655975; font-size:9px; font-weight:900; }
+    .dimension-chip.next .chip-order { background:#7658d3; color:#fff; }
+    .chip-text { font-size:11px; font-weight:900; white-space:nowrap; }
+    .dim-chip-btn { width:22px; height:22px; border:0; border-radius:7px; background:#f4f1f8; color:#756b80; font-size:12px; line-height:1; padding:0; }
+    .dim-chip-btn:hover { background:#eae3f5; }
+    .dim-chip-btn:disabled { opacity:.3; cursor:not-allowed; }
+    .dim-chip-btn.remove { color:#a45e68; }
+    .dimension-add { display:flex; align-items:center; gap:7px; margin-left:auto; }
+    .dimension-add select { min-width:125px; border:1px solid #e2dbed; border-radius:9px; background:#fff; padding:7px 8px; font-size:11px; }
+    .custom-panel { margin-top:10px; padding:11px; border-radius:13px; border:1px solid #e8e1f1; background:#fff; }
+    .custom-title { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:9px; }
+    .custom-title strong { font-size:12px; }
+    .custom-range-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .custom-range { padding:10px; border-radius:11px; background:#fff; border:1px solid #eee8f4; }
+    .custom-range label { display:block; color:var(--muted); font-size:10px; margin-bottom:6px; font-weight:800; }
+    .date-row { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:5px; }
+    .date-row input { min-width:0; width:100%; border:1px solid #e6e0ed; border-radius:8px; padding:7px 8px; background:#fff; color:var(--text); font-size:11px; }
+    .custom-actions { margin-top:9px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+    .preset { border:1px solid #e4ddf0; border-radius:9px; background:#fff; color:#655875; padding:7px 9px; font-size:10px; font-weight:800; }
+    .preset.active,.primary { border-color:#7558d5; background:#7558d5; color:#fff; }
+    .custom-message { margin-top:8px; color:var(--muted); font-size:10px; }
+    .custom-message.error { color:var(--red); }
+    .scope-strip { display:flex; flex-wrap:wrap; gap:7px; align-items:center; margin-top:13px; color:var(--muted); font-size:11px; }
+    .chip { border:1px solid #e8e2f0; background:#fff; border-radius:999px; padding:5px 9px; }
+    .chip strong { color:#514960; }
+    .section { margin-top:18px; }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:16px; margin:0 3px 10px; }
+    .section-title { font-size:18px; font-weight:900; letter-spacing:-.25px; }
+    .section-sub { margin-top:3px; color:var(--muted); font-size:11px; }
+    .kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+    .kpi { background:var(--paper); border:1px solid rgba(112,88,185,.11); border-radius:var(--radius); padding:15px 16px; min-height:128px; box-shadow:var(--shadow); }
+    .kpi-label { color:var(--muted); font-size:11px; }
+    .kpi-main { margin-top:6px; font-size:27px; line-height:1.15; font-weight:900; letter-spacing:-.7px; }
+    .kpi-main small { font-size:11px; color:var(--muted); font-weight:600; margin-left:3px; letter-spacing:0; }
+    .kpi-foot { margin-top:9px; font-size:11px; color:var(--muted); }
+    .up { color:var(--green); } .down { color:var(--red); } .neutral { color:var(--muted); }
+    .card { background:var(--paper); border:1px solid rgba(112,88,185,.11); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+    .trend-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .chart-card { padding:15px; }
+    .chart-title { font-weight:900; }
+    .chart-note { color:var(--muted); font-size:10px; margin-top:2px; }
+    .chart { height:245px; margin-top:5px; }
+    .chart svg { width:100%; height:100%; overflow:visible; }
+    .chart text { fill:#8d8796; font-size:10px; font-family:inherit; }
+    .chart .grid { stroke:#eeeaf4; }
+    .chart .line { fill:none; stroke:var(--purple); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+    .chart .dot { fill:#fff; stroke:var(--purple); stroke-width:2; }
+    .chart .value { fill:#5a5364; font-weight:800; }
+    .focus-card { padding:17px; display:grid; grid-template-columns:1.3fr .7fr; gap:14px; }
+    .focus-title { font-size:20px; font-weight:900; }
+    .focus-meta { margin-top:5px; color:var(--muted); font-size:11px; }
+    .focus-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin-top:14px; }
+    .focus-metric { background:#faf9fc; border:1px solid #eeeaf4; border-radius:13px; padding:10px; }
+    .focus-metric label { display:block; color:var(--muted); font-size:9px; }
+    .focus-metric strong { display:block; margin-top:4px; font-size:16px; }
+    .focus-metric span { display:block; margin-top:3px; font-size:10px; }
+    .search-results { display:flex; flex-wrap:wrap; gap:6px; }
+    .search-results-head { display:flex; justify-content:space-between; gap:8px; margin-bottom:8px; color:var(--muted); font-size:10px; }
+    .search-result { border:1px solid #e6def3; background:#fff; border-radius:10px; padding:7px 9px; font-size:11px; text-align:left; }
+    .search-result strong { display:block; color:var(--ink); font-size:11px; font-weight:600; }
+    .search-result span { display:block; margin-top:2px; color:var(--muted); font-size:9px; }
+    .search-empty { color:var(--muted); font-size:11px; padding:10px 0; }
+    .toolbar { padding:13px 15px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+    .breadcrumb { display:flex; gap:7px; align-items:center; color:var(--muted); font-size:11px; flex-wrap:wrap; }
+    .crumb { border:0; background:none; padding:0; color:#6d52c4; font-weight:800; }
+    .toolbar-right { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
+    .segmented { display:flex; gap:3px; padding:3px; background:#f3eff8; border-radius:11px; }
+    .segmented button { border:0; background:none; color:var(--muted); border-radius:8px; padding:7px 9px; font-size:11px; font-weight:800; }
+    .segmented button.active { background:#fff; color:#5d45b4; box-shadow:0 3px 12px rgba(66,49,118,.1); }
+    .search { border:1px solid #e5dfed; background:#fff; border-radius:10px; padding:8px 10px; min-width:210px; }
+    .search input { width:100%; border:0; outline:0; background:none; font-size:11px; }
+    .ghost { border:1px solid #e4deed; background:#fff; border-radius:10px; padding:8px 10px; color:#5d5669; font-weight:800; font-size:11px; }
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+    th { padding:11px 12px; text-align:right; color:var(--muted); font-size:10px; border-bottom:1px solid var(--line); background:#faf9fc; white-space:nowrap; }
+    td { padding:12px; border-bottom:1px solid #f1edf5; text-align:right; white-space:nowrap; font-size:11px; }
+    th:first-child,td:first-child { text-align:left; }
+    tbody tr:last-child td { border-bottom:0; }
+    tbody tr.clickable { cursor:pointer; }
+    tbody tr.clickable:hover { background:#fbfafe; }
+    .rank { display:inline-grid; place-items:center; width:23px; height:23px; border-radius:8px; background:#f0ecf7; color:#756987; font-size:10px; font-weight:900; margin-right:8px; }
+    .rank.top { background:#ebe4ff; color:#654ac3; }
+    .node-name { font-weight:900; }
+    .node-sub { margin-top:2px; color:var(--muted); font-size:9px; }
+    .value { font-weight:800; }
+    .table-summary { padding:9px 14px; border-bottom:1px solid var(--line); color:var(--muted); font-size:10px; line-height:1.6; }
+    .tree-cell { display:flex; align-items:flex-start; gap:7px; }
+    .tree-toggle { flex:0 0 22px; width:22px; height:22px; padding:0; border:1px solid #e2dbed; border-radius:7px; background:#faf8fd; color:#6d55b8; font-weight:900; line-height:1; }
+    .tree-toggle-spacer { flex:0 0 22px; width:22px; height:22px; }
+    .tree-copy { min-width:0; }
+    .tree-name-button { display:block; border:0; padding:0; background:none; text-align:left; color:var(--text); }
+    .tree-name-button.selected .node-name { color:#6d4fc9; }
+    .tree-level-tag { display:inline-block; margin-right:5px; padding:2px 5px; border-radius:5px; background:#f0ebf9; color:#75618f; font-size:9px; font-weight:800; }
+    .tree-expand-label { margin-left:5px; color:#8b78ad; font-size:9px; }
+    .tree-row.expanded > td { background:#fcfbff; }
+    .notice { margin-top:10px; padding:11px 13px; border-radius:13px; background:#fff7e8; border:1px solid #f4dfb8; color:#815c22; font-size:11px; }
+    .coverage-notice { display:flex; flex-wrap:wrap; gap:5px 10px; align-items:baseline; background:#f4f1fb; border-color:#ded5f1; color:#695c81; }
+    .coverage-notice strong { color:#513b87; }
+    .kpi-main .unavailable { font-size:18px; color:#7d7089; }
+    .notes { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .note { padding:15px; }
+    .note h3 { margin:0 0 7px; font-size:13px; }
+    .note p,.note li { color:#6c6574; font-size:11px; line-height:1.7; }
+    .note ul { margin:0; padding-left:17px; }
+    .footer { display:flex; justify-content:space-between; gap:20px; margin-top:16px; color:#9b95a3; font-size:10px; }
+    .empty { padding:38px; text-align:center; color:var(--muted); }
+    .loading { min-height:70vh; display:grid; place-items:center; color:var(--muted); }
+    @media(max-width:1100px) { .controls,.compare-fields{grid-template-columns:repeat(2,1fr)} .kpis,.focus-metrics{grid-template-columns:repeat(2,1fr)} .trend-grid,.focus-card,.notes,.custom-range-grid{grid-template-columns:1fr} }
+    @media(max-width:680px) { .page{width:calc(100% - 20px)} .controls,.kpis,.compare-fields{grid-template-columns:1fr} h1{font-size:23px} .hero-head,.topbar,.dimension-builder-head,.compare-head,.anchor-mode-banner{flex-direction:column;align-items:flex-start} .dimension-add{margin-left:0;flex-wrap:wrap} }
+  </style>
+</head>
+<body>
+  <main class="page" id="app"><div class="loading">正在读取多维度看板数据...</div></main>
+  <script>const DATA=__DASHBOARD_DATA__;</script>
+  <script>
+  (() => {
+    "use strict";
+    const app=document.getElementById("app");
+    const M=DATA.meta;
+    const groups=M.contentGroups;
+    const cats=M.categories;
+    const anchors=M.anchors;
+    const anchorSearchIndex=anchors.map(anchor=>({name:normalizeAnchorSearch(anchor.name),id:normalizeAnchorSearch(anchor.id),room:normalizeAnchorSearch(anchor.roomid)}));
+    const weeks=M.weeks;
+    const weekRanges=M.weekRanges;
+    const weekIndex=Object.fromEntries(weeks.map((w,i)=>[w,i]));
+    const dateToWeek={};
+    for(const [w,r] of Object.entries(weekRanges)){let d=new Date(r.start+"T00:00:00Z");const e=new Date(r.end+"T00:00:00Z");while(d<=e){dateToWeek[d.toISOString().slice(0,10)]=weekIndex[w];d.setUTCDate(d.getUTCDate()+1);}}
+    const anchorTierMap=new Map();
+    for(const r of DATA.anchorWeekly){const a=anchorTierMap.get(r[4])||{acu:0,days:0};a.acu+=r[9];a.days+=r[10];anchorTierMap.set(r[4],a);}
+    for(const [idx,a] of anchorTierMap){const acu=a.days?a.acu/a.days:0;anchorTierMap.set(idx,acu>=2000?"头部":acu>=100?"腰部":"尾部");}
+    const expandWeeks=list=>list.flatMap(w=>{const out=[];const d=new Date(weekRanges[w].start+"T00:00:00Z"),e=new Date(weekRanges[w].end+"T00:00:00Z");while(d<=e){out.push(d.toISOString().slice(0,10));d.setUTCDate(d.getUTCDate()+1);}return out;});
+    const periods=[];
+    for(let i=weeks.length-1;i>=1;i--){
+      periods.push({id:`${weeks[i]}_${weeks[i-1]}`.toLowerCase(),label:`${weeks[i].slice(-3)} 对比 ${weeks[i-1].slice(-3)}${i===weeks.length-1?"（默认）":""}`,current:[weeks[i]],previous:[weeks[i-1]],currentDates:expandWeeks([weeks[i]]),previousDates:expandWeeks([weeks[i-1]]),short:`${weekRanges[weeks[i]].short} vs ${weekRanges[weeks[i-1]].short}`});
+    }
+    periods.push({id:"two_weeks",label:"近2周对比前2周",current:weeks.slice(-2),previous:weeks.slice(-4,-2),currentDates:expandWeeks(weeks.slice(-2)),previousDates:expandWeeks(weeks.slice(-4,-2)),short:"近2周 vs 前2周"});
+    const periodMap=Object.fromEntries(periods.map(p=>[p.id,p]));
+    const availableMonths=[...new Set(DATA.categoryDaily.map(r=>r[0].slice(0,7)))].sort();
+    const availableQuarters=[...new Set(availableMonths.map(m=>`${m.slice(0,4)}-Q${Math.floor((Number(m.slice(5,7))-1)/3)+1}`))].sort();
+    const availableYears=[...new Set(availableMonths.map(m=>m.slice(0,4)))].sort();
+    const metrics=[
+      {id:"attr",label:"归属 DAU",unit:"人",kind:"people",help:"健康日表归因用户数，按周期日均"},
+      {id:"dau",label:"观看 DAU",unit:"人",kind:"people",help:"健康日表观看 DAU，跨主播汇总可能重叠"},
+      {id:"liveAnchors",label:"开播主播数",unit:"人",kind:"people",help:"当天有开播的主播数，按周期日均"},
+      {id:"rev",label:"打赏流水",unit:"元",kind:"money",help:"每日打赏流水按自然日日均"},
+      {id:"pay",label:"打赏人数",unit:"人",kind:"people",help:"主播/品类逐日打赏人数汇总"},
+      {id:"arppu",label:"ARPPU",unit:"元/人",kind:"money",help:"流水 / 打赏人数"},
+      {id:"view",label:"人均观时",unit:"分钟",kind:"minutes",help:"按有观看记录的主播日均值聚合"},
+      {id:"interactionUsers",label:"互动人数",unit:"人",kind:"people",help:"主播互动人数汇总，跨主播可能重叠"},
+      {id:"interactionRate",label:"互动率",unit:"%",kind:"percent",help:"互动人数 / 观看 DAU"}
+    ];
+    const metricMap=Object.fromEntries(metrics.map(m=>[m.id,m]));
+    const granList=[{id:"day",label:"按日"},{id:"week",label:"按周"},{id:"month",label:"按月"},{id:"quarter",label:"按季"},{id:"year",label:"按年"}];
+    const granMap=Object.fromEntries(granList.map(g=>[g.id,g]));
+    const defaultCurrentStart=weekRanges[weeks.at(-1)].start,defaultCurrentEnd=weekRanges[weeks.at(-1)].end;
+    const defaultPreviousStart=weekRanges[weeks.at(-2)].start,defaultPreviousEnd=weekRanges[weeks.at(-2)].end;
+    const state={periodId:periods[0].id,compareMode:"week",monthCurrent:availableMonths.at(-2)||M.aggregateEndDate.slice(0,7),monthPrevious:availableMonths.at(-3)||availableMonths.at(-2)||M.aggregateEndDate.slice(0,7),quarterCurrent:availableQuarters.at(-2)||availableQuarters.at(-1)||"2026-Q3",quarterPrevious:availableQuarters.at(-3)||availableQuarters.at(-2)||"2026-Q2",yearCurrent:availableYears.at(-1)||"2026",yearPrevious:String(Number(availableYears.at(-1)||2026)-1),granularity:"week",groupId:"",categoryId:"",guildId:"",tier:"",eventUser:"",metricId:"dau",sortMode:"absolute",tableSearch:"",anchorQuery:"",focusUid:"",dimStack:["group","category","guild","tier","anchor"],path:[],treeExpanded:new Set(),multiOpen:false,customCurrentStart:defaultCurrentStart,customCurrentEnd:defaultCurrentEnd,customPreviousStart:defaultPreviousStart,customPreviousEnd:defaultPreviousEnd,customDraft:{currentStart:defaultCurrentStart,currentEnd:defaultCurrentEnd,previousStart:defaultPreviousStart,previousEnd:defaultPreviousEnd},customError:""};
+
+    const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const fmtNum=(v,d=0)=>Number(v||0).toLocaleString("zh-CN",{maximumFractionDigits:d,minimumFractionDigits:d});
+    const short=(v,k)=>{v=Number(v||0);if(k==="money")return Math.abs(v)>=1e8?`¥${(v/1e8).toFixed(2)}亿`:Math.abs(v)>=1e4?`¥${(v/1e4).toFixed(2)}万`:`¥${fmtNum(v,0)}`;if(k==="percent")return `${(v*100).toFixed(2)}%`;if(k==="minutes")return `${v.toFixed(1)} 分钟`;if(Math.abs(v)>=1e8)return `${(v/1e8).toFixed(2)}亿`;if(Math.abs(v)>=1e4)return `${(v/1e4).toFixed(2)}万`;return fmtNum(v,Math.abs(v)<10?2:0);};
+    const val=(v,m)=>!Number.isFinite(Number(v))?"数据不足":m.kind==="percent"?`${(v*100).toFixed(2)}%`:m.kind==="money"?`¥${fmtNum(v,2)}`:m.kind==="minutes"?`${fmtNum(v,2)} 分钟`:`${fmtNum(v,0)} 人`;
+    const prettyDelta=(v,m)=>!Number.isFinite(Number(v))?"—":`${v>=0?"+":""}${m.kind==="percent"?`${(v*100).toFixed(2)}pp`:short(v,m.kind)}`;
+    const contributionText=v=>Number.isFinite(v)?`${(v*100).toFixed(1)}%`:"-";
+    const changeText=v=>Number.isFinite(v)?`${(v*100).toFixed(1)}%`:"—";
+    const cls=v=>v>0?"up":v<0?"down":"neutral";
+    const pct=(c,p)=>p?((c-p)/Math.abs(p)):0;
+    const tierOf=r=>anchorTierMap.get(r[4])||"尾部";
+    const DIMENSIONS={group:{label:"内容大类"},category:{label:"品类"},guild:{label:"公会"},tier:{label:"主播层级"},anchor:{label:"主播"}};
+    const dateShift=(value,offset)=>{const d=new Date(value+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+offset);return d.toISOString().slice(0,10);};
+    const listDates=(start,end)=>{const out=[],d=new Date(start+"T00:00:00Z"),e=new Date(end+"T00:00:00Z");while(d<=e){out.push(d.toISOString().slice(0,10));d.setUTCDate(d.getUTCDate()+1);}return out;};
+    const weeksForDates=dates=>[...new Set(dates.map(d=>dateToWeek[d]).filter(v=>v!==undefined))];
+    function monthRange(month){const y=Number(month.slice(0,4)),m=Number(month.slice(5,7));return {start:`${month}-01`,end:new Date(Date.UTC(y,m,0)).toISOString().slice(0,10)};}
+    function quarterRange(quarter){const y=Number(quarter.slice(0,4)),q=Number(quarter.slice(6,7)),startMonth=(q-1)*3+1;return {start:`${y}-${String(startMonth).padStart(2,"0")}-01`,end:new Date(Date.UTC(y,q*3,0)).toISOString().slice(0,10)};}
+    function rangePeriod(id,label,currentLabel,previousLabel,currentRange,previousRange){
+      const currentDates=listDates(currentRange.start,currentRange.end),previousDates=listDates(previousRange.start,previousRange.end);
+      return {id,label,current:weeksForDates(currentDates).map(i=>weeks[i]),previous:weeksForDates(previousDates).map(i=>weeks[i]),currentDates,previousDates,currentLabel,previousLabel,short:`${currentLabel} vs ${previousLabel}`};
+    }
+    function activePeriod(){
+      if(state.compareMode==="week")return periodMap[state.periodId];
+      if(state.compareMode==="month")return rangePeriod("month","按月对比",state.monthCurrent,state.monthPrevious,monthRange(state.monthCurrent),monthRange(state.monthPrevious));
+      if(state.compareMode==="quarter")return rangePeriod("quarter","按季对比",state.quarterCurrent,state.quarterPrevious,quarterRange(state.quarterCurrent),quarterRange(state.quarterPrevious));
+      if(state.compareMode==="year"){const c=state.yearCurrent,p=state.yearPrevious;return rangePeriod("year","按年对比",`${c}年`,`${p}年`,{start:`${c}-01-01`,end:`${c}-12-31`},{start:`${p}-01-01`,end:`${p}-12-31`});}
+      const currentDates=listDates(state.customCurrentStart,state.customCurrentEnd),previousDates=listDates(state.customPreviousStart,state.customPreviousEnd);
+      return {id:"custom",label:"自定义区间",current:weeksForDates(currentDates).map(i=>weeks[i]),previous:weeksForDates(previousDates).map(i=>weeks[i]),currentDates,previousDates,currentLabel:`${state.customCurrentStart} 至 ${state.customCurrentEnd}`,previousLabel:`${state.customPreviousStart} 至 ${state.customPreviousEnd}`,short:`本期 ${state.customCurrentStart} 至 ${state.customCurrentEnd}；对比期 ${state.customPreviousStart} 至 ${state.customPreviousEnd}`};
+    }
+    function periodSets(p){
+      return {currentWeeks:new Set((p.current||[]).map(w=>weekIndex[w])),previousWeeks:new Set((p.previous||[]).map(w=>weekIndex[w])),currentDates:new Set(p.currentDates||expandWeeks(p.current||[])),previousDates:new Set(p.previousDates||expandWeeks(p.previous||[]))};
+    }
+    function weeklyPeriodCoverage(p){
+      const currentWeeks=(p.current||[]).filter(w=>weekIndex[w]!==undefined);
+      const previousWeeks=(p.previous||[]).filter(w=>weekIndex[w]!==undefined);
+      const summary=list=>list.length?`${list[0]}–${list.at(-1)}，${list.length} 周`:"无覆盖";
+      return {
+        currentWeeks,previousWeeks,
+        currentCount:currentWeeks.length,previousCount:previousWeeks.length,
+        currentAvailable:currentWeeks.length>0,previousAvailable:previousWeeks.length>0,
+        bothAvailable:currentWeeks.length>0&&previousWeeks.length>0,
+        currentText:summary(currentWeeks),previousText:summary(previousWeeks)
+      };
+    }
+    function rankingUsesWeeklySource(mode,metricId){
+      if(state.eventUser!==""||directAnchorScope())return false;
+      return ["guilds","tiers","anchors"].includes(mode)||state.guildId!==""||state.tier!==""||["interactionUsers","interactionRate"].includes(metricId);
+    }
+    function scopeUsesWeeklySource(metricId){
+      if(state.eventUser!==""||directAnchorScope())return false;
+      return state.guildId!==""||state.tier!==""||state.focusUid!==""||["interactionUsers","interactionRate"].includes(metricId);
+    }
+    function syncPathFilters(){
+      state.groupId="";state.categoryId="";state.guildId="";state.tier="";state.focusUid="";
+      for(const item of state.path){if(item.dim==="group")state.groupId=String(item.value);else if(item.dim==="category")state.categoryId=String(item.value);else if(item.dim==="guild")state.guildId=String(item.value);else if(item.dim==="tier")state.tier=item.value;}
+      const pathAnchor=state.path.find(item=>item.dim==="anchor");if(pathAnchor)state.focusUid=String(pathAnchor.value);
+    }
+    function pathValue(r,dim,anchorShape=true){
+      if(dim==="group")return anchorShape?r[2]:r[2];
+      if(dim==="category")return anchorShape?r[1]:r[1];
+      if(dim==="guild")return r[3];
+      if(dim==="tier")return anchorTierMap.get(r[4]);
+      if(dim==="anchor")return r[4];
+      return null;
+    }
+    function pathPass(r,anchorShape=true){return state.path.every(item=>pathValue(r,item.dim,anchorShape)===item.value);}
+
+    function emptyAgg(){return {dau:0,rev:0,pay:0,attr:0,acuSum:0,acuDays:0,viewSum:0,viewDays:0,intCnt:0,intUser:0,liveByDate:new Map(),liveByWeek:new Map(),liveFlag:0};}
+    function addRow(a,r){a.dau+=r[5];a.rev+=r[6];a.pay+=r[7];a.acuSum+=r[9];a.acuDays+=r[10];a.viewSum+=r[11];a.viewDays+=r[12];a.attr+=r[13];a.intCnt+=r[14];a.intUser+=r[15];const liveKey=`${r[0]}:${r[4]}`,liveDays=Number(r[16])||0;a.liveByWeek.set(liveKey,Math.max(a.liveByWeek.get(liveKey)||0,liveDays));return a;}
+    function addDailyRow(a,r){a.dau+=r[2];a.rev+=r[3];a.pay+=r[4];a.viewSum+=r[5];a.viewDays+=r[5]?1:0;a.attr+=r[6];a.intCnt+=r[7];a.intUser+=r[8];a.liveFlag=Math.max(a.liveFlag,Number(r[9])||0);return a;}
+    function addCategory(a,r,liveAnchorCnt=null){a.dau+=r[3];a.rev+=r[4];a.pay+=r[5];a.attr+=r[8];a.viewSum+=r[7];a.viewDays+=1;if(Number.isFinite(liveAnchorCnt))a.liveByDate.set(r[0],Math.max(a.liveByDate.get(r[0])||0,liveAnchorCnt));return a;}
+    function finalize(a,days=1){const rate=a.dau?a.intUser/a.dau:0;let liveAnchors=0;if(a.liveByDate?.size)liveAnchors=[...a.liveByDate.values()].reduce((sum,v)=>sum+v,0)/days;else if(a.liveByWeek?.size)liveAnchors=[...a.liveByWeek.values()].reduce((sum,v)=>sum+v,0)/days;else liveAnchors=a.liveFlag;return {...a,dau:a.dau/days,rev:a.rev/days,pay:a.pay/days,attr:a.attr/days,intCnt:a.intCnt/days,intUser:a.intUser/days,arppu:a.pay?a.rev/a.pay:0,view:a.viewDays?a.viewSum/a.viewDays:0,interactionRate:rate,interactionUsers:a.intUser/days,liveAnchors,days};}
+    function metricValue(a,id){return Number(a[id]??0);}
+    function directAnchorScope(){return state.focusUid!==""&&state.groupId===""&&state.categoryId===""&&state.guildId===""&&state.tier==="";}
+    function nodeAgg(level,node,weekSet,eventOnly=false,dateSet=null){
+      let a=emptyAgg();
+      if(eventOnly){
+        let days=0;const seen=new Set();for(const r of DATA.eventRevenueDaily){if((dateSet&&!dateSet.has(r[0]))||!eventPass(r))continue;if(eventNodePass(level,node,r)){a.rev+=r[6];a.pay+=r[7];seen.add(r[0]);}}
+        days=seen.size||1;return finalize(a,days);
+      }
+      const categoryScope=!state.guildId&&!state.tier&&!state.focusUid&&["root","group","category"].includes(level);
+      if(categoryScope){
+        const seen=new Set();for(const r of DATA.categoryDaily){if((dateSet&&!dateSet.has(r[0]))||!catNodePass(r)||!categoryNodePass(level,node,r))continue;const liveCount=level==="root"?r[11]:level==="group"?r[10]:r[9];addCategory(a,r,liveCount);seen.add(r[0]);}
+        return finalize(a,seen.size||1);
+      }
+      if(directAnchorScope()){
+        const seen=new Set();for(const r of DATA.anchorDaily){if((dateSet&&!dateSet.has(r[0]))||r[1]!==Number(state.focusUid))continue;addDailyRow(a,r);seen.add(r[0]);}
+        if(seen.size)return finalize(a,seen.size);
+      }
+      const days=Math.max(weekSet.size*7,1);for(const r of DATA.anchorWeekly){if(!weekSet.has(r[0])||!nodePass(level,node,r))continue;addRow(a,r);}
+      return finalize(a,days);
+    }
+    function categoryNodePass(level,node,r){if(level==="root")return true;if(level==="group")return r[2]===node.id;if(level==="category")return r[1]===node.id;return false;}
+    function eventNodePass(level,node,r){
+      if(level==="group")return cats[r[2]]?.group===node.id;
+      if(level==="category")return r[2]===node.id;
+      if(level==="guild")return r[3]===node.id;
+      if(level==="tier")return anchorTierMap.get(r[4])===node.id;
+      if(level==="anchor")return r[4]===node.id;
+      return true;
+    }
+    function nodePass(level,node,r){
+      if(state.groupId!==""&&r[2]!==Number(state.groupId))return false;
+      if(state.categoryId!==""&&r[1]!==Number(state.categoryId))return false;
+      if(state.guildId!==""&&r[3]!==Number(state.guildId))return false;
+      if(state.tier!==""&&tierOf(r)!==state.tier)return false;
+      if(state.focusUid!==""&&r[4]!==Number(state.focusUid))return false;
+      if(level==="root")return true;
+      if(level==="group")return r[2]===node.id;
+      if(level==="category")return r[1]===node.id;
+      if(level==="guild")return r[3]===node.id;
+      if(level==="tier")return tierOf(r)===node.id;
+      if(level==="anchor")return r[4]===node.id;
+      return true;
+    }
+    function eventPass(r){
+      if(state.groupId!==""&&r[2]!==Number(state.groupId))return false;
+      if(state.categoryId!==""&&r[2]!==Number(state.categoryId))return false;
+      if(state.guildId!==""&&r[3]!==Number(state.guildId))return false;
+      if(state.eventUser!==""&&r[5]!==Number(state.eventUser))return false;
+      const tier=anchorTierMap.get(r[4]);if(state.tier&&tier!==state.tier)return false;
+      return true;
+    }
+
+    function filteredCats(){return cats.map((c,i)=>({...c,idx:i})).filter(c=>state.groupId===""||c.group===Number(state.groupId)).filter(c=>state.categoryId===""||c.idx===Number(state.categoryId));}
+    function nextDimension(){return state.path.length<state.dimStack.length?state.dimStack[state.path.length]:null;}
+    function displayModeFor(dim){return dim==="group"?"groups":dim==="category"?"categories":dim==="guild"?"guilds":dim==="tier"?"tiers":dim==="anchor"?"anchors":"groups";}
+    function displayMode(){if(state.focusUid!==""&&!state.path.some(item=>item.dim==="anchor"))return "anchors";const dim=nextDimension()||state.dimStack.at(-1);return displayModeFor(dim);}
+    function dimensionNode(dim,id){
+      if(dim==="group")return {kind:"group",id:Number(id),name:groups[Number(id)],sub:"内容大类"};
+      if(dim==="category")return {kind:"category",id:Number(id),name:cats[Number(id)]?.name||"未知品类",sub:groups[cats[Number(id)]?.group??3]};
+      if(dim==="guild")return {kind:"guild",id:Number(id),name:M.guilds[Number(id)]||"无公会",sub:"公会"};
+      if(dim==="tier")return {kind:"tier",id,name:id,sub:"主播层级"};
+      return {kind:"anchor",id:Number(id),name:anchors[Number(id)]?.name||"未知主播",sub:`UID ${anchors[Number(id)]?.id||id} · Room ${anchors[Number(id)]?.roomid||"-"}`};
+    }
+    function dimensionUniverse(dim){
+      const ids=new Set();
+      if(dim==="group"){
+        for(const r of DATA.anchorWeekly){if(pathPass(r))ids.add(pathValue(r,"group"));}return [...ids].map(id=>dimensionNode(dim,id));
+      }
+      if(dim==="category"){
+        const rows=(state.guildId||state.tier||state.focusUid)?DATA.anchorWeekly:DATA.categoryDaily;
+        for(const r of rows){if(pathPass(r,(state.guildId||state.tier||state.focusUid)))ids.add(pathValue(r,"category",(state.guildId||state.tier||state.focusUid)));}return [...ids].map(id=>dimensionNode(dim,id));
+      }
+      for(const r of DATA.anchorWeekly){if(state.categoryId!==""&&r[1]!==Number(state.categoryId))continue;if(!pathPass(r))continue;ids.add(pathValue(r,dim));}
+      return [...ids].map(id=>dimensionNode(dim,id));
+    }
+    function currentNodes(){
+      if(state.focusUid!==""&&!state.path.some(item=>item.dim==="anchor"))return [dimensionNode("anchor",Number(state.focusUid))];
+      const dim=nextDimension();
+      if(!dim){const last=state.path.at(-1);return last?[dimensionNode(last.dim,last.value)]:[];}
+      return dimensionUniverse(dim);
+    }
+    function pathSummary(){
+      if(state.focusUid!==""&&!state.path.length){const a=anchors[Number(state.focusUid)];return a?`主播：${a.name}`:"全部品类";}
+      if(!state.path.length)return "全部品类";
+      return state.path.map(item=>{const node=dimensionNode(item.dim,item.value);return `${DIMENSIONS[item.dim].label}：${node.name}`;}).join(" · ");
+    }
+    const pathKey=path=>path.map(item=>`${item.dim}:${item.value}`).join("/");
+    function withPathContext(path,callback){
+      const saved={path:state.path,groupId:state.groupId,categoryId:state.categoryId,guildId:state.guildId,tier:state.tier,focusUid:state.focusUid};
+      state.path=path.map(item=>({...item}));syncPathFilters();if(saved.focusUid&&!state.path.some(item=>item.dim==="anchor"))state.focusUid=saved.focusUid;
+      try{return callback();}finally{state.path=saved.path;state.groupId=saved.groupId;state.categoryId=saved.categoryId;state.guildId=saved.guildId;state.tier=saved.tier;state.focusUid=saved.focusUid;}
+    }
+    function scopeMetricCurrent(metricId){
+      const p=activePeriod(),sets=periodSets(p),event=state.eventUser!=="";
+      const agg=!event&&["interactionUsers","interactionRate"].includes(metricId)?scopeInteractionAgg(sets.currentWeeks,sets.currentDates):scopeAgg(sets.currentWeeks,event,sets.currentDates);
+      return metricValue(agg,event?"rev":metricId);
+    }
+    function scopeMetricDeltaAtPath(path,metricId){
+      return withPathContext(path,()=>{
+        const p=activePeriod(),sets=periodSets(p),event=state.eventUser!=="";
+        const value=(weekSet,dateSet)=>{const agg=!event&&["interactionUsers","interactionRate"].includes(metricId)?scopeInteractionAgg(weekSet,dateSet):scopeAgg(weekSet,event,dateSet);return metricValue(agg,event?"rev":metricId);};
+        return value(sets.currentWeeks,sets.currentDates)-value(sets.previousWeeks,sets.previousDates);
+      });
+    }
+    function scopeMetricDeltaCurrent(metricId){
+      const p=activePeriod(),sets=periodSets(p),event=state.eventUser!=="";
+      const value=(weekSet,dateSet)=>{const agg=!event&&["interactionUsers","interactionRate"].includes(metricId)?scopeInteractionAgg(weekSet,dateSet):scopeAgg(weekSet,event,dateSet);return metricValue(agg,event?"rev":metricId);};
+      return value(sets.currentWeeks,sets.currentDates)-value(sets.previousWeeks,sets.previousDates);
+    }
+    function reorderDimension(source,target){
+      if(source===target||!DIMENSIONS[source]||!DIMENSIONS[target])return;
+      const next=[...state.dimStack],from=next.indexOf(source),to=next.indexOf(target);
+      if(from<0||to<0)return;
+      next.splice(to,0,next.splice(from,1)[0]);
+      state.dimStack=next;
+      const chosen=new Map(state.path.map(item=>[item.dim,item]));
+      state.path=next.filter(dim=>chosen.has(dim)).map(dim=>chosen.get(dim));
+      state.treeExpanded.clear();
+      syncPathFilters();
+    }
+    function removeDimension(dim){
+      if(state.dimStack.length<=1)return;
+      state.dimStack=state.dimStack.filter(item=>item!==dim);
+      state.path=state.path.filter(item=>item.dim!==dim);
+      state.treeExpanded.clear();
+      syncPathFilters();
+    }
+    function addDimension(dim){
+      if(!dim||!DIMENSIONS[dim]||state.dimStack.includes(dim))return;
+      state.dimStack=[...state.dimStack,dim];
+    }
+    function buildRanking(limit=20,applySearch=true){
+      const p=activePeriod(),sets=periodSets(p),cur=sets.currentWeeks,prev=sets.previousWeeks;
+      const eventOnly=state.eventUser!=="";
+      const m=eventOnly?metricMap.rev:metricMap[state.metricId];
+      const mode=displayMode(),nodes=currentNodes();
+      const curMap=aggregateLevel(mode,cur,eventOnly,sets.currentDates),prevMap=aggregateLevel(mode,prev,eventOnly,sets.previousDates);
+      const curInt=eventOnly?new Map():aggregateLevel(mode,cur,false,sets.currentDates,true),prevInt=eventOnly?new Map():aggregateLevel(mode,prev,false,sets.previousDates,true);
+      const parentDelta=scopeMetricDeltaCurrent(m.id),totalDelta=scopeMetricDeltaAtPath([],m.id);
+      const interactionMetric=!eventOnly&&["interactionUsers","interactionRate"].includes(m.id);
+      const usesWeekly=rankingUsesWeeklySource(mode,m.id),coverage=weeklyPeriodCoverage(p);
+      const currentAvailable=!usesWeekly||coverage.currentAvailable,previousAvailable=!usesWeekly||coverage.previousAvailable;
+      const comparisonAvailable=currentAvailable&&previousAvailable;
+      const safeParentDelta=usesWeekly&&!comparisonAvailable?NaN:parentDelta;
+      const safeTotalDelta=usesWeekly&&!comparisonAvailable?NaN:totalDelta;
+      let rows=nodes.map(node=>{const ca=curMap.get(node.id)||finalize(emptyAgg()),pa=prevMap.get(node.id)||finalize(emptyAgg()),ia=curInt.get(node.id)||finalize(emptyAgg()),pia=prevInt.get(node.id)||finalize(emptyAgg()),currentAgg=interactionMetric?ia:ca,previousAgg=interactionMetric?pia:pa;const cv=currentAvailable?metricValue(currentAgg,m.id):NaN,pv=previousAvailable?metricValue(previousAgg,m.id):NaN,delta=Number.isFinite(cv)&&Number.isFinite(pv)?cv-pv:NaN;return {...node,agg:ca,prevAgg:pa,interactionAgg:ia,prevInteractionAgg:pia,current:cv,previous:pv,delta,change:Number.isFinite(delta)?pct(cv,pv):NaN,parentContribution:Number.isFinite(delta)&&Math.abs(safeParentDelta)>1e-9?delta/safeParentDelta:NaN,totalContribution:Number.isFinite(delta)&&Math.abs(safeTotalDelta)>1e-9?delta/safeTotalDelta:NaN};}).filter(r=>Number.isFinite(r.current)&&r.current!==0||Number.isFinite(r.previous)&&r.previous!==0);
+      const q=applySearch?state.tableSearch.trim().toLowerCase():"";if(q)rows=rows.filter(r=>`${r.name} ${r.sub} ${r.id}`.toLowerCase().includes(q));
+      const deltaScore=r=>Number.isFinite(r.delta)?r.delta:Number.NEGATIVE_INFINITY;
+      const absoluteScore=r=>Number.isFinite(r.delta)?Math.abs(r.delta):Number.NEGATIVE_INFINITY;
+      const scaleScore=r=>Math.max(Number.isFinite(r.current)?Math.abs(r.current):0,Number.isFinite(r.previous)?Math.abs(r.previous):0);
+      rows.sort((x,y)=>{
+        if(!Number.isFinite(x.delta)&&!Number.isFinite(y.delta))return scaleScore(y)-scaleScore(x);
+        if(!Number.isFinite(x.delta))return 1;
+        if(!Number.isFinite(y.delta))return -1;
+        return state.sortMode==="lift"?deltaScore(y)-deltaScore(x):state.sortMode==="absolute"?absoluteScore(y)-absoluteScore(x):deltaScore(x)-deltaScore(y);
+      });
+      return {rows:rows.slice(0,limit),m,parentDelta:safeParentDelta,totalDelta:safeTotalDelta,coverage,usesWeekly,comparisonAvailable,currentAvailable,previousAvailable};
+    }
+    function ranking(){return buildRanking().rows;}
+    function rankingAtPath(path){return withPathContext(path,()=>buildRanking(20,false).rows);}
+    function aggregateLevel(mode,weekSet,eventOnly,dateSet=null,forceAnchor=false){
+      const out=new Map();
+      const categoryData=!eventOnly&&!forceAnchor&&(mode==="groups"||mode==="categories")&&!state.guildId&&!state.tier&&!state.focusUid;
+      const rows=eventOnly?DATA.eventRevenueDaily:categoryData?DATA.categoryDaily:DATA.anchorWeekly;
+      for(const r of rows){
+        if(eventOnly||categoryData){if(dateSet&&!dateSet.has(r[0]))continue;}else if(!weekSet.has(r[0]))continue;
+        const group=eventOnly?(cats[r[2]]?.group??3):r[2];
+        const category=eventOnly?r[2]:r[1];
+        if(state.groupId!==""&&group!==Number(state.groupId))continue;
+        if(state.categoryId!==""&&category!==Number(state.categoryId))continue;
+        if(!categoryData){if(state.guildId!==""&&r[3]!==Number(state.guildId))continue;if(state.tier!==""){const tier=eventOnly?anchorTierMap.get(r[4]):tierOf(r);if(tier!==state.tier)continue;}if(state.focusUid!==""&&r[4]!==Number(state.focusUid))continue;}
+        let key;
+        if(mode==="groups")key=group;
+        else if(mode==="categories")key=category;
+        else if(mode==="guilds")key=r[3];
+        else if(mode==="tiers")key=eventOnly?anchorTierMap.get(r[4]):tierOf(r);
+        else key=r[4];
+        let a=out.get(key);if(!a){a=emptyAgg();out.set(key,a);}
+        if(eventOnly){a.rev+=r[6];a.pay+=r[7];}else if(categoryData)addCategory(a,r,mode==="groups"?r[10]:r[9]);else addRow(a,r);
+      }
+      const days=(eventOnly||categoryData)?Math.max(dateSet?.size||1,1):Math.max(weekSet.size*7,1);
+      for(const [key,a] of out)out.set(key,finalize(a,days));
+      return out;
+    }
+    function scopeAgg(weekSet,eventOnly=false,dateSet=null){
+      const level=state.focusUid?"anchor":state.guildId!==""?"guild":state.categoryId!==""?"category":state.groupId!==""?"group":"root";
+      const node=state.focusUid?{id:Number(state.focusUid)}:state.guildId!==""?{id:Number(state.guildId)}:state.categoryId!==""?{id:Number(state.categoryId)}:state.groupId!==""?{id:Number(state.groupId)}:{id:0};
+      return nodeAgg(level,node,weekSet,eventOnly,dateSet);
+    }
+    function scopeInteractionAgg(weekSet,dateSet){
+      let a=emptyAgg(),seen=new Set();
+      if(directAnchorScope()){
+        for(const r of DATA.anchorDaily){if((dateSet&&!dateSet.has(r[0]))||r[1]!==Number(state.focusUid))continue;addDailyRow(a,r);seen.add(r[0]);}
+      }else{
+        for(const r of DATA.anchorWeekly){if((!weekSet.has(r[0]))||!anchorNodePass(r))continue;addRow(a,r);}seen=weekSet;
+      }
+      return finalize(a,Math.max(seen.size*((state.focusUid)?1:7),1));
+    }
+    function periodBuckets(gran){
+      const out=new Map();for(const r of DATA.categoryDaily){const k=bucket(r[0],gran);if(!out.has(k))out.set(k,{key:k,label:labelBucket(k,gran),complete:bucketComplete(r[0],gran)});}return [...out.values()].sort((a,b)=>a.key.localeCompare(b.key));
+    }
+    function bucket(d,g){if(g==="day")return d;const dt=new Date(d+"T00:00:00Z");if(g==="week"){const t=new Date(dt);t.setUTCDate(t.getUTCDate()-((t.getUTCDay()+6)%7));return t.toISOString().slice(0,10);}if(g==="month")return d.slice(0,7);if(g==="quarter")return `${dt.getUTCFullYear()}-Q${Math.floor(dt.getUTCMonth()/3)+1}`;return d.slice(0,4);}
+    function labelBucket(k,g){if(g==="day")return k.slice(5).replace("-","/");if(g==="week"){const w=weeks.find(w=>weekRanges[w].start===k);return w?w.slice(-3):k.slice(5).replace("-","/");}if(g==="month")return k.replace("-","/");return k;}
+    function bucketEnd(k,g){
+      if(g==="day")return k;
+      if(g==="week"){const d=new Date(k+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+6);return d.toISOString().slice(0,10);}
+      if(g==="month"){const y=Number(k.slice(0,4)),m=Number(k.slice(5,7));return new Date(Date.UTC(y,m,0)).toISOString().slice(0,10);}
+      if(g==="quarter"){const y=Number(k.slice(0,4)),q=Number(k.slice(6,7));return new Date(Date.UTC(y,q*3,0)).toISOString().slice(0,10);}
+      return `${k}-12-31`;
+    }
+    function bucketComplete(k,g){return bucketEnd(k,g)<=M.aggregateEndDate;}
+    function trendSeries(metricId){
+      const m=metricMap[metricId],g=state.granularity;
+      if(state.eventUser!==""&&!["rev","pay","arppu"].includes(metricId))return [];
+      const buckets=new Map(),daysByBucket=new Map();const p=activePeriod(),ps=periodSets(p),rangeScope=state.compareMode!=="week"?{dates:new Set([...ps.currentDates,...ps.previousDates]),weeks:new Set([...ps.currentWeeks,...ps.previousWeeks])}:null;
+      const addDayCount=(k,day)=>{if(!daysByBucket.has(k))daysByBucket.set(k,new Set());daysByBucket.get(k).add(day);};
+      if(state.eventUser!==""){
+        for(const r of DATA.eventRevenueDaily){if((rangeScope&&!rangeScope.dates.has(r[0]))||!eventPass(r))continue;const k=bucket(r[0],g);let a=buckets.get(k);if(!a){a=emptyAgg();buckets.set(k,a);}a.rev+=r[6];a.pay+=r[7];addDayCount(k,r[0]);}
+      }else if(directAnchorScope()){
+        for(const r of DATA.anchorDaily){if((rangeScope&&!rangeScope.dates.has(r[0]))||r[1]!==Number(state.focusUid))continue;const k=bucket(r[0],g);let a=buckets.get(k);if(!a){a=emptyAgg();buckets.set(k,a);}addDailyRow(a,r);addDayCount(k,r[0]);}
+      }else if(metricId==="interactionRate"||metricId==="interactionUsers"||state.guildId!==""||state.tier!==""||state.focusUid){
+        const seenWeeks=new Map();for(const r of DATA.anchorWeekly){if((rangeScope&&!rangeScope.weeks.has(r[0]))||!anchorNodePass(r))continue;const k=bucket(weekRanges[weeks[r[0]]].start,g);let a=buckets.get(k);if(!a){a=emptyAgg();buckets.set(k,a);}addRow(a,r);if(!seenWeeks.has(k))seenWeeks.set(k,new Set());seenWeeks.get(k).add(r[0]);}
+        for(const [k,set] of seenWeeks)for(const wi of set)for(let i=0;i<7;i++)addDayCount(k,`${k}-${wi}-${i}`);
+      }else{
+        for(const r of DATA.categoryDaily){if((rangeScope&&!rangeScope.dates.has(r[0]))||!catNodePass(r))continue;const k=bucket(r[0],g);let a=buckets.get(k);if(!a){a=emptyAgg();buckets.set(k,a);}const liveCount=state.categoryId!==""?r[9]:state.groupId!==""?r[10]:r[11];addCategory(a,r,liveCount);addDayCount(k,r[0]);}
+      }
+      return [...buckets.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([k,a])=>{const days=Math.max(daysByBucket.get(k)?.size||1,1);return {label:labelBucket(k,g),value:metricValue(finalize(a,days),m.id),complete:bucketComplete(k,g)};});
+    }
+    function anchorNodePass(r){if(state.groupId!==""&&r[2]!==Number(state.groupId))return false;if(state.categoryId!==""&&r[1]!==Number(state.categoryId))return false;if(state.guildId!==""&&r[3]!==Number(state.guildId))return false;if(state.tier!==""&&tierOf(r)!==state.tier)return false;if(state.focusUid!==""&&r[4]!==Number(state.focusUid))return false;return true;}
+    function catNodePass(r){if(state.groupId!==""&&r[2]!==Number(state.groupId))return false;if(state.categoryId!==""&&r[1]!==Number(state.categoryId))return false;return true;}
+
+    function svg(series,m){
+      if(!series.length)return `<div class="empty">当前口径无可展示数据</div>`;
+      const w=680,h=245,pad={l:52,r:22,t:20,b:30},vals=series.map(d=>d.value),min=Math.min(...vals,0),max=Math.max(...vals,1),span=max-min||1;
+      const x=i=>pad.l+i*(w-pad.l-pad.r)/Math.max(series.length-1,1),y=v=>pad.t+(max-v)/span*(h-pad.t-pad.b);
+      const ticks=5,grid=Array.from({length:ticks},(_,i)=>{const v=max-span*i/(ticks-1),yy=y(v);return `<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${yy}" y2="${yy}"/><text x="${pad.l-8}" y="${yy+3}" text-anchor="end">${short(v,m.kind)}</text>`;}).join("");
+      const line=series.map((d,i)=>`${i?"L":"M"}${x(i)},${y(d.value)}`).join(" ");
+      const dots=series.map((d,i)=>`<circle class="dot" cx="${x(i)}" cy="${y(d.value)}" r="3.4"><title>${d.label}: ${val(d.value,m)}</title></circle>`).join("");
+      const step=Math.max(1,Math.ceil(series.length/8)),labels=series.map((d,i)=>i%step===0||i===series.length-1?`<text x="${x(i)}" y="${h-8}" text-anchor="${i===0?"start":i===series.length-1?"end":"middle"}">${d.label}${d.complete?"":"*"}</text>`:"").join("");
+      return `<svg viewBox="0 0 ${w} ${h}" role="img">${grid}<path class="line" d="${line}"/>${dots}${labels}</svg>`;
+    }
+
+    function normalizeAnchorSearch(value){return String(value??"").normalize("NFKC").toLowerCase().replace(/[\s_\-·•.,，。!！?？:：/\\|]+/g,"");}
+    function isAnchorSubsequence(needle,haystack){if(!needle||needle.length>haystack.length)return false;let i=0;for(const ch of haystack){if(ch===needle[i])i++;if(i===needle.length)return true;}return false;}
+    function anchorMatches(){
+      const raw=state.anchorQuery.trim();if(!raw)return [];
+      const tokens=raw.split(/\s+/).map(normalizeAnchorSearch).filter(Boolean),q=normalizeAnchorSearch(raw);if(!q)return [];
+      const allowSubsequence=!/^\d+$/.test(q)&&q.length>=3,out=[];
+      for(let i=0;i<anchorSearchIndex.length;i++){
+        const needle=anchorSearchIndex[i],fields=[needle.name,needle.id,needle.room];
+        const exactName=needle.name===q,exactCode=needle.id===q||needle.room===q,prefixName=needle.name.startsWith(q),prefixCode=needle.id.startsWith(q)||needle.room.startsWith(q),includesName=needle.name.includes(q),includesCode=needle.id.includes(q)||needle.room.includes(q);
+        const tokenHit=tokens.length>1&&tokens.every(token=>fields.some(field=>field.includes(token)));
+        const subsequenceHit=allowSubsequence&&(needle.name.includes(q)||tokens.every(token=>needle.name.includes(token)||isAnchorSubsequence(token,needle.name)));
+        if(!(exactName||exactCode||prefixName||prefixCode||includesName||includesCode||tokenHit||subsequenceHit))continue;
+        let score=0;
+        if(exactName)score+=1200;if(exactCode)score+=1100;if(prefixName)score+=850;if(prefixCode)score+=800;if(includesName)score+=650-Math.min(needle.name.indexOf(q),100);if(includesCode)score+=620;if(tokenHit)score+=540;if(subsequenceHit)score+=360-Math.max(0,needle.name.length-q.length)*3;
+        out.push({idx:i,...anchors[i],score});
+      }
+      out.sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,"zh-CN")||a.id.localeCompare(b.id));return out.slice(0,12).map(({score,...a})=>a);
+    }
+    function focusAnchorInfo(){return state.focusUid?anchors[Number(state.focusUid)]:null;}
+    function periodLabel(p){
+      if(p.currentLabel)return p.currentLabel;
+      return (p.current||[]).join("、");
+    }
+    function comparisonPeriodLabel(p){
+      if(p.previousLabel)return p.previousLabel;
+      return (p.previous||[]).join("、");
+    }
+    function dimensionBuilderHtml(){
+      const selected=new Set(state.path.map(item=>item.dim));
+      const next=nextDimension();
+      const chips=state.dimStack.map((dim,index)=>{
+        const status=selected.has(dim)?"selected":dim===next?"next":"";
+        return `<div class="dimension-chip ${status}" draggable="true" data-dimension-chip="${dim}" title="拖动调整顺序"><span class="drag-handle" aria-hidden="true">⋮⋮</span><span class="chip-order">${index+1}</span><span class="chip-text">${DIMENSIONS[dim].label}</span><button type="button" class="dim-chip-btn" data-dim-shift="-1" data-dim="${dim}" aria-label="${DIMENSIONS[dim].label}前移" ${index===0?"disabled":""}>‹</button><button type="button" class="dim-chip-btn" data-dim-shift="1" data-dim="${dim}" aria-label="${DIMENSIONS[dim].label}后移" ${index===state.dimStack.length-1?"disabled":""}>›</button><button type="button" class="dim-chip-btn remove" data-dim-remove="${dim}" aria-label="移除${DIMENSIONS[dim].label}" ${state.dimStack.length<=1?"disabled":""}>×</button></div>`;
+      }).join("");
+      const disabled=new Set(state.dimStack);
+      const remaining=Object.entries(DIMENSIONS).filter(([key])=>!disabled.has(key));
+      const addOptions=remaining.length?remaining.map(([key,value])=>`<option value="${key}">${value.label}</option>`).join(""):`<option value="">全部维度已启用</option>`;
+      const progress=state.path.map(item=>`${DIMENSIONS[item.dim].label}已选`).join(" · ")||"从第一个维度开始";
+      return `<div class="dimension-builder"><div class="dimension-builder-head"><div><div class="dimension-builder-title">下钻维度 · 自由组合</div><div class="dimension-builder-help">${progress}；当前列表按第 ${Math.min(state.path.length+1,state.dimStack.length)} 层展示变化贡献 Top20</div></div><div class="dimension-add"><select id="dimensionAddSelect" aria-label="选择要添加的维度">${addOptions}</select><button type="button" class="preset" id="addDimensionButton" ${remaining.length?"":"disabled"}>＋ 添加维度</button></div></div><div class="dimension-stack" id="dimensionStack" aria-label="可拖动调整的下钻维度">${chips}</div></div>`;
+    }
+    function customPanelHtml(){
+      if(state.compareMode!=="custom")return "";
+      const d=state.customDraft;
+      const message=state.customError||`平台、内容大类、品类按日期精确日均；公会、层级和主播层级因源数据为周粒度，会按覆盖周近似。主播源数据覆盖 ${M.anchorStartDate} 至 ${M.anchorEndDate}。`;
+      return `<div class="custom-panel" id="customPeriodPanel"><div class="custom-title"><strong>自定义本期与对比期</strong><span class="dimension-builder-help">日期范围 ${M.aggregateStartDate} 至 ${M.aggregateEndDate}</span></div><div class="custom-range-grid"><div class="custom-range"><label>对比期</label><div class="date-row"><input type="date" id="customPreviousStart" value="${d.previousStart}" min="${M.aggregateStartDate}" max="${M.aggregateEndDate}"><span>至</span><input type="date" id="customPreviousEnd" value="${d.previousEnd}" min="${M.aggregateStartDate}" max="${M.aggregateEndDate}"></div></div><div class="custom-range"><label>本期</label><div class="date-row"><input type="date" id="customCurrentStart" value="${d.currentStart}" min="${M.aggregateStartDate}" max="${M.aggregateEndDate}"><span>至</span><input type="date" id="customCurrentEnd" value="${d.currentEnd}" min="${M.aggregateStartDate}" max="${M.aggregateEndDate}"></div></div></div><div class="custom-actions"><button type="button" class="preset" data-custom-preset="w47">W47 vs W46</button><button type="button" class="preset" data-custom-preset="7">近7天 vs 前7天</button><button type="button" class="preset" data-custom-preset="14">近14天 vs 前14天</button><button type="button" class="preset" data-custom-preset="30">近30天 vs 前30天</button><button type="button" class="primary preset" id="applyCustomPeriod">应用区间</button></div><div class="custom-message ${state.customError?"error":""}" role="${state.customError?"alert":"status"}">${esc(message)}</div></div>`;
+    }
+    function applyCustomValues(values){
+      const all=[values.previousStart,values.previousEnd,values.currentStart,values.currentEnd];
+      if(all.some(value=>!value||value<M.aggregateStartDate||value>M.aggregateEndDate)){state.customError=`日期必须位于 ${M.aggregateStartDate} 至 ${M.aggregateEndDate}`;render();return;}
+      if(values.previousStart>values.previousEnd||values.currentStart>values.currentEnd){state.customError="开始日期不能晚于结束日期";render();return;}
+      Object.assign(state,{customPreviousStart:values.previousStart,customPreviousEnd:values.previousEnd,customCurrentStart:values.currentStart,customCurrentEnd:values.currentEnd,customDraft:{...values},compareMode:"custom",customError:""});
+      render();
+    }
+    function presetCustom(key){
+      if(key==="w47")return {previousStart:defaultPreviousStart,previousEnd:defaultPreviousEnd,currentStart:defaultCurrentStart,currentEnd:defaultCurrentEnd};
+      const days=Number(key),end=M.anchorEndDate,currentStart=dateShift(end,-(days-1)),previousEnd=dateShift(currentStart,-1),previousStart=dateShift(previousEnd,-(days-1));
+      return {previousStart,previousEnd,currentStart,currentEnd:end};
+    }
+
+    function selectOptionHtml(values,selected,labeler=value=>value){
+      return values.map(value=>`<option value="${esc(value)}" ${value===selected?"selected":""}>${esc(labeler(value))}</option>`).join("");
+    }
+    function timeComparisonHtml(){
+      const modes=[{id:"week",label:"按周"},{id:"month",label:"按月"},{id:"quarter",label:"按季"},{id:"year",label:"按年"},{id:"custom",label:"自定义"}];
+      const tabs=modes.map(mode=>`<button type="button" data-compare-mode="${mode.id}" class="${state.compareMode===mode.id?"active":""}" aria-pressed="${state.compareMode===mode.id}">${mode.label}</button>`).join("");
+      let fields="";
+      if(state.compareMode==="week"){
+        const weekChoices=periods.map(p=>p.id);
+        fields=`<div class="compare-fields"><div class="control"><label>本期与对比周</label><select id="period">${selectOptionHtml(weekChoices,state.periodId,id=>periodMap[id]?.label||id)}</select></div></div>`;
+      }else if(state.compareMode==="month"){
+        fields=`<div class="compare-fields"><div class="control"><label>本期月</label><select id="monthCurrent">${selectOptionHtml(availableMonths,state.monthCurrent,m=>m.replace("-","年")+"月")}</select></div><div class="control"><label>对比月</label><select id="monthPrevious">${selectOptionHtml(availableMonths,state.monthPrevious,m=>m.replace("-","年")+"月")}</select></div></div>`;
+      }else if(state.compareMode==="quarter"){
+        fields=`<div class="compare-fields"><div class="control"><label>本期季度</label><select id="quarterCurrent">${selectOptionHtml(availableQuarters,state.quarterCurrent,q=>q.replace("-Q","年 Q")+"季度")}</select></div><div class="control"><label>对比季度</label><select id="quarterPrevious">${selectOptionHtml(availableQuarters,state.quarterPrevious,q=>q.replace("-Q","年 Q")+"季度")}</select></div></div>`;
+      }else if(state.compareMode==="year"){
+        const years=[...new Set([...availableYears,state.yearPrevious,state.yearCurrent])].sort();
+        fields=`<div class="compare-fields"><div class="control"><label>本期年</label><select id="yearCurrent">${selectOptionHtml(years,state.yearCurrent,y=>y+"年")}</select></div><div class="control"><label>对比年</label><select id="yearPrevious">${selectOptionHtml(years,state.yearPrevious,y=>y+"年")}</select></div></div>`;
+      }else{
+        fields=customPanelHtml();
+      }
+      return `<div class="time-compare"><div class="compare-head"><div class="compare-title">时间对比<span class="compare-help">支持周、月、季度、年和自定义区间</span></div><div class="mode-tabs" aria-label="时间对比模式">${tabs}</div></div>${fields}</div>`;
+    }
+
+    function renderKpis(){
+      const p=activePeriod(),sets=periodSets(p),cur=sets.currentWeeks,prev=sets.previousWeeks;
+      const event=state.eventUser!=="";const curA=scopeAgg(cur,event,sets.currentDates),prevA=scopeAgg(prev,event,sets.previousDates),curI=event?finalize(emptyAgg()):scopeInteractionAgg(cur,sets.currentDates),prevI=event?finalize(emptyAgg()):scopeInteractionAgg(prev,sets.previousDates);
+      const coverage=weeklyPeriodCoverage(p),usesWeekly=scopeUsesWeeklySource(event?"rev":state.metricId),currentAvailable=!usesWeekly||coverage.currentAvailable,previousAvailable=!usesWeekly||coverage.previousAvailable;
+      const cards=[{label:metricMap[state.metricId].label,cur:metricValue(curA,event?"rev":state.metricId),prev:metricValue(prevA,event?"rev":state.metricId),m:event?metricMap.rev:metricMap[state.metricId]}];
+      if(event){cards.push({label:"打赏人数",cur:curA.pay,prev:prevA.pay,m:metricMap.pay});cards.push({label:"ARPPU",cur:curA.arppu,prev:prevA.arppu,m:metricMap.arppu});cards.push({label:"归属/观看 DAU",na:true});cards.push({label:"互动率",na:true});}
+      else{const fixed=[{id:"dau",label:"观看 DAU",cur:curA.dau,prev:prevA.dau,m:metricMap.dau},{id:"liveAnchors",label:"开播主播数",cur:curA.liveAnchors,prev:prevA.liveAnchors,m:metricMap.liveAnchors},{id:"rev",label:"打赏流水",cur:curA.rev,prev:prevA.rev,m:metricMap.rev},{id:"interactionUsers",label:"互动人数（主播汇总）",cur:curI.intUser,prev:prevI.intUser,m:metricMap.interactionUsers},{id:"interactionRate",label:"互动率（主播汇总）",cur:curI.interactionRate,prev:prevI.interactionRate,m:metricMap.interactionRate},{id:"attr",label:"归属 DAU",cur:curA.attr,prev:prevA.attr,m:metricMap.attr},{id:"pay",label:"打赏人数",cur:curA.pay,prev:prevA.pay,m:metricMap.pay}].filter(c=>c.id!==state.metricId).slice(0,4);cards.push(...fixed);}
+      if(["interactionRate","interactionUsers"].includes(state.metricId)&&!event){cards[0].cur=curI[state.metricId];cards[0].prev=prevI[state.metricId];}
+      return cards.map(c=>{
+        if(c.na)return `<article class="kpi"><div class="kpi-label">${c.label}</div><div class="kpi-main neutral">不适用</div><div class="kpi-foot">赛事用户口径仅支持支付指标</div></article>`;
+        const curLabel=currentAvailable?`${val(c.cur,c.m)}<small>/日均</small>`:`<span class="unavailable">数据不足</span>`;
+        const prevLabel=previousAvailable?val(c.prev,c.m):"数据不足";
+        const delta=currentAvailable&&previousAvailable?c.cur-c.prev:NaN;
+        return `<article class="kpi"><div class="kpi-label">${c.label}</div><div class="kpi-main">${curLabel}</div><div class="kpi-foot">对比期 ${prevLabel} <span class="${cls(delta)}">${prettyDelta(delta,c.m)}</span></div></article>`;
+      }).join("");
+    }
+
+    function breadcrumb(){
+      const bits=[`<button class="crumb" data-crumb-index="-1">全部范围</button>`];
+      state.path.forEach((item,index)=>{const node=dimensionNode(item.dim,item.value);bits.push(`<span>/</span><button class="crumb" data-crumb-index="${index}">${esc(DIMENSIONS[item.dim].label)} · ${esc(node.name)}</button>`);});
+      if(!state.path.length&&state.focusUid)bits.push(`<span>/</span><span>${esc(anchors[Number(state.focusUid)]?.name||"主播")}</span>`);
+      return bits.join("");
+    }
+    function tableHtml(rows){
+      const m=state.eventUser?metricMap.rev:metricMap[state.metricId];
+      if(!rows.length)return `<div class="empty">当前层级与筛选条件下无数据</div>`;
+      return rows.map((r,i)=>`<tr class="clickable" data-node-kind="${r.kind}" data-node-id="${esc(r.id)}" data-node-index="${i}"><td><div style="display:flex;align-items:center"><span class="rank ${i<3?"top":""}">${i+1}</span><div><div class="node-name">${esc(r.name)}</div><div class="node-sub">${esc(r.sub)}</div></div></div></td><td>${val(r.previous,m)}</td><td class="value">${val(r.current,m)}</td><td class="${cls(r.delta)}">${prettyDelta(r.delta,m)}</td><td class="${cls(r.change)}">${changeText(r.change)}</td><td class="${cls(r.delta)}">${contributionText(r.parentContribution)}</td><td class="${cls(r.delta)}">${contributionText(r.totalContribution)}</td><td>${r.interactionAgg?.interactionRate!==undefined?`${(r.interactionAgg.interactionRate*100).toFixed(2)}%`:"-"}</td><td>${r.interactionAgg?.intUser?fmtNum(r.interactionAgg.intUser):"-"}</td></tr>`).join("");
+    }
+
+    function ensureTreePathExpanded(){
+      for(let i=1;i<=state.path.length;i++)state.treeExpanded.add(pathKey(state.path.slice(0,i)));
+    }
+    function buildTreeRows(){
+      ensureTreePathExpanded();
+      const out=[];
+      const walk=(path,depth)=>{
+        const rows=rankingAtPath(path);
+        for(const row of rows){
+          const rowPath=[...path,{dim:row.kind,value:row.id}],key=pathKey(rowPath);
+          const canExpand=rowPath.length<state.dimStack.length,expanded=state.treeExpanded.has(key);
+          out.push({...row,rowPath,depth,key,canExpand,expanded,selected:key===pathKey(state.path)});
+          if(canExpand&&expanded)walk(rowPath,depth+1);
+        }
+      };
+      walk([],0);
+      return out;
+    }
+    function treeTableHtml(rows){
+      const m=state.eventUser?metricMap.rev:metricMap[state.metricId];
+      if(!rows.length)return `<div class="empty">当前维度栈下无复层数据</div>`;
+      return rows.map(r=>`<tr class="tree-row ${r.expanded?"expanded":""}"><td><div class="tree-cell" style="padding-left:${r.depth*18}px">${r.canExpand?`<button type="button" class="tree-toggle" data-tree-toggle="${esc(r.key)}" aria-expanded="${r.expanded}">${r.expanded?"▾":"›"}</button>`:`<span class="tree-toggle-spacer"></span>`}<div class="tree-copy"><button type="button" class="tree-name-button ${r.selected?"selected":""}" data-tree-select="true" data-tree-path="${esc(JSON.stringify(r.rowPath))}"><span class="tree-level-tag">${esc(DIMENSIONS[r.kind].label)}</span><span class="node-name">${esc(r.name)}</span>${r.canExpand?`<span class="tree-expand-label">${r.expanded?"收起":"展开"}</span>`:""}</button><div class="node-sub">${esc(r.sub)}</div></div></div></td><td>${val(r.previous,m)}</td><td class="value">${val(r.current,m)}</td><td class="${cls(r.delta)}">${prettyDelta(r.delta,m)}</td><td class="${cls(r.change)}">${changeText(r.change)}</td><td class="${cls(r.delta)}">${contributionText(r.parentContribution)}</td><td class="${cls(r.delta)}">${contributionText(r.totalContribution)}</td><td>${r.interactionAgg?.interactionRate!==undefined?`${(r.interactionAgg.interactionRate*100).toFixed(2)}%`:"-"}</td><td>${r.interactionAgg?.intUser?fmtNum(r.interactionAgg.intUser):"-"}</td></tr>`).join("");
+    }
+
+    function render(){
+      const p=activePeriod(),focus=focusAnchorInfo(),metric=state.eventUser?metricMap.rev:metricMap[state.metricId],rankInfo=buildRanking(),rows=rankInfo.rows,treeRows=state.multiOpen&&!focus?buildTreeRows():[],secondary=["attr","rev","pay","arppu","view","dau","liveAnchors","interactionUsers","interactionRate"].find(x=>x!==state.metricId)||"rev";
+      const m=metric;
+      const metricOptions=metrics.map(o=>`<option value="${o.id}" ${o.id===state.metricId?"selected":""}>${esc(o.label)}</option>`).join("");
+      const granOptions=granList.map(g=>`<option value="${g.id}" ${g.id===state.granularity?"selected":""}>${esc(g.label)}</option>`).join("");
+      const eventDisabled=M.eventStatus!=="ready";
+      const matches=anchorMatches(),anchorQueryActive=state.anchorQuery.trim().length>0,scopeText=pathSummary();
+      const coverage=rankInfo.coverage,directFocusMode=Boolean(focus)&&directAnchorScope(),showCoverageNotice=!directFocusMode&&(state.compareMode!=="week"||rankInfo.usesWeekly);
+      const coverageNotice=showCoverageNotice?`<div class="notice coverage-notice"><strong>${rankInfo.usesWeekly&&!rankInfo.comparisonAvailable?"周粒度源数据未同时覆盖两个对比期":"主播、公会和主播层级按覆盖周计算"}</strong><span>本期 ${esc(p.currentLabel||periodLabel(p))}：${esc(coverage.currentText)}；对比期 ${esc(p.previousLabel||comparisonPeriodLabel(p))}：${esc(coverage.previousText)}。${rankInfo.usesWeekly&&!rankInfo.comparisonAvailable?"未覆盖的一侧以“数据不足”显示，不按 0 计算环比和贡献。":"非周对比使用覆盖周近似。"}</span></div>`:"";
+      const next=nextDimension(),tableDimension=next?DIMENSIONS[next].label:"当前节点",contributionSuffix=m.kind==="people"?"*":"";
+      app.innerHTML=`
+        <div class="topbar"><div class="brand"><div class="logo">E</div><div><div class="brand-title">生态监控 · 全品类分析</div><div class="brand-sub">Category Ecology Health</div></div></div><div class="source-pill"><span class="dot"></span>BigData 已更新 · 趋势 ${M.aggregateStartDate} 至 ${M.aggregateEndDate} · 主播 ${M.anchorStartDate} 至 ${M.anchorEndDate}</div></div>
+        <section class="hero"><div class="hero-head"><div><h1>全品类生态监控看板</h1><p class="hero-copy">维度可增删、可拖动排序；时间、对比期、趋势粒度和主播追踪统一联动。</p></div><div class="latest-badge">数据截至 ${M.sourceLatestPartition}</div></div>
+          ${timeComparisonHtml()}
+          <div class="controls">
+            <div class="control"><label>分析指标</label><select id="metric">${metricOptions}</select></div>
+            <div class="control"><label>赛事用户（支付口径）</label><select id="eventFilter" ${eventDisabled?"disabled":""}><option value="">全部支付用户</option><option value="1" ${state.eventUser==="1"?"selected":""}>赛事用户</option><option value="0" ${state.eventUser==="0"?"selected":""}>非赛事用户</option></select></div>
+            <div class="control"><label>趋势粒度</label><select id="granularity">${granOptions}</select></div>
+            <div class="control" style="grid-column:span 2"><label>主播专项追踪：ID / 昵称 / RoomID</label><input id="anchorSearch" value="${esc(state.anchorQuery)}" placeholder="支持模糊搜索，例如 dankng、UID 或 RoomID" autocomplete="off"></div>
+          </div>
+          ${focus?`<div class="anchor-mode-banner"><div><strong>主播模式 · ${esc(focus.name)}</strong><span>已隐藏维度搭建和多层表，只展示该主播的变化趋势。</span></div><button type="button" class="ghost" data-clear-anchor>返回全品类分析</button></div>`:dimensionBuilderHtml()}
+          <div class="scope-strip"><span class="chip">当前 <strong>${esc(periodLabel(p))}</strong></span><span class="chip">对比 <strong>${esc(comparisonPeriodLabel(p))}</strong></span><span class="chip">${esc(scopeText)}</span><span>${esc(m.help)}</span></div>
+          ${coverageNotice}
+          ${eventDisabled?`<div class="notice">赛事用户支付数据仍在计算，当前选项暂不可用。其余品类、公会、主播层级和主播追踪已可使用。</div>`:state.eventUser!==""?`<div class="notice">已切换赛事用户支付口径：DAU、归属用户和互动指标不做拆分；赛事用户按支付用户前90天赛事主播观时占比≥70%判定。</div>`:""}
+          ${anchorQueryActive?`<div class="section"><div class="search-results-head"><span>主播候选列表</span><span>${matches.length} 个可选项 · 优先展示精确、前缀和模糊匹配</span></div>${matches.length?`<div class="search-results">${matches.map(a=>`<button class="search-result" data-pick-anchor="${a.idx}"><strong>${esc(a.name)}</strong><span>UID ${esc(a.id)} · Room ${esc(a.roomid||"-")}</span></button>`).join("")}</div>`:`<div class="search-empty">未找到主播，请检查 UID/RoomID，或减少昵称关键词。</div>`}</div>`:""}
+        </section>
+        ${focus?`<section class="section anchor-mode"><article class="card focus-card"><div><div class="focus-title">${esc(focus.name)}</div><div class="focus-meta">UID ${esc(focus.id)} · RoomID ${esc(focus.roomid||"-")} · ${esc(p.short)}</div><div class="focus-meta">当前为单主播视图；搜索框可随时切换主播。</div><div class="focus-metrics">${["dau","attr","rev","interactionUsers","interactionRate","liveAnchors"].map(id=>{const mm=metricMap[id],s=trendSeries(id),a=s.at(-1)?.value||0,b=s.at(-2)?.value||0;return `<div class="focus-metric"><label>${mm.label}</label><strong>${val(a,mm)}</strong><span class="${cls(a-b)}">${prettyDelta(a-b,mm)}</span></div>`;}).join("")}</div></div><div><div class="focus-meta">主播 DAU、流水和互动按日精确追踪；联盟/公会等组合口径按覆盖周近似。</div></div></article></section>`:`<section class="section"><div class="section-head"><div><div class="section-title">两期核心指标</div><div class="section-sub">${esc(scopeText)} · ${esc(p.short)}</div></div></div><div class="kpis">${renderKpis()}</div></section>`}
+        <section class="section"><div class="section-head"><div><div class="section-title">时间趋势 · ${granMap[state.granularity].label}</div><div class="section-sub">${state.eventUser!==""?"赛事支付口径覆盖 W42–W47":state.compareMode!=="week"?`趋势限定在 ${periodLabel(p)} 与 ${comparisonPeriodLabel(p)}；主播、公会按覆盖周近似`:(state.guildId!==""||state.tier!==""||focus)?"公会、层级、主播与互动率按周口径展示":`覆盖 ${M.aggregateStartDate} 至 ${M.aggregateEndDate}；按桶内实际天数计算日均`}；星号表示未完整时间桶。</div></div></div><div class="trend-grid"><article class="card chart-card"><div class="chart-title">${m.label} · ${granMap[state.granularity].label}</div><div class="chart-note">${esc(scopeText)}</div><div class="chart">${svg(trendSeries(state.metricId),m)}</div></article><article class="card chart-card"><div class="chart-title">${metricMap[secondary].label} · ${granMap[state.granularity].label}</div><div class="chart-note">辅助观察指标</div><div class="chart">${svg(trendSeries(secondary),metricMap[secondary])}</div></article></div></section>
+        <section class="section"><div class="section-head"><div><div class="section-title">${focus?"主播明细":(rankInfo.usesWeekly&&!rankInfo.comparisonAvailable?"单层覆盖表 · ":"单层贡献表 · ")+tableDimension+" Top20"}</div><div class="section-sub">${focus?"当前主播的指标明细。":rankInfo.usesWeekly&&!rankInfo.comparisonAvailable?"周粒度源数据只覆盖一侧，按覆盖期规模排序；点击节点仍可继续下钻。":"展示当前路径下的下一层节点；点击节点继续下钻，或点击面包屑回退。"}</div></div>${focus?"":`<button type="button" class="ghost" data-toggle-multi>${state.multiOpen?"收起多层结构":"查看多层结构"}</button>`}</div><article class="card"><div class="toolbar"><div class="breadcrumb">${breadcrumb()}<span>·</span><span>${rows.length} 个节点</span></div><div class="toolbar-right"><div class="segmented"><button data-sort="drag" class="${state.sortMode==="drag"?"active":""}" ${rankInfo.usesWeekly&&!rankInfo.comparisonAvailable?"disabled":""}>负向拖累</button><button data-sort="lift" class="${state.sortMode==="lift"?"active":""}" ${rankInfo.usesWeekly&&!rankInfo.comparisonAvailable?"disabled":""}>正向拉动</button><button data-sort="absolute" class="${state.sortMode==="absolute"?"active":""}" ${rankInfo.usesWeekly&&!rankInfo.comparisonAvailable?"disabled":""}>变化贡献</button></div><div class="search"><input id="tableSearch" value="${esc(state.tableSearch)}" placeholder="搜索当前层级节点"></div><button class="ghost" id="export">导出单层 CSV</button></div></div><div class="table-summary">${rankInfo.usesWeekly&&!rankInfo.comparisonAvailable?"当前表依赖主播周汇总，两个对比期未被同时覆盖，因此按覆盖期规模排序；环比、父层贡献和总盘贡献标记为“数据不足”，不以 0 替代。":`父层日均变化 <strong>${prettyDelta(rankInfo.parentDelta,m)}</strong>；全平台日均变化 <strong>${prettyDelta(rankInfo.totalDelta,m)}</strong>。父层贡献率 = 节点日均变化 ÷ 当前范围日均变化；总盘贡献率 = 节点日均变化 ÷ 全平台日均变化。Top20 非全量，贡献率合计不一定为 100%。`}${contributionSuffix?" * 人数类指标跨品类或主播可能重复，贡献率只用于相对判断。":""}</div><div class="table-wrap"><table><thead><tr><th>层级 / 节点</th><th>对比期日均</th><th>当前期日均</th><th>日均变化</th><th>环比</th><th>父层贡献${contributionSuffix}</th><th>总盘贡献${contributionSuffix}</th><th>互动率</th><th>互动人数</th></tr></thead><tbody id="singleTableBody">${tableHtml(rows)}</tbody></table></div></article></section>
+        ${!focus&&state.multiOpen?`<section class="section"><div class="section-head"><div><div class="section-title">多层结构表</div><div class="section-sub">按当前维度栈递归展开；父层贡献以直接父节点为分母，总盘贡献以全平台为分母。</div></div></div><article class="card"><div class="toolbar"><div class="breadcrumb"><span>当前路径</span><span>/</span><strong>${esc(pathSummary())}</strong><span>·</span><span>${treeRows.length} 行</span></div><div class="toolbar-right"><button class="ghost" id="exportTree">导出复层 CSV</button></div></div><div class="table-summary">同一主播或同一用户可能出现在多个品类、公会路径下；复层表用于观察结构贡献，不应把各行人数直接相加。${contributionSuffix?" *":""}</div><div class="table-wrap"><table><thead><tr><th>层级 / 节点</th><th>对比期日均</th><th>当前期日均</th><th>日均变化</th><th>环比</th><th>父层贡献${contributionSuffix}</th><th>总盘贡献${contributionSuffix}</th><th>互动率</th><th>互动人数</th></tr></thead><tbody id="treeTableBody">${treeTableHtml(treeRows)}</tbody></table></div></article></section>`:""}
+        <section class="section notes"><article class="card note"><h3>口径与覆盖</h3><ul><li>平台、内容大类和品类使用健康日表“品类整体”口径，按日期精确计算日均；平台 DAU 不再汇总主播明细。</li><li>开播主播数按当天有开播的 luid 去重后计算日均；品类、内容大类和平台使用日级精确去重，公会、层级和主播使用主播周明细的 live_days。</li><li>主播、公会和主播层级来自主播周汇总；主播明细 DAU 跨品类、跨主播可能重叠，应理解为“主播口径覆盖 DAU”。</li><li>互动率=互动人数/观看 DAU；跨品类、跨主播汇总时人数未去重，极端行可能超过100%，仅用于相对趋势监控。</li></ul></article><article class="card note"><h3>层级与赛事</h3><ul><li>主播层级按主播整体平均 ACU 统一判定：头部 ACU≥2000，腰部 100–1999，尾部<100。</li><li>${esc(M.eventMethod)}。</li><li>${M.eventStatus==="ready"?"赛事支付数据已更新。":"赛事支付用户数据仍待回刷，当前暂不可用。"}</li></ul></article></section>
+        <div class="footer"><span>来源：${esc(M.source)} · 公会：${esc(M.guildSource)}</span><span>多维度 MVP · ${M.sourceLatestPartition}</span></div>`;
+      window.__dashDebug={state,currentNodes,aggregateLevel,ranking,buildRanking,rankingAtPath,buildTreeRows,weeks,weekIndex,activePeriod,trendSeries,reorderDimension,addDimension,removeDimension};
+      bind();
+    }
+
+    function bind(){
+      const set=(id,key,fn)=>document.getElementById(id)?.addEventListener("change",e=>{state[key]=e.target.value;fn?.(e.target.value);render();});
+      document.querySelectorAll("[data-compare-mode]").forEach(button=>button.addEventListener("click",()=>{state.compareMode=button.dataset.compareMode;state.customError="";render();}));
+      set("period","periodId");set("monthCurrent","monthCurrent");set("monthPrevious","monthPrevious");set("quarterCurrent","quarterCurrent");set("quarterPrevious","quarterPrevious");set("yearCurrent","yearCurrent");set("yearPrevious","yearPrevious");set("granularity","granularity");
+      set("metric","metricId",v=>{if(state.eventUser!==""&&!["rev","pay","arppu"].includes(v))state.metricId="rev";});
+      set("eventFilter","eventUser",v=>{if(v&&!["rev","pay","arppu"].includes(state.metricId))state.metricId="rev";});
+      document.getElementById("anchorSearch")?.addEventListener("input",e=>{state.anchorQuery=e.target.value;render();setTimeout(()=>{const el=document.getElementById("anchorSearch");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},0);});
+      document.querySelectorAll("[data-pick-anchor]").forEach(b=>b.addEventListener("click",()=>{state.path=[];state.treeExpanded.clear();state.multiOpen=false;state.groupId="";state.categoryId="";state.guildId="";state.tier="";state.focusUid=b.dataset.pickAnchor;state.anchorQuery="";render();}));
+      document.querySelector("[data-clear-anchor]")?.addEventListener("click",()=>{state.path=state.path.filter(item=>item.dim!=="anchor");state.treeExpanded.clear();state.multiOpen=false;state.focusUid="";state.anchorQuery="";syncPathFilters();render();});
+      let dragging=null;
+      const stack=document.getElementById("dimensionStack");
+      document.querySelectorAll("[data-dimension-chip]").forEach(chip=>{
+        chip.addEventListener("dragstart",event=>{dragging=chip.dataset.dimensionChip;chip.classList.add("dragging");if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",dragging);}});
+        chip.addEventListener("dragend",()=>{dragging=null;chip.classList.remove("dragging");stack?.classList.remove("drag-over");document.querySelectorAll(".dimension-chip.drag-over").forEach(el=>el.classList.remove("drag-over"));});
+        chip.addEventListener("dragover",event=>{event.preventDefault();if(dragging&&dragging!==chip.dataset.dimensionChip){chip.classList.add("drag-over");if(event.dataTransfer)event.dataTransfer.dropEffect="move";}});
+        chip.addEventListener("dragleave",()=>chip.classList.remove("drag-over"));
+        chip.addEventListener("drop",event=>{event.preventDefault();const target=chip.dataset.dimensionChip;chip.classList.remove("drag-over");if(dragging&&dragging!==target){reorderDimension(dragging,target);render();}});
+      });
+      document.querySelectorAll("[data-dim-shift]").forEach(button=>button.addEventListener("click",()=>{const dim=button.dataset.dim,index=state.dimStack.indexOf(dim),target=state.dimStack[index+Number(button.dataset.dimShift)];if(target){reorderDimension(dim,target);render();}}));
+      document.querySelectorAll("[data-dim-remove]").forEach(button=>button.addEventListener("click",()=>{removeDimension(button.dataset.dimRemove);render();}));
+      document.getElementById("addDimensionButton")?.addEventListener("click",()=>{const dim=document.getElementById("dimensionAddSelect")?.value;if(dim){addDimension(dim);render();}});
+      const draftMap={customPreviousStart:"previousStart",customPreviousEnd:"previousEnd",customCurrentStart:"currentStart",customCurrentEnd:"currentEnd"};
+      Object.entries(draftMap).forEach(([id,key])=>document.getElementById(id)?.addEventListener("input",event=>{state.customDraft[key]=event.target.value;state.customError="";}));
+      document.getElementById("applyCustomPeriod")?.addEventListener("click",()=>applyCustomValues({...state.customDraft}));
+      document.querySelectorAll("[data-custom-preset]").forEach(button=>button.addEventListener("click",()=>applyCustomValues(presetCustom(button.dataset.customPreset))));
+      document.querySelectorAll("[data-node-kind]").forEach(row=>row.addEventListener("click",()=>{const dim=nextDimension();if(!dim||dim!==row.dataset.nodeKind)return;const raw=row.dataset.nodeId,value=dim==="tier"?raw:Number(raw);state.path.push({dim,value});syncPathFilters();if(dim==="anchor"){state.anchorQuery="";state.multiOpen=false;}render();}));
+      document.querySelectorAll("[data-crumb-index]").forEach(button=>button.addEventListener("click",()=>{const index=Number(button.dataset.crumbIndex);state.path=index<0?[]:state.path.slice(0,index+1);syncPathFilters();if(state.focusUid==="")state.anchorQuery="";render();}));
+      document.querySelectorAll("[data-tree-toggle]").forEach(button=>button.addEventListener("click",()=>{const key=button.dataset.treeToggle;if(state.treeExpanded.has(key))state.treeExpanded.delete(key);else state.treeExpanded.add(key);render();}));
+      document.querySelector("[data-toggle-multi]")?.addEventListener("click",()=>{state.multiOpen=!state.multiOpen;if(!state.multiOpen)state.treeExpanded.clear();render();});
+      document.querySelectorAll("[data-tree-select]").forEach(button=>button.addEventListener("click",()=>{try{state.path=JSON.parse(button.dataset.treePath);syncPathFilters();if(state.focusUid==="")state.anchorQuery="";render();}catch{}}));
+      document.querySelectorAll("[data-sort]").forEach(b=>b.addEventListener("click",()=>{state.sortMode=b.dataset.sort;render();}));
+      document.getElementById("tableSearch")?.addEventListener("input",e=>{state.tableSearch=e.target.value;render();setTimeout(()=>{const el=document.getElementById("tableSearch");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},0);});
+      document.getElementById("export")?.addEventListener("click",()=>exportCsv());
+      document.getElementById("exportTree")?.addEventListener("click",()=>exportTreeCsv());
+    }
+    function exportCsv(){
+      const rows=ranking(),m=state.eventUser?metricMap.rev:metricMap[state.metricId];
+      const head=["层级","节点","对比期日均","当前期日均","日均变化","环比","父层贡献","总盘贡献","互动率","互动人数"];
+      const body=rows.map(r=>[r.kind,r.name,...[r.previous,r.current,r.delta,r.change,r.parentContribution,r.totalContribution].map(v=>Number.isFinite(v)?v:""),r.interactionAgg?.interactionRate||"",r.interactionAgg?.intUser||""]);
+      const csv="\ufeff"+[head,...body].map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+      const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`生态监控_${pathSummary().replace(/[\\/:*?"<>|]/g,"_")}_${m.label}.csv`;a.click();URL.revokeObjectURL(a.href);
+    }
+    function exportTreeCsv(){
+      const rows=buildTreeRows(),m=state.eventUser?metricMap.rev:metricMap[state.metricId];
+      const head=["层级","层级路径","节点","对比期日均","当前期日均","日均变化","环比","父层贡献","总盘贡献","互动率","互动人数"];
+      const body=rows.map(r=>[r.kind,pathKey(r.rowPath),r.name,...[r.previous,r.current,r.delta,r.change,r.parentContribution,r.totalContribution].map(v=>Number.isFinite(v)?v:""),r.interactionAgg?.interactionRate||"",r.interactionAgg?.intUser||""]);
+      const csv="\ufeff"+[head,...body].map(row=>row.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+      const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`生态监控_复层_${pathSummary().replace(/[\\/:*?"<>|]/g,"_")}_${m.label}.csv`;a.click();URL.revokeObjectURL(a.href);
+    }
+    render();
+  })();
+  </script>
+</body>
+</html>

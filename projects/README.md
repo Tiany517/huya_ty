@@ -43,7 +43,7 @@
 | `projects/valorant-watchtime-contribution-knee/` | 无畏契约观时贡献率拐点与稳定候选筛选 | Valorant watch-time contribution knee and stable-candidate screen | 月度拐点、Top-N 覆盖、筛选脚本和匿名结果 |
 | `projects/valorant-yuezi-event-costream/` | 无畏契约赛事二路节目化案例复盘（去标识版） | Valorant event co-streaming case review (de-identified) | 窗口汇总、分析脚本和身份排除边界 |
 | `projects/wechat-channel-dau-attribution/` | 视频号两周观众数变化归因复盘（去标识版） | Two-week WeChat Channel audience attribution review | 去标识主播×日底表、两因子修复、拆分和校验 |
-| `projects/weekly-ecosystem-monitoring/` | 周报生态监控 | Weekly ecosystem monitoring | 日级品类/主播 SQL、匿名快照、平台 DAU 和展示结构 |
+| `projects/weekly-ecosystem-monitoring/` | 周报生态监控与互动看板 | Weekly ecosystem monitoring and interactive dashboard | 最新 HTML 看板、口径工作簿、刷新 Skill、生产 SQL、历史匿名快照和验证样例 |
 | `projects/world-cup-content-review/` | 世界杯内容与大盘影响复盘 | World Cup content and platform-impact review | 拉新/回流、PSM、留存、画像、搜索打标、方法和限制 |
 | `projects/xingxiu-interest-index/` | 星秀兴趣指数分析 | Xingxiu interest-index analysis | 月度 DAU/兴趣指数、主播状态、十分位、假设分组和校验 |
 

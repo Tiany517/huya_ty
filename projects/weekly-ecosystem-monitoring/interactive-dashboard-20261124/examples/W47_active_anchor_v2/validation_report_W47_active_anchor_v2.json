@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "data": "C:\\Users\\Huya\\Documents\\Codex\\2026-11-24\\qin\\work\\active_anchor_run_W47_v2_20261124\\dashboard_data_W47_active_anchor_v2.json",
+  "bytes": 57802480,
+  "checks": {
+    "topLevelSchema": true,
+    "dateFormat": true,
+    "consecutiveWeeks": true,
+    "categoryUniqueKeys": true,
+    "anchorWeeklyUniqueKeys": true,
+    "anchorDailyUniqueKeys": true,
+    "indexRanges": true,
+    "diagnosticCountsMatch": true,
+    "searchCoverage": true,
+    "finiteNumbers": true,
+    "eventStatusConsistent": true,
+    "liveAnchorCountsValid": true,
+    "nonEmptyCoreData": true
+  },
+  "diagnostics": {
+    "categoryDailyRows": 143691,
+    "categoryCount": 1915,
+    "anchorWeeklyRows": 318076,
+    "anchorCount": 111438,
+    "guildCount": 893,
+    "anchorDailyRows": 545030,
+    "eventDailyRows": 0,
+    "eventStatus": "pending",
+    "anchorDailyStatus": "ready",
+    "nicknameCoverage": 1.0,
+    "roomidCoverage": 1.0,
+    "interactionOverDauRows": 1505,
+    "liveAnchorCountCoverage": "category/group/total daily counts and weekly live-days present",
+    "aggregateStartDate": "2026-01-01",
+    "aggregateEndDate": "2026-11-23",
+    "anchorStartDate": "2026-10-12",
+    "anchorEndDate": "2026-11-22"
+  },
+  "warnings": [
+    "互动人数大于主播 DAU 的记录存在；跨场次/跨主播人数未去重，只能用于相对趋势。",
+    "赛事支付属性尚未回刷，赛事筛选不可用于 DAU/归属/互动对比。"
+  ]
+}

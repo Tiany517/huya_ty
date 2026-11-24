@@ -1,6 +1,16 @@
 # Weekly Ecosystem Monitoring
 
-Status as of 2026-11-02: the core workflow, anonymized snapshots, independent validation, and migration notes are complete. Source workbooks and large detail tables remain on the local computer and are not committed to Git.
+Status as of 2026-11-24: the project now includes an interactive HTML dashboard and the complete refresh workflow; historical anonymized snapshots remain available. Raw CSV files, build JSON, and large working directories are not committed.
+
+## Latest Interactive Dashboard (2026-11-24)
+
+The latest delivery snapshot is in `interactive-dashboard-20261124/`; start with that directory's `README.md` and `RELEASE_NOTES.md`. It contains:
+
+- The single-file dashboard at `interactive-dashboard-20261124/dashboard/生态监控看板_多维度MVP_新增开播主播数_2026-11-24.html`.
+- The metric/SQL workbook, end-to-end documentation, production SQL, build and verification scripts, and the cross-computer refresh skill.
+- W47 evidence for 13/13 data checks, 171/171 independent source reconciliations, 8/8 live-anchor UI checks, and browser smoke testing.
+
+The HTML embeds streamer-level aggregates plus UIDs, nicknames, and RoomIDs. It is limited to the private repository and local use. The three raw core CSVs, dashboard JSON, and user-level detail are not uploaded.
 
 ## Project Background
 

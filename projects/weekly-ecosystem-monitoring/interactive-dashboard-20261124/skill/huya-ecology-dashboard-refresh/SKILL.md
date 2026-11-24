@@ -1,0 +1,390 @@
+---
+name: huya-ecology-dashboard-refresh
+description: 刷新、迁移或验收虎牙生态监控 HTML 看板时使用；包含从 BigData 取数、CSV 交接、独立准确性复算、JSON/HTML 重建、自动核验、浏览器验收到发布回滚的完整可执行流程。
+---
+
+# 虎牙生态监控看板刷新
+
+## 目标与完成定义
+
+把新周期数据安全地更新进单文件 HTML 看板，并留下能够复核的源数据、SQL、口径、验证结果和运行记录。本文件是可执行主流程；references 只用于查字段、公式和补充清单，不能在主流程未执行时替代验收。
+
+一次刷新只有同时满足以下条件，才能称为“完成”：
+
+1. 三个核心 CSV 已按契约生成并完成跨电脑哈希核对。
+2. 原始源表已完成独立准确性复算，不是只用构建脚本检查自己生成的 JSON。
+3. `validation_report_<run>.json` 的 `status` 为 `passed`，所有 `checks` 均为 `true`。
+4. 使用 `--smoke-test` 时，`browser_smoke_report_<run>.json` 的 `status` 为 `passed`。
+5. `run_manifest_<run>.json` 已记录实际日期范围、输入/输出路径、字节数、SHA-256 和命令。
+6. 已人工抽查首屏、时间切换、自由维度下钻、Top20 和主播搜索结果。
+7. 正式覆盖交付物前已取得用户明确许可，并保留上一版可恢复副本。
+
+如果缺少源表复算、浏览器冒烟或人工抽查，只能报告“结构校验通过”或“数据校验通过”，不能报告“全流程通过”。
+
+## 开始前门禁
+
+执行任何 SQL 或写文件前，先确认并记下：
+
+1. 当前期、对比期的起止日期，以及选择日/周/月/季/年时的完整时间桶。
+2. 源表实际最新可用分区。用户要求的结束日期晚于最新分区时，以实际分区为准并明确写出止期。
+3. 主播周表覆盖的所有 `week_start` 是否为周一、是否连续、日表是否落在该区间内。
+4. 当前数据是否包含公会；空公会是否按“无公会”展示。
+5. 赛事支付属性是否已回刷。没有赛事 CSV 时保持 `pending`，赛事筛选不能用于 DAU、归属用户或互动对比。
+6. 输出目录、运行名和是否需要覆盖已有成品。覆盖正式成品必须得到用户明确许可。
+7. 本机是否具备 Python、Node.js、Chrome/Edge。没有浏览器环境时不得声称浏览器冒烟通过。
+
+不要把账号、API 密钥或其他凭据写入 SQL 注释、CSV、JSON、运行清单或交付文档。
+
+## 输入输出契约
+
+另一台电脑或另一位数据同学只交付 CSV，不交付手工修改过的 JSON 或半截 HTML。
+
+| 文件 | 唯一键 | 必需列 |
+|---|---|---|
+| `category_daily_all_<latest>.csv` | `dt + gameid` | `dt,gameid,game_name,content_group,dau,daily_revenue,daily_pay_user_cnt,arppu,avg_view_mins,attribution_user_cnt,live_anchor_cnt,group_live_anchor_cnt,total_live_anchor_cnt` |
+| `anchor_weekly_guild_<start>_<end>.csv` | `week_start + gameid + guild_name + luid` | `week_start,gameid,game_name,content_group,guild_name,luid,roomid,snick,dau_sum,revenue_sum,pay_sum,live_sum,acu_sum,acu_days,view_sum,view_days,attribution_sum,interaction_cnt_sum,interaction_user_sum,live_days` |
+| `anchor_daily_focus_<start>_<end>.csv` | `dt + luid` | `dt,gameid,content_group,guild_name,luid,snick,roomid,dau,daily_revenue,daily_pay_user_cnt,is_live,live_mins,avg_acu,avg_view_mins,attribution_user_cnt,interaction_cnt,interaction_user_cnt` |
+| `event_user_revenue_<start>_<end>.csv`（可选） | `dt + gameid + guild_name + luid + user_event_type` | `dt,week_start,gameid,game_name,content_group,guild_name,luid,snick,user_event_type,revenue,pay_user_cnt` |
+
+CSV 使用 UTF-8 或 UTF-8 with BOM。`luid`、`roomid` 和所有长 ID 必须按字符串保存，禁止科学计数法。关键日期、品类、主播 UID 不得为空。字段名不得自行翻译、重命名或合并。
+
+每次构建输出到新的运行目录，至少包含：
+
+- `dashboard_data_<run>.json`
+- `ecology_dashboard_<run>.html`
+- `validation_report_<run>.json`
+- `browser_smoke_report_<run>.json`（使用 `--smoke-test` 时）
+- `run_manifest_<run>.json`
+- `accuracy_reconciliation_<run>.md`（源表独立复算记录）
+
+## 完整刷新流程
+
+### 1. 确定快照和执行 SQL
+
+优先使用本 skill 中的生产 SQL：
+
+- `assets/sql/core/01_全品类日级趋势.sql`：全平台、内容大类和全品类日级数据，同时输出品类、内容大类和平台有开播主播数。
+- `assets/sql/core/02_主播周归因与公会.sql`：主播周归因、公会和层级分析，同时输出每个主播的开播天数。
+- `assets/sql/core/03_主播日级专项追踪.sql`：单主播日级专项追踪，同时输出当天是否开播。
+- `assets/sql/core/04_赛事用户支付属性_优化版_未产出.sql`：赛事支付属性，只有验证产出后才可使用。
+
+执行前用源表确认最新分区：
+
+```sql
+SELECT max(dt) AS latest_dt
+FROM zhgametemp.zty_category_ecology_health_daily_d_i_0827_v1
+WHERE dt BETWEEN '<current_start>' AND '<current_end>';
+```
+
+实际取数止期以该结果为准。SQL 默认先用 Presto；Presto 不兼容时再改为 Spark，并记录最终执行引擎。日期范围、筛选条件、内容大类映射和指标拆分必须与 SQL 源文件一致。
+
+赛事 CSV 只有在以下条件全部满足时才标记 `ready`：SQL 已成功执行、目标期行数大于 0、支付与观时窗口完整、`dt/week_start/gameid/guild_name/luid/user_event_type` 唯一。否则标记 `pending`，不得推断为 0。
+
+### 2. 导出并接收 CSV
+
+把四类 CSV 放入独立交接目录。接收方先检查文件名、周期和内容一致，再计算 SHA-256：
+
+```powershell
+Get-FileHash -Algorithm SHA256 -LiteralPath '<file.csv>'
+```
+
+发送方和接收方的哈希必须一致。哈希不一致视为传输损坏，重新传输，不尝试修补。
+
+### 3. 执行输入结构检查
+
+在运行构建前检查：
+
+- 文件存在、非空、UTF-8 可读、中文无乱码。
+- header 与上表完全匹配。
+- 三个核心唯一键无重复。
+- `week_start` 全部为周一，升序排列且相邻恰好 7 天。
+- 主播日表日期落在主播周表覆盖区间内。
+- 品类日表和主播周表的日期范围与运行清单声明一致。
+- 长 ID 仍是字符串，不是 `1.23E+09`。
+
+任一项失败必须回到取数或导出步骤，不能依赖构建脚本“容错”。
+
+### 4. 执行源表独立准确性复算
+
+这是发布硬门槛。准确性不能只检查 JSON 自洽，必须从源表用独立查询重新计算，并与 CSV 抽样或聚合结果对账。至少执行以下四组检查，并按 [references/accuracy-reconciliation-template.md](references/accuracy-reconciliation-template.md) 把 SQL、查询结果、差异和结论写入 `accuracy_reconciliation_<run>.md`。
+
+1. 日期覆盖：核对源表最小/最大 `dt`、目标分区是否存在、缺失日期列表；不得把“分区不存在”当成指标为 0。
+2. 品类日表：按日期独立重算 `category='品类整体'` 的总行数、品类数和核心指标。至少抽取 3 个日期，每个日期核对总盘、游戏、娱乐（秀场）、娱乐（非秀场）和 3 个头部品类；同时核对 `live_anchor_cnt/group_live_anchor_cnt/total_live_anchor_cnt`。
+3. 主播周表：按 `week_start` 独立重算 `category='主播明细'` 的主播数、公会数和 `dau_sum/revenue_sum/pay_sum/attribution_sum/interaction_user_sum/live_days`。至少核对 3 个周期、3 个公会、5 个主播。
+4. 主播日表：按 `dt + luid` 独立重算至少 3 个主播、3 个日期的 `dau/daily_revenue/daily_pay_user_cnt/attribution_user_cnt/interaction_user_cnt/is_live`；确认专项筛选条件与 input contract 一致。
+
+推荐的独立复算骨架如下；实际字段必须沿用生产 SQL，不得为了验证另造口径：
+
+```sql
+-- 品类日表：按日期和内容大类复算
+WITH game_dim AS (
+    SELECT cast(game_id AS varchar) AS gameid,
+           max(game_label) AS game_label
+    FROM gamelive.dim_huya_game_d_a
+    GROUP BY cast(game_id AS varchar)
+), typed AS (
+    SELECT h.dt,
+           CASE
+               WHEN g.game_label = '游戏' THEN '游戏'
+               WHEN g.game_label = '娱乐' AND h.gameid IN ('1663','2165','4079') THEN '娱乐（秀场）'
+               WHEN g.game_label = '娱乐' THEN '娱乐（非秀场）'
+               ELSE '未匹配'
+           END AS content_group,
+           h.dau,
+           h.daily_revenue,
+           h.daily_pay_user_cnt,
+           h.attribution_user_cnt
+    FROM zhgametemp.zty_category_ecology_health_daily_d_i_0827_v1 h
+    LEFT JOIN game_dim g ON h.gameid = g.gameid
+    WHERE h.dt BETWEEN '<start>' AND '<end>'
+      AND h.category = '品类整体'
+)
+SELECT dt,
+       content_group,
+       sum(dau) AS dau,
+       sum(daily_revenue) AS daily_revenue,
+       sum(daily_pay_user_cnt) AS daily_pay_user_cnt,
+       sum(attribution_user_cnt) AS attribution_user_cnt
+FROM typed
+GROUP BY dt, content_group
+ORDER BY dt, content_group;
+```
+
+```sql
+-- 主播周表：按周、品类、公会和主播复算
+WITH anchor_day_info AS (
+    SELECT dt,
+           cast(gameid AS varchar) AS gameid,
+           cast(ayyuid AS varchar) AS luid,
+           max(nullif(trim(cast(cname AS varchar)), '')) AS cname,
+           max(coalesce(com_cnt, 0)) AS interaction_cnt,
+           max(coalesce(com_ucnt, 0)) AS interaction_user_cnt
+    FROM gamelive.dm_huya_ayyuid_detail_day
+    WHERE dt BETWEEN '<start>' AND '<end>'
+      AND ayyuid IS NOT NULL
+      AND trim(cast(ayyuid AS varchar)) NOT IN ('', '0', '-1')
+    GROUP BY dt, cast(gameid AS varchar), cast(ayyuid AS varchar)
+), daily AS (
+    SELECT cast(h.dt AS date) AS dt,
+           cast(h.gameid AS varchar) AS gameid,
+           cast(h.luid AS varchar) AS luid,
+           coalesce(nullif(a.cname, ''), '无公会') AS guild_name,
+           h.dau,
+           h.daily_revenue,
+           h.daily_pay_user_cnt,
+           h.attribution_user_cnt,
+           coalesce(a.interaction_user_cnt, 0) AS interaction_user_cnt
+    FROM zhgametemp.zty_category_ecology_health_daily_d_i_0827_v1 h
+    LEFT JOIN anchor_day_info a
+      ON h.dt = a.dt
+     AND h.gameid = a.gameid
+     AND h.luid = a.luid
+    WHERE h.dt BETWEEN '<start>' AND '<end>'
+      AND h.category = '主播明细'
+      AND h.luid IS NOT NULL
+      AND trim(h.luid) NOT IN ('', '0', '-1')
+      AND coalesce(trim(h.snick), '') NOT LIKE '#%'
+      AND coalesce(trim(h.snick), '') <> '未归属主播'
+)
+SELECT date_format(date_trunc('week', d.dt), '%Y-%m-%d') AS week_start,
+       d.gameid,
+       d.guild_name,
+       d.luid,
+       sum(d.dau) AS dau_sum,
+       sum(d.daily_revenue) AS revenue_sum,
+       sum(d.daily_pay_user_cnt) AS pay_sum,
+       sum(d.attribution_user_cnt) AS attribution_sum,
+       sum(d.interaction_user_cnt) AS interaction_user_sum
+FROM daily d
+GROUP BY date_format(date_trunc('week', d.dt), '%Y-%m-%d'), d.gameid, d.guild_name, d.luid
+ORDER BY week_start, d.guild_name, d.luid;
+```
+
+准确性通过条件：
+
+- 行数、主播数、品类数、公会数和日期集合与独立复算一致。
+- 整数人数、UID、RoomID、日期和周起点完全一致。
+- 金额、时长、ACU 等浮点指标按 CSV 精度对账；默认绝对误差不超过 `0.01`，有明确源精度时可使用更严格阈值。
+- 每个抽样节点必须给出“源表值、CSV 值、差异、结论”，不能只写“已核对”。
+- 当前期与对比期都要检查，不能只验证当前期。
+- 抽样必须覆盖总盘、头部和尾部；不能只挑最容易对上的记录。
+- 开播主播数必须从 `category='主播明细' AND is_live=1` 的 `luid` 去重结果核对；`live_anchor_cnt <= group_live_anchor_cnt <= total_live_anchor_cnt`，主播周表 `live_days` 必须在 0–7 之间。
+
+若源表在导出后发生回刷，必须固定并记录导出快照；无法固定快照时，重新导出一份并整套复算，不能把快照差解释成“正常波动”。
+
+### 5. 构建 JSON 和 HTML
+
+在 skill 目录执行：
+
+```powershell
+python scripts/refresh_dashboard.py `
+  --category-csv '<category.csv>' `
+  --anchor-weekly-csv '<anchor_weekly.csv>' `
+  --anchor-daily-csv '<anchor_daily.csv>' `
+  --template 'assets/dashboard_template_multidim.html' `
+  --output-dir '<new_run_dir>' `
+  --run-name '<YYYYWww>' `
+  --source-latest-partition '<YYYY-MM-DD>' `
+  --smoke-test
+```
+
+有赛事 CSV 时增加 `--event-csv '<event.csv>'`。脚本从品类日表推导数据日期范围，从主播周表推导周列表；不要手工修改脚本常量。默认拒绝覆盖运行目录中的已有输出，确认是全新运行名后再执行。
+
+### 6. 执行自动数据核验
+
+`refresh_dashboard.py` 会自动运行 `verify_dashboard_package.py`。必要时可独立重跑：
+
+```powershell
+python scripts/verify_dashboard_package.py `
+  --data '<dashboard_data.json>' `
+  --report '<validation_report.json>'
+```
+
+`validation_report_<run>.json` 必须同时满足：
+
+- `status = passed`。
+- `topLevelSchema = true`。
+- `dateFormat = true`，所有日期可解析。
+- `consecutiveWeeks = true`，周起点连续且间隔 7 天。
+- `categoryUniqueKeys = true`、`anchorWeeklyUniqueKeys = true`、`anchorDailyUniqueKeys = true`。
+- `indexRanges = true`，所有索引都能映射到有效的周、品类、公会和主播。
+- `diagnosticCountsMatch = true`，metadata diagnostics 与实际数组行数完全一致。
+- `searchCoverage = true`，主播昵称覆盖率 `>= 99%`，RoomID 覆盖率 `>= 90%`。
+- `finiteNumbers = true`，不存在 NaN 或 Infinity。
+- `eventStatusConsistent = true`：`pending` 时赛事行为 0；`ready` 时赛事行数大于 0。
+- `liveAnchorCountsValid = true`：品类/内容大类/平台开播主播数满足包含关系，主播 `live_days` 在 0–7，主播日 `is_live` 仅为 0/1。
+- `nonEmptyCoreData = true`，三类核心数据均非空。
+
+同时检查 diagnostics 和 warnings：
+
+- `categoryDailyRows`、`categoryCount`、`anchorWeeklyRows`、`anchorCount`、`guildCount`、`anchorDailyRows`、`eventDailyRows`、昵称覆盖率和 RoomID 覆盖率必须写入运行记录。
+- `interactionOverDauRows > 0` 属于警告，不自动判失败；原因是互动人数跨场次/主播未全量去重。该指标只能做相对趋势，不能当成全站去重人数。
+- 全平台 DAU 与源表总盘对账后，若量级明显异常，必须回到 `category='品类整体'` 过滤和维度索引检查。主播明细 DAU 不得汇总成平台 DAU。
+- 月份跨周不完整时，环比、贡献值和趋势桶必须显示“数据不足”，不能按 0 处理。
+
+### 7. 执行浏览器冒烟
+
+构建命令带 `--smoke-test` 后会生成 `browser_smoke_report_<run>.json`。以下四项必须全部为 `true`：
+
+- `processExitZero`
+- `dashboardTitleRendered`
+- `rankingRendered`
+- `loadingCleared`
+
+单独重跑命令：
+
+```powershell
+node scripts/smoke_test_dashboard.mjs `
+  --html '<ecology_dashboard.html>' `
+  --report '<browser_smoke_report.json>'
+```
+
+如果本机没有 Chrome/Edge 或 Node.js，报告必须写“浏览器冒烟未执行”，不得把静态检查描述成全流程通过。
+
+### 8. 人工交互验收
+
+自动冒烟通过后，打开生成的 HTML 并至少抽查：
+
+1. 首屏总盘卡片与当前期/对比期一致。
+2. 日/周/月/季/年和自定义时间切换正常。
+3. 内容大类、品类、公会、主播层级、主播可自由增删、排序和逐层下钻。
+4. Top20 在每次对比期与当前分层下按贡献正确重算；单主播搜索后不显示多层复层表。
+5. UID、RoomID、昵称和模糊词搜索能列出候选；同名词不会串主播。
+6. 总盘、内容大类、全品类和主播专项的 DAU、归属用户、流水、互动人数、互动率可读且口径提示存在。
+7. “开播主播数”可按时间切换，且首屏 KPI、趋势和单层/复层表都能显示。
+8. 赛事状态为 `pending` 时赛事筛选被禁用或明确提示；不能静默显示 0。
+9. 移动端无关键控件遮挡、横向溢出或无法展开。
+
+### 9. 检查运行清单并发布
+
+`run_manifest_<run>.json` 必须包含：
+
+- `runName`、`status`、`sourceLatestPartition`。
+- 品类数据起止日期、主播周列表。
+- 四类输入行数（赛事缺失时 eventInput 为 0）。
+- 所有输入和输出的绝对路径、字节数、SHA-256。
+- 构建、验证、浏览器冒烟命令。
+- 嵌入的 validation 和 browserSmokeTest 结果。
+
+发布前重新计算 HTML、JSON 和报告哈希，与 manifest 一致。覆盖正式成品前必须取得用户明确许可；先保留上一版完整副本，再替换，并记录旧版路径。无法恢复的覆盖操作禁止执行。
+
+## 失败、停止和回滚
+
+| 条件 | 必须动作 |
+|---|---|
+| 缺日期、缺周或周起点不是周一 | 停止；重新取数，不插值、不补 0 |
+| 最新分区晚于实际数据 | 写明实际止期后再判断周期是否完整 |
+| source/CSV 抽样对不上 | 停止发布；回查 SQL、过滤、粒度、单位、快照和导出 |
+| 唯一键重复 | 停止；定位 join 放大或聚合粒度错误 |
+| 昵称或 RoomID 覆盖不足 | 停止；补齐主播维表或修正 ID 字符串 |
+| 开播主播数包含关系或 live_days 不合法 | 停止；回查 `is_live/luid` 去重与主播日表聚合 |
+| 赛事 CSV 缺失或为空 | `eventStatus=pending`，保留字段并禁用赛事筛选 |
+| 互动人数大于 DAU | 保留并告警；说明跨场次未全量去重，不强行截断 |
+| 月度覆盖不足 | 显示“数据不足”，不计 0、不算环比和贡献 |
+| 自动数据校验失败 | 不发布；修复后生成新运行名 |
+| 浏览器冒烟失败或未执行 | 不声称全流程通过 |
+| manifest 哈希不一致 | 视为文件损坏或版本混淆；重新构建或重新传输 |
+| 正式发布后发现问题 | 用发布前副本回滚，并保留失败运行记录 |
+
+## 核心口径
+
+### 时间与对比
+
+- 当前期日均：当前期有数据日期的指标自然日均。
+- 对比期日均：同一指标在对比期的自然日均。
+- 绝对变化：当前期日均 - 对比期日均。
+- 变化率：绝对变化 / 对比期日均；分母为零或两侧覆盖不一致时不计算。
+- 周级数据用于非整周比较时，必须标记为覆盖周近似；缺周显示“数据不足”。
+
+### 指标
+
+- 观看 DAU：`dau` 的日均。
+- 归属 DAU：`attribution_user_cnt` 的日均。
+- 打赏流水：`daily_revenue / revenue_sum` 的日均。
+- 打赏人数：`daily_pay_user_cnt / pay_sum` 的日均。
+- ARPPU：打赏流水 / 打赏人数，不能用分组 ARPPU 简单平均。
+- 人均观时：`avg_view_mins` 在有观看记录日期的平均。
+- 互动人数：`interaction_user_cnt` 的日均。
+- 互动率：互动人数 / 观看 DAU。
+- 开播主播数：周期内每日 `is_live=1` 的 `luid` 去重数再取日均。品类、内容大类和平台使用日级精确去重；公会、层级和主播使用 `live_days / 7`，跨品类时按主播周去重。
+- 主播 ACU：`acu_sum / acu_days`。
+- 主播层级：运行窗口整体平均 ACU；头部 `>=2000`，腰部 `100–1999.999…`，尾部 `<100`。
+- 公会：`gamelive.dm_huya_ayyuid_detail_day.cname`，空值为“无公会”。
+
+### 贡献与 Top20
+
+- 节点日均变化 = 当前期日均 - 对比期日均。
+- 父层贡献率 = 节点日均变化 / 直接父路径日均变化。
+- 总盘贡献率 = 节点日均变化 / 全平台根节点日均变化。
+- 负向拖累按变化值升序；正向拉动按变化值降序；综合贡献按绝对值降序。
+- 每层 Top20 必须根据当前对比期、当前指标和当前筛选范围动态计算，不得在源码中固定主播名单。
+
+### 内容大类
+
+- 游戏：`game_label='游戏'`。
+- 娱乐（秀场）：`game_label='娱乐'` 且 gameid 为 `1663/2165/4079`。
+- 娱乐（非秀场）：其余 `game_label='娱乐'`。
+- 未匹配：无法从最新品类维表匹配。
+
+### 不可直接相加
+
+- 各品类 DAU、归属用户和互动人数可能跨品类重叠，总和不是全站去重用户。
+- 主播观看 DAU 是主播/场次口径，不能汇总成全平台 DAU。
+- 互动人数跨场次、主播、公会可能重叠；互动率只用于相对监控和异常发现。
+- 不同路径下主播和用户可能重复，多层明细各行人数不能直接相加。
+
+## 资源
+
+- 详细字段与交接契约：[references/input-contract.md](references/input-contract.md)
+- 源表准确性复算记录模板：[references/accuracy-reconciliation-template.md](references/accuracy-reconciliation-template.md)
+- 指标、贡献值和不可加总口径：[references/metric-definitions.md](references/metric-definitions.md)
+- 补充验收清单：[references/validation-checklist.md](references/validation-checklist.md)
+- SQL 来源与使用边界：[references/sql-catalog.md](references/sql-catalog.md)
+- 当前生产 SQL：`assets/sql/core/`
+- 历史与赛事参考 SQL：`assets/sql/reference/`
+- 数据构建：`scripts/build_dashboard_data_multidim.py`
+- HTML 注入：`scripts/build_dashboard.py`
+- 数据验证：`scripts/verify_dashboard_package.py`
+- 一键刷新：`scripts/refresh_dashboard.py`
+- 无头浏览器冒烟：`scripts/smoke_test_dashboard.mjs`
+- 看板模板：`assets/dashboard_template_multidim.html`
