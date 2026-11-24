@@ -522,7 +522,21 @@ def render_table(rows: list[dict], columns: list[tuple[str, callable]], empty_te
 
 def severity_cell(row: dict) -> tuple[str, str]:
     severity = row.get("severity", "正常")
-    return severity, f"badge severity-{severity}"
+    display = "低" if severity == "正常" else severity
+    return display, f"badge severity-{display}"
+
+
+def severity_rule_lines() -> list[str]:
+    return [
+        "级别口径说明",
+        "1. 基数为过去 4 个相同星期的中位数；异常分 = 变化值 / (1.4826 × MAD)，MAD 为这 4 个历史值相对中位数的绝对偏差中位数。",
+        "2. 平台 DAU、内容生态 DAU、归属用户数：最小绝对变化 5,000；变化率 ≥5% 为中，≥15% 为高。",
+        "3. 打赏流水：最小绝对变化 5,000 元，变化率 ≥10% 为中、≥30% 为高；打赏人数：最小绝对变化 50 人，变化率 ≥10% 为中、≥30% 为高。",
+        "4. 开播主播数：最小绝对变化 10 人，变化率 ≥10% 为中、≥30% 为高。",
+        "5. 变化率达到中级线的 3 倍，或达到中级线的 1.5 倍且异常分绝对值 ≥3，也判为高；异常分绝对值 ≥2.5，也判为中。",
+        "6. 基线少于 4 个点，或历史变异系数大于 30%，视为低把握，级别为高时降为中；变异系数 15%–30% 为中把握，≤15% 为高把握。",
+        "7. 未达到中级别条件的显示为低（正常）。级别用于异动优先级，不等同于统计显著性。",
+    ]
 
 
 def render_html(report: dict) -> str:
@@ -582,6 +596,7 @@ def render_html(report: dict) -> str:
         ("互动率", lambda row: format_pct(row["currentInteractionRate"])),
     ]
     warning_items = "".join(f"<li>{html.escape(item)}</li>" for item in report["warnings"]) or "<li>无</li>"
+    severity_rule_html = "<br>".join(html.escape(item) for item in severity_rule_lines())
     gen_time = report["generatedAt"].replace("T", " ")
     return f"""<!doctype html>
 <html lang="zh-CN">
@@ -627,7 +642,7 @@ def render_html(report: dict) -> str:
     tbody tr:hover {{ background:#f8fbff; }}
     .delta-down {{ color:var(--red); font-weight:700; }} .delta-up {{ color:var(--green); font-weight:700; }}
     .badge {{ display:inline-flex; padding:3px 8px; border-radius:99px; font-size:12px; font-weight:700; }}
-    .severity-高 {{ color:#9f1f2e; background:#fee8eb; }} .severity-中 {{ color:#965600; background:#fff1d6; }} .severity-正常 {{ color:#3f5b77; background:#edf3f8; }}
+    .severity-高 {{ color:#9f1f2e; background:#fee8eb; }} .severity-中 {{ color:#965600; background:#fff1d6; }} .severity-低 {{ color:#3f5b77; background:#edf3f8; }}
     .empty {{ padding:22px; color:var(--muted); text-align:center; background:#f8fafc; border-radius:12px; }}
     .notes {{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }}
     .notes ul {{ margin:0; padding-left:20px; line-height:1.85; color:#4f6076; }}
@@ -663,7 +678,7 @@ def render_html(report: dict) -> str:
     <section><div class="section-head"><h2>数据与口径提示</h2><p>解读前先看限制</p></div><div class="section-body"><ul class="conclusions">{warning_items}</ul></div></section>
   </div>
   <section><div class="section-head"><h2>主播 Top20</h2><p>按主播 + 品类 + 公会路径的周 DAU 变化排序</p></div>{render_table(report['anchorTop20'], anchor_columns)}</section>
-  <footer>输入文件：{html.escape(report['inputs']['data'])}<br>说明：平台 DAU 使用官方平台活跃用户表；品类、公会、主播数据仅用于归因，不直接相加成平台去重用户。互动率仅用于相对趋势，互动人数跨场次可能重叠。</footer>
+  <footer>输入文件：{html.escape(report['inputs']['data'])}<br>说明：平台 DAU 使用官方平台活跃用户表；品类、公会、主播数据仅用于归因，不直接相加成平台去重用户。互动率仅用于相对趋势，互动人数跨场次可能重叠。<br><br>{severity_rule_html}</footer>
 </main>
 </body>
 </html>
@@ -708,6 +723,8 @@ def render_markdown(report: dict) -> str:
             lines.append("| " + " | ".join(rendered) + " |")
     lines += ["", "## 口径提示", ""]
     lines.extend(f"- {item}" for item in report["warnings"])
+    lines += ["", "## 级别口径说明", ""]
+    lines.extend(f"- {item}" for item in severity_rule_lines()[1:])
     lines += ["", f"生成时间：{report['generatedAt']}"]
     return "\n".join(lines) + "\n"
 
@@ -863,7 +880,7 @@ def main() -> int:
         "checks": checks,
     }
     html_text = render_html(report)
-    checks["htmlContainsCoreSections"] = all(token in html_text for token in ("虎牙生态监控异动日报", "品类 Top20", "公会 Top20", "主播 Top20"))
+    checks["htmlContainsCoreSections"] = all(token in html_text for token in ("虎牙生态监控异动日报", "品类 Top20", "公会 Top20", "主播 Top20", "级别口径说明"))
     if args.smoke_test:
         node = "node"
         smoke_cmd = [
