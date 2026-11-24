@@ -490,9 +490,11 @@ def conclusion_text(
             f"内容生态最大拖累为{top['name']}（{top['group']}），DAU 变化 {format_delta(top['delta'])}，变化率 {format_pct(top['changePct'])}。"
         )
     if revenue and pay:
-        if revenue["delta"] > 0 and pay["delta"] < 0:
+        if revenue["delta"] > 0 and pay["severity"] == "正常":
+            results.append("打赏流水上升，但打赏人数变化不显著，需结合 ARPPU 和大额付费集中度判断。")
+        elif revenue["delta"] > 0 and pay["delta"] < 0 and pay["severity"] != "正常":
             results.append("流水上升而打赏人数下降，显示收入可能向少数高付费用户集中。")
-        elif revenue["delta"] < 0 and pay["delta"] < 0:
+        elif revenue["delta"] < 0 and pay["delta"] < 0 and pay["severity"] != "正常":
             results.append("流水与打赏人数同步下降，需同时检查流量和付费转化。")
     if tier_rows:
         largest = max(tier_rows, key=lambda item: abs(item["delta"]))
