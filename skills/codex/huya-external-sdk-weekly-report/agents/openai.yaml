@@ -1,0 +1,4 @@
+interface:
+  display_name: "虎牙外部SDK周报"
+  short_description: "从BigData生成外部SDK周报并完成主播归因"
+  default_prompt: "Use $huya-external-sdk-weekly-report to generate the latest natural-week SDK report from BigData."
