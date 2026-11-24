@@ -1,6 +1,6 @@
 ---
 name: huya-ecology-dashboard-refresh
-description: 刷新、迁移或验收虎牙生态监控 HTML 看板时使用；包含从 BigData 取数、CSV 交接、独立准确性复算、JSON/HTML 重建、自动核验、浏览器验收到发布回滚的完整可执行流程。
+description: 刷新、迁移或验收虎牙生态监控 HTML 看板与异动日报时使用；包含从 BigData 取数、CSV 交接、独立准确性复算、JSON/HTML 重建、自由分析画布、自动核验、浏览器验收到发布回滚的完整可执行流程。
 ---
 
 # 虎牙生态监控看板刷新
@@ -16,7 +16,7 @@ description: 刷新、迁移或验收虎牙生态监控 HTML 看板时使用；�
 3. `validation_report_<run>.json` 的 `status` 为 `passed`，所有 `checks` 均为 `true`。
 4. 使用 `--smoke-test` 时，`browser_smoke_report_<run>.json` 的 `status` 为 `passed`。
 5. `run_manifest_<run>.json` 已记录实际日期范围、输入/输出路径、字节数、SHA-256 和命令。
-6. 已人工抽查首屏、时间切换、自由维度下钻、Top20 和主播搜索结果。
+6. 已人工抽查首屏、时间切换、自由维度下钻、自由分析画布、Top20 和主播搜索结果。
 7. 正式覆盖交付物前已取得用户明确许可，并保留上一版可恢复副本。
 8. 启用日报时，`daily_alert_report_<run>.json` 的 `status` 为 `passed`，日报冒烟通过，且平台 DAU 来自官方平台活跃用户表。
 
@@ -272,7 +272,7 @@ python scripts/verify_dashboard_package.py `
 - `platformDauAvailable`：官方平台 DAU 在日报日期和基线日期均有值。
 - `weeklyComparisonAvailable`：至少有当前和上一个完整自然周。
 - `sourceValidationPassed`：输入的主看板 `validation_report` 为 `passed` 且全部检查为 `true`。
-- `topTablesPopulated`、`htmlContainsCoreSections`、`allNumbersFinite`。
+- `topTablesPopulated`、`visualizationDataAvailable`、`htmlContainsCoreSections`、`allNumbersFinite`。
 - 启用浏览器检查时 `browserSmokePassed=true`。
 
 平台 DAU 下降且开播主播数显著下降时才提示供给问题；开播主播数轻微波动不得生成“供给减少”的强结论。品类、公会、主播贡献率必须保留正负方向，贡献分母使用变化绝对值，不能因根节点为负而把跌幅显示成正贡献。
@@ -315,7 +315,21 @@ node scripts/smoke_test_dashboard.mjs `
 6. 总盘、内容大类、全品类和主播专项的 DAU、归属用户、流水、互动人数、互动率可读且口径提示存在。
 7. “开播主播数”可按时间切换，且首屏 KPI、趋势和单层/复层表都能显示。
 8. 赛事状态为 `pending` 时赛事筛选被禁用或明确提示；不能静默显示 0。
-9. 移动端无关键控件遮挡、横向溢出或无法展开。
+9. 主看板和日报均使用浅色液态玻璃视觉，正文与表格对比度足够；不得只在局部页面应用。
+10. 两个自由分析画布默认展示大盘 DAU 趋势，可切换日/周/月/季度，支持折线、柱状和 100% 堆积；内容生态堆积可从内容大类下钻到品类。
+11. 日报所有周期标签必须写清“日/周/月”等口径，例如“平台 DAU（日）”和“最新完整周 DAU（7 日求和）”。
+12. 移动端无关键控件遮挡、页面级横向溢出或无法展开；表格自身可以横向滚动。
+
+开发模板或画布交互时可运行以下回归检查：
+
+```powershell
+node scripts/test_dashboard_template.mjs
+python -m unittest scripts/test_daily_alert_visualization.py -v
+node scripts/test_dashboard_multidim.mjs '<ecology_dashboard.html>'
+node scripts/test_daily_alert_visualization.mjs '<daily_alert_report.html>'
+```
+
+两个浏览器交互脚本需要可用的 Chrome 调试端口，并会把指定 HTML 导航到当前调试页。主看板脚本验证维度增删排序、复层下钻、主播搜索和全粒度趋势；日报脚本验证默认平台日趋势、柱状、平台及内容生态 100% 堆积、内容大类下钻和月粒度。任一失败都不得发布。
 
 ### 9. 检查运行清单并发布
 
@@ -414,3 +428,5 @@ node scripts/smoke_test_dashboard.mjs `
 - 无头浏览器冒烟：`scripts/smoke_test_dashboard.mjs`
 - 异动日报：`scripts/build_daily_alert_report.py`
 - 看板模板：`assets/dashboard_template_multidim.html`
+- 日报自由画布：`assets/daily_alert_visualization.js`
+- 模板与日报画布测试：`scripts/test_dashboard_template.mjs`、`scripts/test_daily_alert_visualization.py`、`scripts/test_daily_alert_visualization.mjs`

@@ -73,6 +73,7 @@ const checks = {
   dashboardTitleRendered: result.stdout.includes("生态监控"),
   rankingRendered: result.stdout.includes("Top20"),
   loadingCleared: !result.stdout.includes("正在读取多维度看板数据"),
+  visualizationCanvasRendered: result.stdout.includes('data-visualization-canvas="true"'),
 };
 const report = {
   status: Object.values(checks).every(Boolean) ? "passed" : "failed",

@@ -14,6 +14,8 @@
 
 启用自动日报时，刷新命令增加 `--daily-report --platform-daily-csv <platform_daily.csv>`。日报使用官方平台活跃用户表计算 DAU，并生成品类、公会、主播层级和主播 Top20 异动归因；品类 DAU 不用于冒充全站 DAU。
 
+主看板和异动日报统一采用浅色液态玻璃视觉，并各自提供自由分析画布：默认展示大盘 DAU 趋势，可切换日/周/月/季度和折线/柱状/100% 堆积；内容生态堆积可从内容大类继续下钻到品类。日报的周期标签会显式标注“日”“7 日求和”等口径。
+
 ## 当前成品
 
 - 运行版看板：不进入 GitHub，由 `refresh_dashboard.py` 在当前电脑生成；目录边界见 `dashboard/README.md`
@@ -57,7 +59,8 @@ python scripts/refresh_dashboard.py \
 |-- examples/
 |   `-- W47_active_anchor_v2/（新增开播主播数后的验证、冒烟与运行清单样例）
 |-- assets/
-|   `-- dashboard_template_multidim.html
+|   |-- dashboard_template_multidim.html
+|   `-- daily_alert_visualization.js
 |-- sql/
 |   |-- README.md
 |   |-- core/
@@ -68,7 +71,10 @@ python scripts/refresh_dashboard.py \
 |   |-- build_dashboard_data_multidim.py
 |   |-- build_dashboard.py
 |   |-- verify_dashboard_package.py
-|   `-- smoke_test_dashboard.mjs
+|   |-- smoke_test_dashboard.mjs
+|   |-- test_dashboard_template.mjs
+|   |-- test_dashboard_multidim.mjs
+|   `-- test_daily_alert_visualization.py / .mjs
 `-- skill/
     `-- huya-ecology-dashboard-refresh/
 ```

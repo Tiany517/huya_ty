@@ -25,7 +25,10 @@ python scripts/refresh_dashboard.py \
 - `build_dashboard.py`：将 JSON 注入 HTML 模板。
 - `verify_dashboard_package.py`：schema、唯一键、行数、索引、日期、搜索覆盖、数值、赛事状态和开播主播数包含关系验证。
 - `smoke_test_dashboard.mjs`：headless Chrome/Edge 加载 HTML，检查标题、Top20、loading 清除和退出码。
-- `build_daily_alert_report.py`：从通过校验的 dashboard JSON 生成一页异动日报，计算同星期基线、异常级别、品类/公会/主播层级/主播 Top20 和互动率。
+- `build_daily_alert_report.py`：从通过校验的 dashboard JSON 生成一页异动日报，计算同星期基线、异常级别、品类/公会/主播层级/主播 Top20、互动率和内嵌自由分析画布数据。
+- `test_dashboard_template.mjs`：静态检查主看板的浅色玻璃样式、画布数据属性和交互入口。
+- `test_daily_alert_visualization.py`：检查日报画布数据载荷和周期标签口径。
+- `test_daily_alert_visualization.mjs`：通过 Chrome 调试端口验证默认平台日趋势、柱状、100% 堆积、内容大类下钻和月粒度。
 
 ## 开播主播数字段
 
@@ -60,6 +63,7 @@ python scripts/refresh_dashboard.py \
 4. `browser_smoke_report_<run>.json` 为 `passed`。
 5. `run_manifest_<run>.json` 的路径、行数、字节数和 SHA-256 完整。
 6. 启用日报时 `daily_alert_report_<run>.json=passed`，且平台 DAU 来自官方平台活跃用户表。
+7. 主看板与日报的自由分析画布回归检查通过，桌面和移动端页面级无横向溢出。
 
 ## 单独验证
 

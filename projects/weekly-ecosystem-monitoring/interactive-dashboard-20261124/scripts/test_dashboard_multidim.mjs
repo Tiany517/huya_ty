@@ -1,4 +1,6 @@
 import fs from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const port = 9334;
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -65,6 +67,10 @@ async function click(selector) {
 
 await send("Runtime.enable");
 await send("Page.enable");
+if (process.argv[2]) {
+  await send("Page.navigate", { url: pathToFileURL(path.resolve(process.argv[2])).href });
+  await delay(1500);
+}
 await send("Page.reload", { ignoreCache: true });
 await delay(5500);
 exceptions.length = 0;
@@ -81,6 +87,9 @@ const initial = await evaluate(`(() => ({
   multiVisible:Boolean(document.querySelector("#treeTableBody")),
   multiToggle:Boolean(document.querySelector("[data-toggle-multi]")),
   chartSvg: document.querySelectorAll(".chart svg").length,
+  chartTypes:[...document.querySelectorAll("[data-chart-type]")].map(x=>x.dataset.chartType),
+  activeChartType:window.__dashDebug.state.chartType,
+  visualizationCanvas:Boolean(document.querySelector('[data-visualization-canvas="true"]')),
   eventDisabled: document.getElementById("eventFilter")?.disabled,
   scope: document.querySelector(".scope-strip")?.textContent.replace(/\\s+/g," ").trim(),
   trend: window.__dashDebug.trendSeries("dau").slice(-3),
@@ -264,6 +273,7 @@ await screenshot("multidim_v2_custom");
 
 const checks = {
   rendered: initial.title === "全品类生态监控看板" && initial.chartSvg === 2 && initial.rows.length === 4,
+  freeVisualizationCanvas: initial.visualizationCanvas && initial.chartTypes.join("|") === "line|bar|stack" && initial.activeChartType === "line",
   contributionColumns: initial.headers.includes("父层贡献*") && initial.headers.includes("总盘贡献*") && initial.contributions.every(x=>x.parent&&x.parent!=="-"&&x.total&&x.total!=="-"),
   singleAndTreeViews: initial.multiVisible === false && initial.multiToggle && multiOpened.visible && multiOpened.rows >= 3 && treeExpanded.rows > multiOpened.rows && treeExpanded.expanded >= 1,
   platformDauScale: primaryDau >= 4_500_000 && primaryDau <= 5_800_000,

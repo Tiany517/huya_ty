@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
+import gzip
 import hashlib
 import html
 import json
@@ -157,6 +159,51 @@ def load_platform_daily(path: Path | None) -> dict[str, float]:
     if not result:
         raise ValueError("platform daily CSV has no rows")
     return result
+
+
+def build_visualization_payload(data: dict, platform_daily: dict[str, float], report_date: date) -> dict:
+    """构造日报自由分析画布的轻量日级数据，供前端按日/周/月/季度聚合。"""
+    meta = data["meta"]
+    columns = {name: index for index, name in enumerate(meta["categoryColumns"])}
+    groups = [
+        {"id": str(index), "name": name}
+        for index, name in enumerate(meta["contentGroups"])
+    ]
+    category_index = {str(item["id"]): index for index, item in enumerate(meta["categories"])}
+    categories = [
+        {"id": str(item["id"]), "name": item["name"], "group": int(item["group"])}
+        for item in meta["categories"]
+    ]
+    dates = sorted({row[columns["date"]] for row in data["categoryDaily"]})
+    date_index = {value: index for index, value in enumerate(dates)}
+    rows = []
+    for row in data["categoryDaily"]:
+        category_id = str(meta["categories"][int(row[columns["category"]])]["id"])
+        rows.append([
+            date_index[row[columns["date"]]],
+            category_index[category_id],
+            int(row[columns["group"]]),
+            parse_number(row[columns["dau"]]),
+        ])
+    platform = [
+        [dt_value, parse_number(platform_daily[dt_value])]
+        for dt_value in sorted(platform_daily)
+        if dt_value in date_index or dt_value <= report_date.isoformat()
+    ]
+    return {
+        "reportDate": report_date.isoformat(),
+        "availableStart": dates[0] if dates else "",
+        "availableEnd": dates[-1] if dates else "",
+        "defaultScope": "platform" if platform else "total",
+        "defaultGranularity": "day",
+        "defaultChartType": "line",
+        "granularities": ["day", "week", "month", "quarter"],
+        "groups": groups,
+        "categories": categories,
+        "dates": dates,
+        "platform": platform,
+        "rows": rows,
+    }
 
 
 def previous_weekdays(report_date: date, count: int) -> list[date]:
@@ -539,15 +586,16 @@ def severity_rule_lines() -> list[str]:
     ]
 
 
-def render_html(report: dict) -> str:
+def render_html(report: dict, visualization_payload: dict) -> str:
     metrics = report["platformMetrics"]
     cards = []
     for metric in metrics:
+        metric_label = f"{metric['label']}（日）"
         cards.append(f"""
         <article class="kpi-card {html.escape(metric['severity'])}">
-          <div class="kpi-label">{html.escape(metric['label'])}</div>
+          <div class="kpi-label">{html.escape(metric_label)}</div>
           <div class="kpi-value">{html.escape(format_number(metric['current']))}</div>
-          <div class="kpi-meta">基线 {html.escape(format_number(metric['baseline']))}</div>
+          <div class="kpi-meta">过去 4 个同星期中位数（日） {html.escape(format_number(metric['baseline']))}</div>
           <div class="kpi-change">变化 {html.escape(format_delta(metric['delta']))}<span>{html.escape(format_pct(metric['changePct']))}</span></div>
         </article>
         """)
@@ -560,8 +608,8 @@ def render_html(report: dict) -> str:
     category_columns = [
         ("品类", lambda row: row["name"]),
         ("内容大类", lambda row: row["group"]),
-        ("本期 DAU", lambda row: format_number(row["current"])),
-        ("同星期基线", lambda row: format_number(row["baseline"])),
+        ("报告日 DAU（日）", lambda row: format_number(row["current"])),
+        ("过去 4 个同星期中位数（日）", lambda row: format_number(row["baseline"])),
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
         ("贡献占比", lambda row: format_pct(row.get("contributionShare"))),
@@ -569,8 +617,8 @@ def render_html(report: dict) -> str:
     ]
     guild_columns = [
         ("公会", lambda row: row["label"]),
-        ("本期周 DAU", lambda row: format_number(row["currentDau"])),
-        ("上期周 DAU", lambda row: format_number(row["previousDau"])),
+        ("最新完整周 DAU（7 日求和）", lambda row: format_number(row["currentDau"])),
+        ("上一完整周 DAU（7 日求和）", lambda row: format_number(row["previousDau"])),
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
@@ -578,8 +626,8 @@ def render_html(report: dict) -> str:
     ]
     tier_columns = [
         ("主播层级", lambda row: row["label"]),
-        ("本期周 DAU", lambda row: format_number(row["currentDau"])),
-        ("上期周 DAU", lambda row: format_number(row["previousDau"])),
+        ("最新完整周 DAU（7 日求和）", lambda row: format_number(row["currentDau"])),
+        ("上一完整周 DAU（7 日求和）", lambda row: format_number(row["previousDau"])),
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
@@ -588,8 +636,8 @@ def render_html(report: dict) -> str:
     anchor_columns = [
         ("主播", lambda row: row["label"]),
         ("品类 / 公会", lambda row: row["pathLabel"]),
-        ("本期周 DAU", lambda row: format_number(row["currentDau"])),
-        ("上期周 DAU", lambda row: format_number(row["previousDau"])),
+        ("最新完整周 DAU（7 日求和）", lambda row: format_number(row["currentDau"])),
+        ("上一完整周 DAU（7 日求和）", lambda row: format_number(row["previousDau"])),
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
@@ -597,6 +645,12 @@ def render_html(report: dict) -> str:
     ]
     warning_items = "".join(f"<li>{html.escape(item)}</li>" for item in report["warnings"]) or "<li>无</li>"
     severity_rule_html = "<br>".join(html.escape(item) for item in severity_rule_lines())
+    visualization_json = json.dumps(visualization_payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    visualization_gzip = base64.b64encode(gzip.compress(visualization_json, compresslevel=9, mtime=0)).decode("ascii")
+    visualization_template = (SCRIPT_DIR.parent / "assets" / "daily_alert_visualization.js").read_text(encoding="utf-8")
+    visualization_script = visualization_template.replace(
+        "__DEFAULT_SCOPE__", json.dumps(visualization_payload["defaultScope"])
+    )
     gen_time = report["generatedAt"].replace("T", " ")
     return f"""<!doctype html>
 <html lang="zh-CN">
@@ -605,19 +659,24 @@ def render_html(report: dict) -> str:
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>虎牙生态监控异动日报 {html.escape(report['reportDate'])}</title>
   <style>
-    :root {{ --ink:#162235; --muted:#65748b; --line:#dfe7f1; --bg:#f4f7fb; --card:#fff; --blue:#2563eb; --red:#c93d4b; --green:#16815e; --amber:#a05c00; }}
+    :root {{ --ink:#162235; --muted:#65748b; --line:rgba(255,255,255,.62); --bg:#f4f7fb; --card:rgba(255,255,255,.62); --blue:#2563eb; --red:#c93d4b; --green:#16815e; --amber:#a05c00; --glass:rgba(255,255,255,.54); --glass-strong:rgba(255,255,255,.76); --glass-stroke:rgba(255,255,255,.78); --liquid-shadow:0 18px 50px rgba(48,74,116,.12); }}
     * {{ box-sizing:border-box; }}
-    body {{ margin:0; background:linear-gradient(180deg,#edf4ff 0,#f7f9fc 240px,#f7f9fc 100%); color:var(--ink); font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif; }}
-    main {{ width:min(1420px,calc(100% - 40px)); margin:0 auto; padding:34px 0 56px; }}
+    body {{ margin:0; overflow-x:hidden; background:radial-gradient(circle at 8% 0%,rgba(133,180,255,.28),transparent 32%),radial-gradient(circle at 94% 10%,rgba(247,182,214,.23),transparent 28%),linear-gradient(180deg,#f2f7ff 0,#f8fbff 42%,#f5f8fd 100%); color:var(--ink); font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif; }}
+    body::before,body::after {{ content:""; position:fixed; z-index:0; width:420px; height:420px; border-radius:50%; filter:blur(34px); pointer-events:none; opacity:.5; animation:liquidFloat 18s ease-in-out infinite alternate; }}
+    body::before {{ left:-150px; top:8vh; background:radial-gradient(circle,rgba(105,165,255,.34),rgba(255,255,255,0)); }}
+    body::after {{ right:-170px; top:36vh; background:radial-gradient(circle,rgba(248,160,205,.28),rgba(255,255,255,0)); animation-delay:-7s; }}
+    @keyframes liquidFloat {{ from {{ transform:translate3d(0,-12px,0) scale(.94); }} to {{ transform:translate3d(28px,24px,0) scale(1.08); }} }}
+    main {{ position:relative; z-index:1; width:min(1420px,calc(100% - 40px)); margin:0 auto; padding:34px 0 56px; }}
     .hero {{ display:flex; justify-content:space-between; gap:24px; align-items:flex-end; margin-bottom:22px; }}
     h1 {{ margin:6px 0 8px; font-size:34px; letter-spacing:-.5px; }}
     .eyebrow {{ color:var(--blue); font-weight:700; letter-spacing:.12em; font-size:12px; }}
     .subtitle {{ color:var(--muted); line-height:1.7; }}
-    .stamp {{ min-width:250px; padding:16px 18px; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.82); }}
+    .stamp {{ min-width:250px; padding:16px 18px; border:1px solid var(--glass-stroke); border-radius:18px; background:var(--glass); box-shadow:var(--liquid-shadow); backdrop-filter:blur(24px) saturate(165%); -webkit-backdrop-filter:blur(24px) saturate(165%); }}
     .stamp strong {{ display:block; margin-bottom:6px; }}
     .stamp span {{ display:block; color:var(--muted); font-size:13px; line-height:1.7; }}
     .kpis {{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; margin:20px 0; }}
-    .kpi-card {{ position:relative; overflow:hidden; padding:18px; border-radius:16px; border:1px solid var(--line); background:var(--card); box-shadow:0 8px 24px rgba(27,55,96,.06); }}
+    .kpi-card {{ position:relative; overflow:hidden; padding:18px; border-radius:18px; border:1px solid var(--glass-stroke); background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(255,255,255,.46)); box-shadow:var(--liquid-shadow); backdrop-filter:blur(24px) saturate(165%); -webkit-backdrop-filter:blur(24px) saturate(165%); transition:transform .24s ease,box-shadow .24s ease; }}
+    .kpi-card:hover {{ transform:translateY(-3px); box-shadow:0 24px 58px rgba(48,74,116,.16); }}
     .kpi-card:after {{ content:""; position:absolute; inset:0 auto 0 0; width:4px; background:#cbd5e1; }}
     .kpi-card.高:after {{ background:var(--red); }} .kpi-card.中:after {{ background:var(--amber); }}
     .kpi-label {{ color:var(--muted); font-size:13px; }}
@@ -625,19 +684,19 @@ def render_html(report: dict) -> str:
     .kpi-meta,.kpi-change {{ color:var(--muted); font-size:12px; }}
     .kpi-change span {{ margin-left:10px; font-weight:700; color:var(--ink); }}
     .grid-two {{ display:grid; grid-template-columns:1.15fr .85fr; gap:18px; margin-top:18px; }}
-    section {{ margin-top:18px; border:1px solid var(--line); border-radius:18px; background:var(--card); box-shadow:0 10px 30px rgba(27,55,96,.05); overflow:hidden; }}
-    .section-head {{ padding:18px 20px 15px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:16px; }}
+    section {{ margin-top:18px; border:1px solid var(--glass-stroke); border-radius:20px; background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.48)); box-shadow:var(--liquid-shadow); overflow:hidden; backdrop-filter:blur(26px) saturate(165%); -webkit-backdrop-filter:blur(26px) saturate(165%); }}
+    .section-head {{ padding:18px 20px 15px; border-bottom:1px solid rgba(255,255,255,.5); display:flex; justify-content:space-between; align-items:center; gap:16px; background:linear-gradient(90deg,rgba(255,255,255,.34),rgba(255,255,255,.08)); }}
     .section-head h2 {{ margin:0; font-size:18px; }} .section-head p {{ margin:0; color:var(--muted); font-size:12px; }}
     .section-body {{ padding:18px 20px 20px; }}
     .conclusions {{ margin:0; padding-left:22px; line-height:1.9; }}
     .alert-list {{ display:grid; gap:10px; }}
-    .alert-item {{ display:grid; grid-template-columns:42px 1fr; gap:12px; padding:13px 14px; border-radius:13px; background:#f8fafc; border:1px solid #edf1f6; }}
+    .alert-item {{ display:grid; grid-template-columns:42px 1fr; gap:12px; padding:13px 14px; border-radius:14px; background:rgba(255,255,255,.55); border:1px solid rgba(255,255,255,.72); box-shadow:0 8px 22px rgba(48,74,116,.05); }}
     .alert-item>span {{ display:grid; place-items:center; width:34px; height:34px; border-radius:10px; color:#fff; background:var(--amber); font-weight:800; }}
     .alert-item.高>span {{ background:var(--red); }}
     .alert-item strong {{ font-size:14px; }} .alert-item p {{ margin:4px 0 0; color:var(--muted); font-size:12px; line-height:1.6; }}
     .table-wrap {{ overflow:auto; }}
     table {{ width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; }}
-    th {{ position:sticky; top:0; z-index:1; padding:11px 12px; text-align:left; color:#53627a; background:#f4f7fb; border-bottom:1px solid var(--line); white-space:nowrap; }}
+    th {{ position:sticky; top:0; z-index:1; padding:11px 12px; text-align:left; color:#53627a; background:rgba(244,248,255,.78); border-bottom:1px solid rgba(255,255,255,.7); white-space:nowrap; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }}
     td {{ padding:11px 12px; border-bottom:1px solid #edf1f6; white-space:nowrap; }}
     tbody tr:hover {{ background:#f8fbff; }}
     .delta-down {{ color:var(--red); font-weight:700; }} .delta-up {{ color:var(--green); font-weight:700; }}
@@ -646,9 +705,34 @@ def render_html(report: dict) -> str:
     .empty {{ padding:22px; color:var(--muted); text-align:center; background:#f8fafc; border-radius:12px; }}
     .notes {{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }}
     .notes ul {{ margin:0; padding-left:20px; line-height:1.85; color:#4f6076; }}
+    .visualization-head-tools {{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }}
+    .visualization-controls {{ display:grid; grid-template-columns:minmax(210px,1.5fr) repeat(3,minmax(120px,.7fr)); gap:10px; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,.52); background:rgba(255,255,255,.2); }}
+    .visualization-control {{ display:flex; flex-direction:column; gap:6px; }}
+    .visualization-control label {{ color:var(--muted); font-size:11px; font-weight:700; }}
+    .visualization-control select {{ width:100%; min-height:38px; padding:8px 10px; color:var(--ink); font:inherit; font-size:12px; font-weight:700; border:1px solid rgba(255,255,255,.78); border-radius:12px; outline:none; background:rgba(255,255,255,.64); box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 8px 20px rgba(48,74,116,.07); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }}
+    .chart-type-tabs {{ display:flex; gap:4px; padding:4px; border-radius:13px; background:rgba(235,241,250,.7); }}
+    .chart-type-tabs button {{ flex:1; border:0; border-radius:10px; padding:8px 10px; background:transparent; color:var(--muted); font-size:12px; font-weight:800; }}
+    .chart-type-tabs button.active {{ color:#2458b5; background:rgba(255,255,255,.88); box-shadow:0 6px 16px rgba(48,74,116,.1),inset 0 1px 0 #fff; }}
+    .visualization-stage {{ padding:16px 20px 20px; }}
+    .visualization-breadcrumb {{ display:flex; gap:8px; align-items:center; margin-bottom:10px; color:var(--muted); font-size:12px; flex-wrap:wrap; }}
+    .visualization-breadcrumb button {{ border:0; padding:2px 7px; border-radius:8px; color:#315fae; background:rgba(255,255,255,.7); font:inherit; font-weight:700; }}
+    .visualization-chart {{ min-height:340px; border-radius:16px; padding:10px; background:linear-gradient(145deg,rgba(255,255,255,.48),rgba(255,255,255,.2)); border:1px solid rgba(255,255,255,.5); }}
+    .visualization-chart svg {{ display:block; width:100%; height:330px; overflow:visible; }}
+    .visualization-chart .axis {{ fill:#718096; font-size:11px; }}
+    .visualization-chart .grid {{ stroke:rgba(121,143,175,.18); }}
+    .visualization-chart .line-path {{ fill:none; stroke:#2878df; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 4px 7px rgba(40,120,223,.18)); }}
+    .visualization-chart .dot {{ fill:#fff; stroke:#2878df; stroke-width:2.4; }}
+    .visualization-chart .bar {{ fill:url(#barGradient); rx:7; }}
+    .visualization-chart .stack-segment {{ cursor:pointer; transition:opacity .18s ease; }}
+    .visualization-chart .stack-segment:hover {{ opacity:.76; }}
+    .visualization-legend {{ display:flex; gap:8px 14px; flex-wrap:wrap; margin:8px 4px 0; color:var(--muted); font-size:11px; }}
+    .visualization-legend span {{ display:inline-flex; align-items:center; gap:6px; }}
+    .visualization-legend i {{ width:9px; height:9px; border-radius:3px; display:inline-block; }}
+    .visualization-empty {{ min-height:300px; display:grid; place-items:center; color:var(--muted); }}
     footer {{ margin-top:22px; color:var(--muted); font-size:12px; line-height:1.8; }}
-    @media (max-width:1100px) {{ .kpis {{ grid-template-columns:repeat(3,1fr); }} .grid-two {{ grid-template-columns:1fr; }} }}
-    @media (max-width:720px) {{ main {{ width:min(100% - 24px,1420px); padding-top:22px; }} .hero {{ display:block; }} .stamp {{ margin-top:16px; }} h1 {{ font-size:27px; }} .kpis {{ grid-template-columns:1fr 1fr; }} .notes {{ grid-template-columns:1fr; }} }}
+    @media (max-width:1100px) {{ .kpis {{ grid-template-columns:repeat(3,1fr); }} .grid-two {{ grid-template-columns:1fr; }} .visualization-controls {{ grid-template-columns:1fr 1fr; }} }}
+    @media (max-width:720px) {{ main {{ width:min(100% - 24px,1420px); padding-top:22px; }} .hero {{ display:block; }} .stamp {{ margin-top:16px; }} h1 {{ font-size:27px; }} .kpis {{ grid-template-columns:1fr 1fr; }} .notes,.visualization-controls {{ grid-template-columns:1fr; }} .section-head {{ align-items:flex-start; flex-direction:column; }} }}
+    @media (prefers-reduced-motion: reduce) {{ *,*::before,*::after {{ animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }} }}
   </style>
 </head>
 <body>
@@ -671,7 +755,24 @@ def render_html(report: dict) -> str:
     <section><div class="section-head"><h2>今日结论</h2><p>自动事实摘要</p></div><div class="section-body"><ul class="conclusions">{conclusion_items}</ul></div></section>
     <section><div class="section-head"><h2>重点异动</h2><p>按严重度排序</p></div><div class="section-body"><div class="alert-list">{alert_items}</div></div></section>
   </div>
-  <section><div class="section-head"><h2>品类 Top20</h2><p>按 DAU 变化绝对值排序｜计数指标可比较，用户可能跨品类重叠</p></div>{render_table(report['categoryTop20'], category_columns)}</section>
+  <section class="visualization-space" data-visualization-canvas="true">
+    <div class="section-head">
+      <div><h2>自由分析画布</h2><p>默认展示大盘 DAU 趋势，可切换粒度、图表类型和内容层级</p></div>
+      <div class="visualization-head-tools"><span class="badge severity-低">DAU 日均口径</span></div>
+    </div>
+    <div class="visualization-controls">
+      <div class="visualization-control"><label for="visualizationScope">分析范围</label><select id="visualizationScope"></select></div>
+      <div class="visualization-control"><label for="visualizationGranularity">时间粒度</label><select id="visualizationGranularity"><option value="day">按日</option><option value="week">按周</option><option value="month">按月</option><option value="quarter">按季度</option></select></div>
+      <div class="visualization-control"><label for="visualizationRange">时间范围</label><select id="visualizationRange"><option value="all">全部可用日期</option><option value="90">近 90 天</option><option value="30">近 30 天</option></select></div>
+      <div class="visualization-control"><label>图表类型</label><div class="chart-type-tabs" id="visualizationChartType"><button type="button" data-chart-type="line" class="active">折线</button><button type="button" data-chart-type="bar">柱状</button><button type="button" data-chart-type="stack">100% 堆积</button></div></div>
+    </div>
+    <div class="visualization-stage">
+      <div class="visualization-breadcrumb" id="visualizationBreadcrumb"></div>
+      <div class="visualization-chart" id="visualizationChart"><div class="visualization-empty">正在准备图表数据...</div></div>
+      <div class="visualization-legend" id="visualizationLegend"></div>
+    </div>
+  </section>
+  <section><div class="section-head"><h2>品类 Top20</h2><p>按报告日 DAU 变化绝对值排序｜计数指标可比较，用户可能跨品类重叠</p></div>{render_table(report['categoryTop20'], category_columns)}</section>
   <section><div class="section-head"><h2>公会 Top20</h2><p>{html.escape(report['weeklyComparison'])}｜主播周表路径归因</p></div>{render_table(report['guildTop20'], guild_columns)}</section>
   <div class="grid-two">
     <section><div class="section-head"><h2>主播层级</h2><p>按当前完整周 ACU 划分</p></div>{render_table(report['tierRows'], tier_columns)}</section>
@@ -680,6 +781,10 @@ def render_html(report: dict) -> str:
   <section><div class="section-head"><h2>主播 Top20</h2><p>按主播 + 品类 + 公会路径的周 DAU 变化排序</p></div>{render_table(report['anchorTop20'], anchor_columns)}</section>
   <footer>输入文件：{html.escape(report['inputs']['data'])}<br>说明：平台 DAU 使用官方平台活跃用户表；品类、公会、主播数据仅用于归因，不直接相加成平台去重用户。互动率仅用于相对趋势，互动人数跨场次可能重叠。<br><br>{severity_rule_html}</footer>
 </main>
+<script id="visualization-data-gzip" type="text/plain">{visualization_gzip}</script>
+<script>
+{visualization_script}
+</script>
 </body>
 </html>
 """
@@ -697,15 +802,15 @@ def render_markdown(report: dict) -> str:
         "",
     ]
     lines.extend(f"- {item}" for item in report["conclusions"])
-    lines += ["", "## 平台指标", "", "| 指标 | 本期 | 基线 | 变化值 | 变化率 | 级别 |", "|---|---:|---:|---:|---:|---|"]
+    lines += ["", "## 平台指标", "", "| 指标 | 报告日值 | 过去 4 个同星期中位数（日） | 变化值 | 变化率 | 级别 |", "|---|---:|---:|---:|---:|---|"]
     for row in report["platformMetrics"]:
         lines.append(
             f"| {row['label']} | {format_number(row['current'])} | {format_number(row['baseline'])} | {format_delta(row['delta'])} | {format_pct(row['changePct'])} | {row['severity']} |"
         )
     for title, key, columns in (
-        ("品类 Top20", "categoryTop20", [("品类", "name"), ("本期 DAU", "current"), ("基线 DAU", "baseline"), ("变化值", "delta"), ("变化率", "changePct")]),
-        ("公会 Top20", "guildTop20", [("公会", "label"), ("本期周 DAU", "currentDau"), ("上期周 DAU", "previousDau"), ("变化值", "delta"), ("变化率", "changePct")]),
-        ("主播 Top20", "anchorTop20", [("主播", "label"), ("路径", "pathLabel"), ("本期周 DAU", "currentDau"), ("上期周 DAU", "previousDau"), ("变化值", "delta"), ("变化率", "changePct")]),
+        ("品类 Top20", "categoryTop20", [("品类", "name"), ("报告日 DAU（日）", "current"), ("过去 4 个同星期中位数（日）", "baseline"), ("变化值", "delta"), ("变化率", "changePct")]),
+        ("公会 Top20", "guildTop20", [("公会", "label"), ("最新完整周 DAU（7 日求和）", "currentDau"), ("上一完整周 DAU（7 日求和）", "previousDau"), ("变化值", "delta"), ("变化率", "changePct")]),
+        ("主播 Top20", "anchorTop20", [("主播", "label"), ("路径", "pathLabel"), ("最新完整周 DAU（7 日求和）", "currentDau"), ("上一完整周 DAU（7 日求和）", "previousDau"), ("变化值", "delta"), ("变化率", "changePct")]),
     ):
         lines += ["", f"## {title}", ""]
         lines.append("| " + " | ".join(label for label, _ in columns) + " |")
@@ -749,6 +854,7 @@ def main() -> int:
     baseline_dates = previous_weekdays(report_date, args.baseline_count)
     daily, by_category, _, dimensions = build_daily_series(data)
     platform_daily = load_platform_daily(args.platform_daily_csv.resolve() if args.platform_daily_csv else None)
+    visualization_payload = build_visualization_payload(data, platform_daily, report_date)
 
     current_category = daily.get(report_date.isoformat())
     if current_category is None:
@@ -831,6 +937,7 @@ def main() -> int:
         "categoryRowsPresent": bool(category_ranked),
         "weeklyComparisonAvailable": weekly["available"],
         "topTablesPopulated": bool(category_ranked and guild_rows and anchor_rows),
+        "visualizationDataAvailable": bool(visualization_payload["rows"]),
     }
     if args.validation_report:
         source_validation = json.loads(args.validation_report.read_text(encoding="utf-8"))
@@ -877,10 +984,17 @@ def main() -> int:
         "alerts": alerts,
         "conclusions": conclusions,
         "warnings": warnings,
+        "visualizationMeta": {
+            "defaultScope": visualization_payload["defaultScope"],
+            "availableStart": visualization_payload["availableStart"],
+            "availableEnd": visualization_payload["availableEnd"],
+            "rowCount": len(visualization_payload["rows"]),
+            "platformPointCount": len(visualization_payload["platform"]),
+        },
         "checks": checks,
     }
-    html_text = render_html(report)
-    checks["htmlContainsCoreSections"] = all(token in html_text for token in ("虎牙生态监控异动日报", "品类 Top20", "公会 Top20", "主播 Top20", "级别口径说明"))
+    html_text = render_html(report, visualization_payload)
+    checks["htmlContainsCoreSections"] = all(token in html_text for token in ("虎牙生态监控异动日报", "自由分析画布", "品类 Top20", "公会 Top20", "主播 Top20", "级别口径说明"))
     if args.smoke_test:
         node = "node"
         smoke_cmd = [
@@ -910,7 +1024,7 @@ def main() -> int:
     if not report["status"] == "passed":
         warnings.append("日报存在未通过检查项，不应替换桌面最新日报。")
 
-    html_path.write_text(render_html(report), encoding="utf-8")
+    html_path.write_text(render_html(report, visualization_payload), encoding="utf-8")
     json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     md_path.write_text(render_markdown(report), encoding="utf-8")
     manifest = {
