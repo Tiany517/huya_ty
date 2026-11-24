@@ -12,6 +12,8 @@
 4. `scripts/README.md`：跨电脑刷新命令、验证命令和失败处理。
 5. `skill/huya-ecology-dashboard-refresh/SKILL.md`：可直接安装到 Codex 的自动刷新工作流。
 
+启用自动日报时，刷新命令增加 `--daily-report --platform-daily-csv <platform_daily.csv>`。日报使用官方平台活跃用户表计算 DAU，并生成品类、公会、主播层级和主播 Top20 异动归因；品类 DAU 不用于冒充全站 DAU。
+
 ## 当前成品
 
 - 运行版看板：不进入 GitHub，由 `refresh_dashboard.py` 在当前电脑生成；目录边界见 `dashboard/README.md`

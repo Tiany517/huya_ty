@@ -18,6 +18,7 @@ description: 刷新、迁移或验收虎牙生态监控 HTML 看板时使用；�
 5. `run_manifest_<run>.json` 已记录实际日期范围、输入/输出路径、字节数、SHA-256 和命令。
 6. 已人工抽查首屏、时间切换、自由维度下钻、Top20 和主播搜索结果。
 7. 正式覆盖交付物前已取得用户明确许可，并保留上一版可恢复副本。
+8. 启用日报时，`daily_alert_report_<run>.json` 的 `status` 为 `passed`，日报冒烟通过，且平台 DAU 来自官方平台活跃用户表。
 
 如果缺少源表复算、浏览器冒烟或人工抽查，只能报告“结构校验通过”或“数据校验通过”，不能报告“全流程通过”。
 
@@ -45,6 +46,7 @@ description: 刷新、迁移或验收虎牙生态监控 HTML 看板时使用；�
 | `anchor_weekly_guild_<start>_<end>.csv` | `week_start + gameid + guild_name + luid` | `week_start,gameid,game_name,content_group,guild_name,luid,roomid,snick,dau_sum,revenue_sum,pay_sum,live_sum,acu_sum,acu_days,view_sum,view_days,attribution_sum,interaction_cnt_sum,interaction_user_sum,live_days` |
 | `anchor_daily_focus_<start>_<end>.csv` | `dt + luid` | `dt,gameid,content_group,guild_name,luid,snick,roomid,dau,daily_revenue,daily_pay_user_cnt,is_live,live_mins,avg_acu,avg_view_mins,attribution_user_cnt,interaction_cnt,interaction_user_cnt` |
 | `event_user_revenue_<start>_<end>.csv`（可选） | `dt + gameid + guild_name + luid + user_event_type` | `dt,week_start,gameid,game_name,content_group,guild_name,luid,snick,user_event_type,revenue,pay_user_cnt` |
+| `platform_daily_<start>_<end>.csv`（启用日报时必需） | `dt` | `dt,platform_dau` |
 
 CSV 使用 UTF-8 或 UTF-8 with BOM。`luid`、`roomid` 和所有长 ID 必须按字符串保存，禁止科学计数法。关键日期、品类、主播 UID 不得为空。字段名不得自行翻译、重命名或合并。
 
@@ -56,6 +58,8 @@ CSV 使用 UTF-8 或 UTF-8 with BOM。`luid`、`roomid` 和所有长 ID 必须�
 - `browser_smoke_report_<run>.json`（使用 `--smoke-test` 时）
 - `run_manifest_<run>.json`
 - `accuracy_reconciliation_<run>.md`（源表独立复算记录）
+- `daily_alert_report_<run>.html`、`.json`、`.md`（启用日报时）
+- `daily_alert_smoke_report_<run>.json`、`daily_alert_manifest_<run>.json`（启用日报时）
 
 ## 完整刷新流程
 
@@ -67,6 +71,7 @@ CSV 使用 UTF-8 或 UTF-8 with BOM。`luid`、`roomid` 和所有长 ID 必须�
 - `assets/sql/core/02_主播周归因与公会.sql`：主播周归因、公会和层级分析，同时输出每个主播的开播天数。
 - `assets/sql/core/03_主播日级专项追踪.sql`：单主播日级专项追踪，同时输出当天是否开播。
 - `assets/sql/core/04_赛事用户支付属性_优化版_未产出.sql`：赛事支付属性，只有验证产出后才可使用。
+- `assets/sql/core/06_平台日活趋势.sql`：官方平台 DAU，按 `user_ukey` 日级去重；启用日报时必须执行并导出 `dt,platform_dau`。
 
 执行前用源表确认最新分区：
 
@@ -225,10 +230,14 @@ python scripts/refresh_dashboard.py `
   --output-dir '<new_run_dir>' `
   --run-name '<YYYYWww>' `
   --source-latest-partition '<YYYY-MM-DD>' `
+  --daily-report `
+  --platform-daily-csv '<platform_daily.csv>' `
   --smoke-test
 ```
 
 有赛事 CSV 时增加 `--event-csv '<event.csv>'`。脚本从品类日表推导数据日期范围，从主播周表推导周列表；不要手工修改脚本常量。默认拒绝覆盖运行目录中的已有输出，确认是全新运行名后再执行。
+
+启用日报时必须在同一命令中传入 `--daily-report --platform-daily-csv '<platform_daily.csv>'`。平台 DAU 不得用品类 DAU 汇总替代。
 
 ### 6. 执行自动数据核验
 
@@ -254,6 +263,19 @@ python scripts/verify_dashboard_package.py `
 - `eventStatusConsistent = true`：`pending` 时赛事行为 0；`ready` 时赛事行数大于 0。
 - `liveAnchorCountsValid = true`：品类/内容大类/平台开播主播数满足包含关系，主播 `live_days` 在 0–7，主播日 `is_live` 仅为 0/1。
 - `nonEmptyCoreData = true`，三类核心数据均非空。
+
+启用日报时，`refresh_dashboard.py --daily-report` 会在主看板验证后继续调用 `build_daily_alert_report.py`。日报固定包含平台 DAU、打赏流水、打赏人数、归属用户数、开播主播数，过去 4 个相同星期中位数基线，以及品类、公会、主播层级和主播 Top20。
+
+`daily_alert_report_<run>.json` 的以下检查必须全部为 `true`：
+
+- `reportDateAvailable`、`baselineDatesEnough`、`categoryRowsPresent`。
+- `platformDauAvailable`：官方平台 DAU 在日报日期和基线日期均有值。
+- `weeklyComparisonAvailable`：至少有当前和上一个完整自然周。
+- `sourceValidationPassed`：输入的主看板 `validation_report` 为 `passed` 且全部检查为 `true`。
+- `topTablesPopulated`、`htmlContainsCoreSections`、`allNumbersFinite`。
+- 启用浏览器检查时 `browserSmokePassed=true`。
+
+平台 DAU 下降且开播主播数显著下降时才提示供给问题；开播主播数轻微波动不得生成“供给减少”的强结论。品类、公会、主播贡献率必须保留正负方向，贡献分母使用变化绝对值，不能因根节点为负而把跌幅显示成正贡献。
 
 同时检查 diagnostics 和 warnings：
 
@@ -325,6 +347,8 @@ node scripts/smoke_test_dashboard.mjs `
 | 浏览器冒烟失败或未执行 | 不声称全流程通过 |
 | manifest 哈希不一致 | 视为文件损坏或版本混淆；重新构建或重新传输 |
 | 正式发布后发现问题 | 用发布前副本回滚，并保留失败运行记录 |
+| 官方平台 DAU 缺失或未覆盖基线日期 | 日报停止发布；补跑平台日活 SQL，不得用品类合计冒充全站 DAU |
+| 日报检查失败 | 保留旧日报和看板；修复后使用新运行名重跑 |
 
 ## 核心口径
 
@@ -339,6 +363,7 @@ node scripts/smoke_test_dashboard.mjs `
 ### 指标
 
 - 观看 DAU：`dau` 的日均。
+- 平台 DAU：官方平台活跃用户表中 `count(distinct user_ukey)`，端范围按 `06_平台日活趋势.sql`，剔除黑名单用户；用于日报平台总盘，不得用品类 DAU 合计替代。
 - 归属 DAU：`attribution_user_cnt` 的日均。
 - 打赏流水：`daily_revenue / revenue_sum` 的日均。
 - 打赏人数：`daily_pay_user_cnt / pay_sum` 的日均。
@@ -387,4 +412,5 @@ node scripts/smoke_test_dashboard.mjs `
 - 数据验证：`scripts/verify_dashboard_package.py`
 - 一键刷新：`scripts/refresh_dashboard.py`
 - 无头浏览器冒烟：`scripts/smoke_test_dashboard.mjs`
+- 异动日报：`scripts/build_daily_alert_report.py`
 - 看板模板：`assets/dashboard_template_multidim.html`

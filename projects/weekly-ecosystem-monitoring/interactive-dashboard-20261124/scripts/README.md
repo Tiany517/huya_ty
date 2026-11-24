@@ -11,10 +11,12 @@ python scripts/refresh_dashboard.py \
   --template assets/dashboard_template_multidim.html \
   --output-dir <new_run_dir> \
   --run-name <YYYYWww> \
+  --daily-report \
+  --platform-daily-csv <platform_daily.csv> \
   --smoke-test
 ```
 
-无赛事 CSV 时删除 `--event-csv`。已有同名输出时脚本默认拒绝覆盖；明确需要重跑时加 `--overwrite`。
+无赛事 CSV 时删除 `--event-csv`。已有同名输出时脚本默认拒绝覆盖；明确需要重跑时加 `--overwrite`。启用日报时必须提供官方平台 DAU CSV，不得用品类 DAU 汇总替代全站 DAU。
 
 ## 各脚本职责
 
@@ -23,6 +25,7 @@ python scripts/refresh_dashboard.py \
 - `build_dashboard.py`：将 JSON 注入 HTML 模板。
 - `verify_dashboard_package.py`：schema、唯一键、行数、索引、日期、搜索覆盖、数值、赛事状态和开播主播数包含关系验证。
 - `smoke_test_dashboard.mjs`：headless Chrome/Edge 加载 HTML，检查标题、Top20、loading 清除和退出码。
+- `build_daily_alert_report.py`：从通过校验的 dashboard JSON 生成一页异动日报，计算同星期基线、异常级别、品类/公会/主播层级/主播 Top20 和互动率。
 
 ## 开播主播数字段
 
@@ -41,6 +44,11 @@ python scripts/refresh_dashboard.py \
 |-- browser_smoke_report_<run>.json
 |-- live_anchor_ui_report_<run>.json
 |-- accuracy_reconciliation_<run>.md
+|-- daily_alert_report_<run>.html
+|-- daily_alert_report_<run>.json
+|-- daily_alert_report_<run>.md
+|-- daily_alert_smoke_report_<run>.json
+|-- daily_alert_manifest_<run>.json
 `-- run_manifest_<run>.json
 ```
 
@@ -51,6 +59,7 @@ python scripts/refresh_dashboard.py \
 3. 开播主播数 UI 专项检查 passed：总盘 KPI、图表、单层表、下钻和主播专项均能显示。
 4. `browser_smoke_report_<run>.json` 为 `passed`。
 5. `run_manifest_<run>.json` 的路径、行数、字节数和 SHA-256 完整。
+6. 启用日报时 `daily_alert_report_<run>.json=passed`，且平台 DAU 来自官方平台活跃用户表。
 
 ## 单独验证
 

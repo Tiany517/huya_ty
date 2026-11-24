@@ -72,11 +72,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source-latest-partition")
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--smoke-test", action="store_true", help="Render the HTML in headless Chrome/Edge after validation.")
+    parser.add_argument("--daily-report", action="store_true", help="Build the one-page daily anomaly report from the validated dashboard data.")
+    parser.add_argument("--platform-daily-csv", type=Path, help="Required with --daily-report: official dt,platform_dau CSV.")
     return parser.parse_args()
 
 
 def run(command: list[str]) -> str:
-    proc = subprocess.run(command, text=True, capture_output=True)
+    proc = subprocess.run(
+        command,
+        text=True,
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+    )
     if proc.returncode != 0:
         raise RuntimeError(
             f"command failed ({proc.returncode}): {' '.join(command)}\n"
@@ -87,6 +95,8 @@ def run(command: list[str]) -> str:
 
 def main() -> int:
     args = parse_args()
+    if args.daily_report and not args.platform_daily_csv:
+        raise SystemExit("--daily-report requires --platform-daily-csv")
     category_rows = read_csv(args.category_csv, REQUIRED_HEADERS["category"])
     weekly_rows = read_csv(args.anchor_weekly_csv, REQUIRED_HEADERS["anchor_weekly"])
     daily_rows = read_csv(args.anchor_daily_csv, REQUIRED_HEADERS["anchor_daily"])
@@ -118,9 +128,18 @@ def main() -> int:
     html_path = output_dir / f"ecology_dashboard_{args.run_name}.html"
     report_path = output_dir / f"validation_report_{args.run_name}.json"
     manifest_path = output_dir / f"run_manifest_{args.run_name}.json"
+    daily_html_path = output_dir / f"daily_alert_report_{args.run_name}.html"
+    daily_json_path = output_dir / f"daily_alert_report_{args.run_name}.json"
+    daily_md_path = output_dir / f"daily_alert_report_{args.run_name}.md"
+    daily_manifest_path = output_dir / f"daily_alert_manifest_{args.run_name}.json"
+    daily_smoke_path = output_dir / f"daily_alert_smoke_report_{args.run_name}.json"
     event_path = args.event_csv.resolve() if args.event_csv else output_dir / "event_user_revenue_missing.csv"
 
     targets = [data_path, html_path, report_path, manifest_path]
+    if args.daily_report:
+        targets.extend([daily_html_path, daily_json_path, daily_md_path, daily_manifest_path])
+        if args.smoke_test:
+            targets.append(daily_smoke_path)
     conflicts = [str(path) for path in targets if path.exists()]
     if conflicts and not args.overwrite:
         raise SystemExit("refusing to overwrite existing outputs: " + ", ".join(conflicts))
@@ -167,9 +186,31 @@ def main() -> int:
         smoke_output = json.loads(run(smoke_cmd))
 
     report = json.loads(report_path.read_text(encoding="utf-8"))
+    daily_report = None
+    daily_cmd = None
+    if args.daily_report:
+        daily_cmd = [
+            sys.executable,
+            str(SCRIPT_DIR / "build_daily_alert_report.py"),
+            "--data", str(data_path),
+            "--platform-daily-csv", str(args.platform_daily_csv.resolve()),
+            "--validation-report", str(report_path),
+            "--output-dir", str(output_dir),
+            "--run-name", args.run_name,
+        ]
+        if args.smoke_test:
+            daily_cmd.append("--smoke-test")
+        if args.overwrite:
+            daily_cmd.append("--overwrite")
+        daily_output = run(daily_cmd)
+        daily_report = json.loads(daily_json_path.read_text(encoding="utf-8"))
+
+    combined_status = report["status"]
+    if daily_report is not None and daily_report.get("status") != "passed":
+        combined_status = "failed"
     manifest = {
         "runName": args.run_name,
-        "status": report["status"],
+        "status": combined_status,
         "sourceLatestPartition": latest_partition,
         "aggregateStartDate": aggregate_dates[0],
         "aggregateEndDate": aggregate_dates[-1],
@@ -187,15 +228,18 @@ def main() -> int:
             "buildDashboard": build_dashboard_cmd,
             "verify": verify_cmd,
             **({"browserSmokeTest": smoke_cmd} if args.smoke_test else {}),
+            **({"buildDailyReport": daily_cmd} if daily_cmd else {}),
         },
         "validation": report,
         "browserSmokeTest": smoke_output,
+        **({"dailyReport": daily_report} if daily_report is not None else {}),
     }
     for label, path in {
         "categoryCsv": args.category_csv,
         "anchorWeeklyCsv": args.anchor_weekly_csv,
         "anchorDailyCsv": args.anchor_daily_csv,
         **({"eventCsv": args.event_csv} if args.event_csv else {}),
+        **({"platformDailyCsv": args.platform_daily_csv} if args.platform_daily_csv else {}),
         "template": args.template,
     }.items():
         resolved = path.resolve()
@@ -203,22 +247,32 @@ def main() -> int:
     output_paths = {"dataJson": data_path, "dashboardHtml": html_path, "validationReport": report_path}
     if args.smoke_test and smoke_report_path.exists():
         output_paths["browserSmokeReport"] = smoke_report_path
+    if args.daily_report:
+        output_paths.update({
+            "dailyReportHtml": daily_html_path,
+            "dailyReportJson": daily_json_path,
+            "dailyReportMarkdown": daily_md_path,
+            "dailyReportManifest": daily_manifest_path,
+        })
+        if args.smoke_test and daily_smoke_path.exists():
+            output_paths["dailyReportSmokeReport"] = daily_smoke_path
     for label, path in output_paths.items():
         manifest["outputs"][label] = {"path": str(path), "bytes": path.stat().st_size, "sha256": sha256(path)}
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     print(json.dumps({
-        "status": manifest["status"],
+        "status": combined_status,
         "runName": args.run_name,
         "outputDir": str(output_dir),
         "dataJson": str(data_path),
         "dashboardHtml": str(html_path),
         "validationReport": str(report_path),
         **({"browserSmokeReport": str(smoke_report_path)} if args.smoke_test else {}),
+        **({"dailyReportHtml": str(daily_html_path), "dailyReportJson": str(daily_json_path)} if args.daily_report else {}),
         "runManifest": str(manifest_path),
         "validation": report["diagnostics"],
     }, ensure_ascii=False, indent=2))
-    return 0 if report["status"] == "passed" else 1
+    return 0 if combined_status == "passed" else 1
 
 
 if __name__ == "__main__":

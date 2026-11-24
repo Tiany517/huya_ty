@@ -9,6 +9,7 @@
 | `core/03_主播日级专项追踪.sql` | 单主播日趋势和 is_live | `dt × gameid × luid` | 可直接复用，刷新日期 |
 | `core/04_赛事用户支付属性_优化版_未产出.sql` | 游戏支付用户 90 天赛事属性，优化版 | 支付日 × 游戏 × 公会 × 主播 × 赛事类型 | 未执行/待回刷 |
 | `core/05_赛事用户支付属性_初版_参考.sql` | 同类口径初版对照 | 同上 | 参考，不作为生产优先版本 |
+| `core/06_平台日活趋势.sql` | 官方平台 DAU 日趋势，供异动日报使用 | `dt` | 可直接复用，替换日期区间 |
 
 ## 赛事参考
 
@@ -36,7 +37,7 @@
 
 ## 来源映射
 
-- `core/01–05` 来自当前工作目录 `work/query_*.sql`。
+- `core/01–03`、`core/06` 来自当前工作目录的验证 SQL 与平台活跃用户参考 SQL；`core/04–05` 为赛事用户支付属性版本。
 - `reference/01` 来自 `C:\Users\Huya\Desktop\游戏支付用户下钻明细_赛事期间赛事用户_20260701-20261118_spark.sql`。
 - `reference/02–09` 来自 `C:\Users\Huya\Desktop\周报监控模型\` 对应 SQL。
 
@@ -51,3 +52,4 @@
 5. 输出主播 UID、RoomID 为字符串，避免科学计数法。
 6. 开播主播数按 `category='主播明细' AND is_live=1` 的 `luid` 去重；同时输出 `live_anchor_cnt`、`group_live_anchor_cnt`、`total_live_anchor_cnt`、`live_days` 和 `is_live`。
 7. 赛事 SQL 未形成有效 CSV 前保持 `pending`。
+8. 日报平台 DAU 必须来自 `06_平台日活趋势.sql`，不得把可重叠的品类 DAU 汇总成平台 DAU。
