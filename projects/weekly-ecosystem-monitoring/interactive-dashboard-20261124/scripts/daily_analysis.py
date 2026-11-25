@@ -55,19 +55,32 @@ def build_analysis(report_date, by_category, dimensions, classify):
 
 def render_analysis(records):
     payload = json.dumps(records, ensure_ascii=False).replace('<', '\\u003c')
-    return '''<section id="analystWorkbench"><div class="section-head"><div><h2>异动分析工作台</h2>
+    return '''<section id="analystWorkbench"><style>
+    #analystWorkbench .analysis-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    #analystWorkbench .analysis-controls label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-weight:600}
+    #analystWorkbench .analysis-controls select,#analystWorkbench .analysis-controls input{font:inherit;color:var(--ink);padding:8px 12px;min-height:36px;border:1px solid rgba(116,140,176,.2);border-radius:11px;background:rgba(255,255,255,.7);outline:none}
+    #analystWorkbench .analysis-controls :is(select,input):focus-visible{box-shadow:0 0 0 3px rgba(93,143,232,.16);border-color:#5d8fe8}
+    #analystWorkbench .analysis-level{text-align:center;min-width:88px}
+    #analystWorkbench .level-chip{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:54px;padding:5px 9px;border:1px solid transparent;border-radius:8px;font-size:12px;font-weight:600;line-height:1.3;white-space:nowrap}
+    #analystWorkbench .level-chip:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex:none}
+    #analystWorkbench .level-high{color:#b14c57;background:#fceef0;border-color:#f5dce1}
+    #analystWorkbench .level-medium{color:#946c2b;background:#fbf4e7;border-color:#f0e5cc}
+    #analystWorkbench .level-low{color:#58799c;background:#edf3fa;border-color:#dee8f4}
+    #analystWorkbench .level-normal{color:#748394;background:#f1f4f7;border-color:#e5ebf0}
+    </style><div class="section-head"><div><h2>异动分析工作台</h2>
     <p>全品类候选 · 报告日对过去4个同星期中位数 · 选择指标后重新排序</p></div></div>
-    <div class="section-body"><label>指标 <select id="analysisMetric"><option value="dau">观看 DAU</option><option value="revenue">打赏流水（元）</option><option value="payUsers">打赏人数</option><option value="attributionUsers">归属用户数</option><option value="liveAnchors">开播主播数</option></select></label>
+    <div class="section-body"><div class="analysis-controls"><label>指标 <select id="analysisMetric"><option value="dau">观看 DAU</option><option value="revenue">打赏流水（元）</option><option value="payUsers">打赏人数</option><option value="attributionUsers">归属用户数</option><option value="liveAnchors">开播主播数</option></select></label>
     <label>排序 <select id="analysisOrder"><option value="loss">下降优先排查</option><option value="absolute">变化绝对值</option><option value="streak">持续异常天数</option></select></label>
-    <label>Top <input id="analysisLimit" type="number" min="1" max="100" value="10" style="width:70px"></label>
+    <label>Top <input id="analysisLimit" type="number" min="1" max="100" value="10" style="width:70px"></label></div>
     <div style="overflow:auto"><table><thead><tr><th>品类</th><th>内容大类</th><th>报告日值</th><th>同星期基线</th><th>变化值</th><th>变化率</th><th>异常级别</th><th>连续异常天数</th><th>首次出现</th><th>连续期累计偏离</th><th>付费人数效应（元）</th><th>ARPPU效应（元）</th></tr></thead><tbody id="analysisRows"></tbody></table></div>
     <p style="color:var(--muted);font-size:12px">下降优先排查：按负向绝对变化由大到小；持续天数作为同值时排序依据。异常级别沿用各指标原阈值和异常分，不能等同业务优先级。连续异常须方向一致，每天均有4个完整同星期基线；缺记录即中断，不补零。最多回溯28天，达到上限显示“≥28”。累计偏离是每日值与各自基线之差的求和，人数类属于人次，不能当作去重流失人数。流水用付费人数×ARPPU对称拆解，两个效应之和等于流水变化；基线ARPPU=流水中位数÷付费人数中位数，零分母时不拆解。数值拆解不代表因果。</p>
     </div></section><script>(function(){const data=__ANALYSIS_DATA__;
     const esc=v=>String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const fmt=v=>v==null?'—':Number(v).toLocaleString('zh-CN',{maximumFractionDigits:2});
+    const level=r=>{const tone=({'高':'high','中':'medium','低':'low','正常':'normal'})[r.severity]||'normal';const tip='沿用原指标阈值与异常分；异常分 '+fmt(r.robustZ)+'；基线可信度 '+(r.confidence==='low'?'偏低':'常规');return '<span class="level-chip level-'+tone+'" title="'+esc(tip)+'">'+esc(r.severity)+'</span>';};
     function render(){const metric=document.getElementById('analysisMetric').value,order=document.getElementById('analysisOrder').value;
     const limit=Math.max(1,Math.min(100,Number(document.getElementById('analysisLimit').value)||10));
     let rows=data.filter(r=>r.metric===metric);if(order==='loss')rows=rows.filter(r=>r.delta<0);
     rows.sort((a,b)=>order==='streak'?b.streak-a.streak||Math.abs(b.delta)-Math.abs(a.delta):order==='loss'?a.delta-b.delta||b.streak-a.streak:Math.abs(b.delta)-Math.abs(a.delta));
-    document.getElementById('analysisRows').innerHTML=rows.slice(0,limit).map(r=>'<tr>'+[r.name,r.group,fmt(r.current),fmt(r.baseline),fmt(r.delta),r.changePct==null?'—':(r.changePct*100).toFixed(1)+'%',r.severity,(r.capped?'≥':'')+r.streak,r.first,fmt(r.cumulative),fmt(r.bridge?.payEffect),fmt(r.bridge?.arppuEffect)].map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')||'<tr><td colspan="12">当前指标无符合条件的对象，或基线不足</td></tr>';}
+    document.getElementById('analysisRows').innerHTML=rows.slice(0,limit).map(r=>'<tr>'+[r.name,r.group,fmt(r.current),fmt(r.baseline),fmt(r.delta),r.changePct==null?'—':(r.changePct*100).toFixed(1)+'%',r.severity,(r.capped?'≥':'')+r.streak,r.first,fmt(r.cumulative),fmt(r.bridge?.payEffect),fmt(r.bridge?.arppuEffect)].map((v,i)=>i===6?'<td class="analysis-level">'+level(r)+'</td>':'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')||'<tr><td colspan="12">当前指标无符合条件的对象，或基线不足</td></tr>';}
     ['analysisMetric','analysisOrder','analysisLimit'].forEach(id=>document.getElementById(id).addEventListener('change',render));render();window.__analystAnalysis={data,render};})();</script>'''.replace('__ANALYSIS_DATA__', payload)
