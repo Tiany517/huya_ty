@@ -19,6 +19,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 from daily_analysis import build_analysis, render_analysis
+from tournament_context import load_context, render_context
 
 PLATFORM_DAU_PRODUCTS = (
     "huya_andriod",
@@ -48,6 +49,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--run-name", default="latest")
     parser.add_argument("--report-date", help="YYYY-MM-DD; defaults to the latest category date.")
     parser.add_argument("--baseline-count", type=int, default=4)
+    parser.add_argument("--tournament-context", type=Path, help="Dated exploratory tournament evidence JSON; must match report date.")
     parser.add_argument("--top-n", type=int, default=20)
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--smoke-test", action="store_true", help="Render the report in headless Chrome/Edge.")
@@ -691,9 +693,9 @@ def conclusion_text(
         )
     if dau and live:
         if dau["delta"] < 0 and live["delta"] < 0 and live["severity"] != "正常":
-            results.append("平台 DAU 与开播主播数同时下降，优先检查供给减少及头部主播停播。")
+            results.append("平台 DAU 与开播主播数同时下降；需核对主要拖累品类自身供给及赛事排期，尚不能认定下降原因。")
         elif dau["delta"] < 0:
-            results.append("平台 DAU 下降但开播主播数未同步下降，优先检查内容吸引力、推荐分发和单主播流失。")
+            results.append("平台 DAU 下降但全站开播主播数未同步下降；应先核对主要拖累品类自身开播数、赛事结束与赛事主播流量，不能直接判断内容吸引力或分发变差。")
     negative_categories = [row for row in category_ranked if row["delta"] < 0]
     if negative_categories:
         top = negative_categories[0]
@@ -977,6 +979,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
   </header>
   <div class="kpis">{''.join(cards)}</div>
 {render_analysis(report.get('analysisRecords', []))}
+{render_context(report.get('tournamentContext'))}
   <div class="grid-two">
     <section><div class="section-head"><h2>今日结论</h2><p>自动事实摘要</p></div><div class="section-body"><ul class="conclusions">{conclusion_items}</ul></div></section>
     <section><div class="section-head"><h2>重点异动</h2><p>按严重度排序</p></div><div class="section-body"><div class="alert-list">{alert_items}</div></div></section>
@@ -1006,7 +1009,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
   <section><div class="section-head"><div><h2>主播层级</h2><p class="tier-note">头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100</p></div></div>{render_table(report['tierRows'], tier_columns)}</section>
   <section><div class="section-head"><div><h2 id="anchorTopTitle">主播 Top{anchor_default_limit}</h2><p>按主播 + 品类 + 公会路径的周 DAU 变化排序｜级别按该行主播自身前 4 个完整周异常分判定</p></div><div class="section-tools"><label class="row-limit-control" for="anchorTopLimit">展示 Top <input id="anchorTopLimit" type="number" min="1" max="50" step="1" value="{anchor_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(anchor_rows, anchor_columns, table_id='anchorTable')}</section>
   <section class="method-notes" aria-labelledby="methodNotesTitle"><h2 id="methodNotesTitle">数据与口径提示</h2><ul>{warning_items}</ul></section>
-  <footer>输入文件：{html.escape(report['inputs']['data'])}<br>说明：平台 DAU 使用官方平台活跃用户表；品类、公会、主播数据仅用于归因，不直接相加成平台去重用户。互动率仅用于相对趋势，互动人数跨场次可能重叠。<br><br>{severity_rule_html}</footer>
+  <footer>输入文件：{html.escape(report['inputs']['data'])}<br>说明：平台 DAU 使用官方平台活跃用户表；品类、公会、主播数据仅用于归因，不直接相加成平台去重用户。互动率仅用于相对趋势，互动人数跨场次可能重叠。<br>端口径提示：拉新、回流及拉新回流去重合计沿用现有上游口径，暂不包含鸿蒙端；DAU 按已纳入鸿蒙的对应数据源口径展示。上述指标覆盖端不同，不直接以拉新、回流人数除以 DAU 计算转化率。<br><br>{severity_rule_html}</footer>
 </main>
 <script id="visualization-data-gzip" type="text/plain">{visualization_gzip}</script>
 <script>
@@ -1029,6 +1032,16 @@ def render_markdown(report: dict) -> str:
         "",
     ]
     lines.extend(f"- {item}" for item in report["conclusions"])
+    context = report.get("tournamentContext")
+    if context:
+        lines += ["", f"## 赛事与拉新回流核查 · {context['category']}", "",
+                  f"{context['reportDate']} 对比 {context['comparisonDate']}；探索抽样，不代表全品类验收。", "",
+                  "| 指标 | 本期（日） | 对比期（日） | 变化值 | 变化率 | 范围 / 来源 |", "|---|---:|---:|---:|---:|---|"]
+        for row in context["metrics"]:
+            delta = row["current"] - row["previous"]
+            pct = delta / row["previous"] if row["previous"] else None
+            lines.append(f"| {row['label']} | {format_number(row['current'])} | {format_number(row['previous'])} | {format_delta(delta)} | {format_pct(pct)} | {row['scope']} |")
+        lines.extend(f"- {note}" for note in context["notes"] + context["sources"])
     lines += ["", "## 平台指标", "", "| 指标 | 报告日值 | 过去 4 个同星期中位数（日） | 变化值 | 变化率 | 级别 |", "|---|---:|---:|---:|---:|---|"]
     for row in report["platformMetrics"]:
         lines.append(
@@ -1189,6 +1202,7 @@ def main() -> int:
             and all(source_validation.get("checks", {}).values())
         )
     warnings = [
+        "赛事排期、赛事关联主播观看与用户赛事支付属性是不同口径。未匹配版权记录不等于无赛事；未完成同赛事状态对比前，不将品类下降直接解释为生态恶化。",
         "平台 DAU 使用官方活跃用户表；品类 DAU、归属用户和互动人数可能跨品类重叠，不能直接相加成全站去重用户。",
         "打赏流水来自品类整体和主播周明细：内容生态流水可做趋势与结构比较，但不同品类或主播路径可能重复覆盖同一用户。",
         "品类、公会、主播榜使用对应指标变化绝对值排序；页面默认分别为 Top10、Top20、Top10，均支持自定义 1–50。低基数对象即使变化率很高，也可能只是小样本波动。",
@@ -1212,6 +1226,7 @@ def main() -> int:
         "baselineDates": [item.isoformat() for item in baseline_dates if item.isoformat() in daily],
         "platformMetricMode": platform_mode,
         "inputs": {"data": str(data_path)},
+        "tournamentContext": load_context(args.tournament_context, report_date),
         "sourceMeta": {
             "sourceLatestPartition": meta.get("sourceLatestPartition"),
             "aggregateStartDate": meta.get("aggregateStartDate"),
@@ -1286,6 +1301,7 @@ def main() -> int:
         "generatedAt": report["generatedAt"],
         "inputs": {
             "data": {"path": str(data_path), "bytes": data_path.stat().st_size, "sha256": sha256(data_path)},
+            **({"tournamentContext": {"path": str(args.tournament_context.resolve()), "sha256": sha256(args.tournament_context)}} if args.tournament_context else {}),
             **({"platformDailyCsv": {"path": str(args.platform_daily_csv.resolve()), "bytes": args.platform_daily_csv.stat().st_size, "sha256": sha256(args.platform_daily_csv)}} if args.platform_daily_csv else {}),
             **({"validationReport": {"path": str(args.validation_report.resolve()), "bytes": args.validation_report.stat().st_size, "sha256": sha256(args.validation_report)}} if args.validation_report else {}),
         },
