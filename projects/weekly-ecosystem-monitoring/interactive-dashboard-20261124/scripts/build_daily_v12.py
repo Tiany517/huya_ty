@@ -1,13 +1,36 @@
 """Build V1.2 daily UI from immutable source exports; validation status is explicit."""
 from __future__ import annotations
 import argparse,base64,gzip,json,hashlib,csv,statistics,html
+from collections import defaultdict
 from pathlib import Path
 from datetime import date,datetime,timedelta,timezone
 from analyst_upgrade import load_supplement,read_result
 from build_daily_alert_report import build_daily_series,load_platform_daily,classify_change
 
-def build_payload(data,platform,supplement,report_day):
+def load_event_top10(path):
+    """Load per-category top-10% event-associated DAU days without filling gaps."""
+    rows=list(csv.DictReader(Path(path).open(encoding='utf-8-sig',newline='')))
+    if not rows: raise ValueError('empty event top10 source')
+    selected=defaultdict(list);meta={};seen=set()
+    for row in rows:
+        gameid=str(row['gameid']);dt=row['dt'];key=(dt,gameid)
+        if key in seen: raise ValueError('duplicate event top10 date key')
+        seen.add(key);event_count=int(row['event_day_count'])
+        selected[gameid].append(dt)
+        meta.setdefault(gameid,{'eventDayCount':event_count,'selectedDayCount':0,'rule':'赛事关联DAU降序前10%，向上取整','snapshot':None})
+        if meta[gameid]['eventDayCount']!=event_count: raise ValueError('inconsistent event day count')
+    for gameid,days in selected.items():
+        days.sort();meta[gameid]['selectedDayCount']=len(days)
+    return {k:sorted(set(v)) for k,v in selected.items()},meta
+
+def build_payload(data,platform,supplement,report_day,event_top=None):
     _,by_category,_,_=build_daily_series(data);lookup,events,evidence=load_supplement(supplement)
+    registered={k:sorted(v) for k,v in events.items()}
+    event_days,event_meta=(load_event_top10(event_top) if event_top else (registered,{k:{'eventDayCount':len(v),'selectedDayCount':len(v),'rule':'未提供Top10源，回退全部登记日','snapshot':None} for k,v in registered.items()}))
+    if event_top:
+        for item in event_meta.values():item['snapshot']=str(event_top)
+        evidence['eventTopSource']=str(event_top)
+        evidence['eventTopRule']='各品类赛事关联DAU降序前10%，向上取整；连续日期不额外扩展赛后窗口'
     meta=data['meta'];date_values=sorted(by_category);date_index={d:i for i,d in enumerate(date_values)}
     fields=['dau','revenue','payUsers','attributionUsers','liveAnchors','interactionUsers','newUsers','returnUsers','newReturnUsers','interactionCount','viewMinutes']
     raw_cols={k:i for i,k in enumerate(meta['categoryColumns'])};raw_lookup={(r[0],int(r[1])):r for r in data['categoryDaily']}
@@ -36,13 +59,13 @@ def build_payload(data,platform,supplement,report_day):
             'guilds':meta['guilds'],'anchors':meta['anchors'],'weeks':meta['weeks'],'weekRanges':meta['weekRanges'],
             'categoryMetrics':fields,'categoryRows':category_rows,'anchorDailyColumns':meta['anchorDailyColumns'],
             'anchorColumns':meta['anchorColumns'],'anchorDaily':data['anchorDaily'],'anchorWeekly':data['anchorWeekly'],
-            'platform':sorted(platform.items()),'platformLive':sorted(platform_live.items()),'platformAcquisition':global_acq,'eventDays':{k:sorted(v) for k,v in events.items()},
+            'platform':sorted(platform.items()),'platformLive':sorted(platform_live.items()),'platformAcquisition':global_acq,'eventDays':event_days,'registeredEventDays':registered,'eventMeta':event_meta,
             'evidence':evidence,'sourceLatestPartition':meta.get('sourceLatestPartition'),'ratingVersion':'试行混合规则 v20261125',
             'limitations':['互动率分子/分母语义未通过，暂不可计算正式比率。','日级主播表只有专项历史覆盖；搜索索引覆盖全部已有周表主播，不代表全部都有日历史。',
                '公会、层级、交叉维度只有完整周数据；日级主播记录不带日级公会路径，不能用最新公会替代历史日维度。',
                '公会开播主播数沿用周路径内同主播最大开播天数，跨品类换播可能低估，尚非精确主播日并集；供给结论待复算。',
                '拉新/回流来自上游四端归因，不含鸿蒙；不能除以含鸿蒙平台DAU作为转化率。',
-               '版权非登记日不能区分赛事窗口休赛与窗口外；映射未知不代表无赛事。',
+               '赛事剔除采用各品类赛事关联DAU前10%日期；未覆盖赛事记录的品类不能等同于无赛事，赛事覆盖未知时评级待判断。',
                '旧混合评级未定义低等级，低对象计数为0。未正式校准；比率和新增过程指标等级待判断。']}
 
 def backtest(payload):
@@ -64,9 +87,9 @@ def backtest(payload):
             'warning':'这是历史报警率与旧规则分歧评估，不是真实异常标签的准确率；尚需人工案例核验、赛事分层和低基数敏感性。排查优先级不得用来替代该候选等级。', 'metrics':summary,'caseReviewCandidates':examples}
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--data',type=Path,required=True);p.add_argument('--platform',type=Path,required=True);p.add_argument('--supplement',type=Path);p.add_argument('--output',type=Path,required=True);p.add_argument('--report-date');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--data',type=Path,required=True);p.add_argument('--platform',type=Path,required=True);p.add_argument('--supplement',type=Path);p.add_argument('--event-top',type=Path);p.add_argument('--output',type=Path,required=True);p.add_argument('--report-date');a=p.parse_args()
     if a.output.exists():raise SystemExit('use a new output directory; no source overwrite')
-    data=json.loads(a.data.read_text(encoding='utf-8'));report=a.report_date or max(r[0] for r in data['categoryDaily']);payload=build_payload(data,load_platform_daily(a.platform),a.supplement,report)
+    data=json.loads(a.data.read_text(encoding='utf-8'));report=a.report_date or max(r[0] for r in data['categoryDaily']);payload=build_payload(data,load_platform_daily(a.platform),a.supplement,report,a.event_top)
     assets=Path(__file__).resolve().parent.parent/'assets';template=(assets/'daily_v12.html').read_text(encoding='utf-8')
     engine=(assets/'daily_v12_engine.mjs').read_text(encoding='utf-8').replace('export ','');filters=(assets/'anomaly_filters.mjs').read_text(encoding='utf-8').replace('export ','');controller=(assets/'daily_v12.js').read_text(encoding='utf-8')
     encoded=base64.b64encode(gzip.compress(json.dumps(payload,ensure_ascii=False,separators=(',',':'),allow_nan=False).encode())).decode()
@@ -77,7 +100,7 @@ def main():
     for m,s in bt['metrics'].items():text.append(f"|{m}|{s['observations']}|{s['oldCounts'].get('高',0)}|{s['candidateCounts']['高']}|{s['absoluteZQuantiles']['p95']}|")
     (a.output/'评级历史回测_候选未上线.md').write_text('\n'.join(text),encoding='utf-8')
     manifest={'version':'1.2','reportDate':report,'status':'交互待验收；数据与评级部分待验证','htmlBytes':target.stat().st_size,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),
-              'data':{'path':str(a.data),'sha256':hashlib.sha256(a.data.read_bytes()).hexdigest()},'platform':str(a.platform),'counts':{k:len(payload[k]) for k in ['categoryRows','anchorWeekly','anchorDaily','anchors','platformAcquisition']},'limitations':payload['limitations'],'supplementEvidence':payload['evidence'],
+              'data':{'path':str(a.data),'sha256':hashlib.sha256(a.data.read_bytes()).hexdigest()},'platform':str(a.platform),'eventTop':({'path':str(a.event_top),'sha256':hashlib.sha256(a.event_top.read_bytes()).hexdigest()} if a.event_top else None),'counts':{k:len(payload[k]) for k in ['categoryRows','anchorWeekly','anchorDaily','anchors','platformAcquisition']},'limitations':payload['limitations'],'supplementEvidence':payload['evidence'],
               'supplementInputs':[{'name':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(a.supplement.glob('*.json')) if p.name.startswith(('upgrade_result_','upgrade_independent','v12_platform'))] if a.supplement else []}
     (a.output/'V1.2_运行清单.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(manifest,ensure_ascii=False))
 

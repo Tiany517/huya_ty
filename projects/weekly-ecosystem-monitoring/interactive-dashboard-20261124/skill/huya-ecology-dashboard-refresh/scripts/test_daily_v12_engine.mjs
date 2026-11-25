@@ -15,6 +15,21 @@ const payload={dates,categoryMetrics:fields,categories:[{id:'1',name:'A',group:0
 const e=createEngine(payload),rank=e.ranking('category','revenue');assert.equal(rank.rows.length,2);assert.equal(rank.rows.find(r=>r.id===1).delta,1000);assert.equal(rank.rows.find(r=>r.id===1).contribution,1);assert.equal(e.ranking('category','dau').rows.find(r=>r.id===1).delta,-10);
 const x=e.aggregate('category','payRate','2026-11-23','2026-11-24').rows.find(r=>r.id===1);assert.equal(x.value,20/190);
 assert.ok(e.ranking('guild','dau').unsupported);
+
+// Event exclusion removes each category's top-event dates from BOTH periods and
+// compares non-event days without filling missing dates.
+const eventPayload={...payload,eventDays:{'1':['2026-11-24'],'2':[]},categoryRows:payload.categoryRows.map(r=>dates[r[0]]==='2026-11-24'&&r[1]===0?[...r.slice(0,2),90,...r.slice(3)]:r)};
+const eventEngine=createEngine(eventPayload);
+const eventOpts={start:'2026-11-23',end:'2026-11-24',comparison:'custom',baseStart:'2026-11-16',baseEnd:'2026-11-17',eventMode:'nonEvent'};
+const rawEventRow=eventEngine.ranking('category','dau',{...eventOpts,eventMode:'all'}).rows.find(r=>r.id===0);
+const cleanEventRow=eventEngine.ranking('category','dau',eventOpts).rows.find(r=>r.id===0);
+assert.equal(rawEventRow.current,95);
+assert.equal(cleanEventRow.current,100);
+assert.equal(cleanEventRow.baseline,100);
+assert.equal(cleanEventRow.eventCoverage,'covered');
+assert.deepEqual(cleanEventRow.eventExcludedDates,['2026-11-24']);
+assert.equal(eventEngine.eventDaysFor(0,'2026-11-23','2026-11-24').length,1);
+assert.equal(eventEngine.eventCoverage(1),'covered');
 const missing={...payload,categoryRows:payload.categoryRows.filter(r=>!(dates[r[0]]==='2026-11-17'&&r[1]===1))};assert.equal(createEngine(missing).ranking('category','dau').rows.find(r=>r.id===1).severity,'待判断');
 // Compare ratios from the SAME median numerator/denominator used by the bridge.
 const varying={...payload,categoryRows:payload.categoryRows.map(r=>{const copy=[...r];if(r[1]===0){const vals={'2026-11-17':[10,1],'2026-11-10':[100,2],'2026-11-03':[200,20],'2026-10-27':[1000,500]};const v=vals[dates[r[0]]];if(v){copy[2]=v[0];copy[4]=v[1]}}return copy})};
@@ -40,3 +55,14 @@ const badBaseline={...payload,categoryRows:payload.categoryRows.map(r=>{const x=
 const invalidBase=createEngine(badBaseline).ranking('category','payRate').rows.find(r=>r.id===0);
 assert.equal(invalidBase.baseline,null);assert.ok(invalidBase.baselineReason.includes('分子分母'));
 console.log('Invalid pay-rate source rows and mixed valid/invalid windows are blocked with reasons');
+
+// Regression: Map.get does not accept an object-style default. The first weekly
+// anchor in a tier must start from 0 instead of poisoning the whole supply mean with NaN.
+const weeklyRow=(week,anchor,liveDays)=>{const r=Array(17).fill(0);r[0]=week;r[1]=0;r[2]=0;r[3]=0;r[4]=anchor;r[9]=3500;r[10]=7;r[11]=700;r[12]=100;r[16]=liveDays;return r};
+const weekly={...payload,weeks:[0,1],weekRanges:{0:{start:'2026-11-09',end:'2026-11-15'},1:{start:'2026-11-16',end:'2026-11-22'}},anchorWeekly:[weeklyRow(0,0,6),weeklyRow(0,1,0),weeklyRow(1,0,7),weeklyRow(1,1,2)]};
+const weeklyEngine=createEngine(weekly);
+const weeklyCurrent=weeklyEngine.aggregate('tier','liveAnchors','2026-11-16','2026-11-22',[]).rows.find(r=>r.id==='腰部');
+const weeklyBaseline=weeklyEngine.aggregate('tier','liveAnchors','2026-11-09','2026-11-15',[]).rows.find(r=>r.id==='腰部');
+assert.equal(weeklyCurrent.value,9/7);
+assert.equal(weeklyBaseline.value,6/7);
+console.log('Weekly tier liveAnchors dedupe starts from a finite zero');

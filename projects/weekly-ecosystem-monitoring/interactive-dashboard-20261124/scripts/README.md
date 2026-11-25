@@ -30,6 +30,32 @@ python scripts/refresh_dashboard.py \
 - `test_daily_alert_visualization.py`：检查日报画布数据载荷和周期标签口径。
 - `test_daily_alert_visualization.mjs`：通过 Chrome 调试端口验证默认平台日趋势、柱状、100% 堆积、内容大类下钻和月粒度。
 
+## V1.2 构建与赛事日输入
+
+```bash
+python scripts/build_daily_v12.py \
+  --data <dashboard_data.json> \
+  --platform <platform_daily_harmony.csv> \
+  --supplement <metric_supplement_dir> \
+  --event-top <event_top10.csv> \
+  --output <new_run_dir> \
+  --report-date <YYYY-MM-DD>
+```
+
+`event_top10.csv` 由 `sql/templates/赛事品类前10赛事日.sql` 执行后导出，必需列为 `dt,gameid,event_dau,event_day_count,rn`。构建器按 `dt × gameid` 校验唯一，并把全部登记赛事日与入选 Top 10% 赛事日分开写入载荷。没有该 CSV 时不得声称已完成大事件剔除；未覆盖品类显示待判断。
+
+V1.2 发布前至少运行：
+
+```bash
+node --check assets/daily_v12.js
+python -m py_compile scripts/build_daily_v12.py scripts/analyst_upgrade.py
+node scripts/test_daily_v12_engine.mjs
+node scripts/test_anomaly_filters.mjs
+node scripts/test_daily_v12_ui.mjs <HTML>
+```
+
+最后一项需设置 `V12_TEST_RUNTIME` 指向包含 `jsdom` 的测试运行时。DOM 测试通过不等于真实浏览器视觉验收。
+
 ## 开播主播数字段
 
 - 品类 CSV：`live_anchor_cnt`、`group_live_anchor_cnt`、`total_live_anchor_cnt`。

@@ -17,6 +17,14 @@ console.time('controller');await w.eval(js);console.timeEnd('controller');
 assert.ok(w.__v12Ready,'page initialization failed: '+errors.join(';'));
 const api=w.__dailyV12,$=id=>w.document.getElementById(id);
 assert.equal($('kpis').children.length,4);assert.equal(w.document.querySelectorAll('.table-slot').length,4);
+assert.ok($('executiveSummary').textContent.includes('本轮执行摘要'));
+assert.ok($('executiveSummary').textContent.includes('原始全期'));
+assert.ok($('executiveSummary').textContent.includes('赛事剔除'));
+assert.equal(w.document.querySelectorAll('.kpi .kpi-event').length,4,'each result card needs an event-adjusted view');
+assert.ok([...w.document.querySelectorAll('.kpi-event')].every(e=>e.textContent.includes('非赛事 vs 非赛事')));
+assert.ok($('summaryModule').textContent.includes('原始全期异动'));
+assert.ok($('summaryModule').textContent.includes('赛事剔除异动'));
+assert.ok(!/\d,\d{3}\.\d/.test($('kpis').textContent),'count and money KPIs should render as integers');
 assert.ok($('chartHost').querySelector('svg'),'default platform chart missing');
 const category=api.engine.ranking('category','dau',api.opts('category')).rows;
 const before=category.map(r=>r.contribution);
@@ -75,6 +83,11 @@ api.state.paths=[];api.state.comparison='weekday';api.state.start=api.data.repor
 const diagnosticRows=api.summaryCandidates().slice(0,5);
 for(const row of diagnosticRows){const d=api.processExplanation(row);assert.ok(d.conclusion);for(const e of d.evidence){assert.equal(e.scope,row.scope);assert.equal(e.period,row.period);assert.equal(e.comparisonPeriod,row.comparisonPeriod);assert.ok(Number.isFinite(e.current)&&Number.isFinite(e.baseline));}assert.ok(d.boundary.includes('因果'));}
 api.setMetric('dau');api.renderSummary();assert.ok($('summaryCards').querySelector('.finding-values'));assert.ok(!$('summaryCards').textContent.includes('已核对开播主播数'));
+const eventDauOpts={...api.opts('category'),eventMode:'nonEvent'},eventDauRow=api.engine.ranking('category','dau',eventDauOpts).rows.find(r=>r.eventCoverage==='covered'&&r.current!=null&&r.baseline!=null);
+const dauProcess=api.processRows({...eventDauRow,scope:'category',analysisOptions:eventDauOpts});
+assert.ok(dauProcess.length>0);assert.ok(!dauProcess.some(r=>['payUsers','revenue','arppu'].includes(r.metric)),'DAU diagnosis must not default to payment metrics');
+const revenueOpts=api.opts('category'),revenueRow=api.engine.ranking('category','revenue',revenueOpts).rows.find(r=>r.current!=null&&r.baseline!=null),revenueProcess=api.processRows({...revenueRow,scope:'category',analysisOptions:revenueOpts});
+assert.ok(revenueProcess.some(r=>r.metric==='interactionUsers'),'revenue diagnosis should include anchor interaction');
 console.log('Matched-context process explanation checks passed');
 
 // The compact summary opens one shared result -> process -> child attribution workspace.

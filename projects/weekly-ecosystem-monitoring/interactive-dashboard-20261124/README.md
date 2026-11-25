@@ -22,6 +22,8 @@
 
 2026-11-26 诊断交互修订：恢复紧凑的多列异动卡，并把长证据收进单一共享诊断工作区；分析顺序固定为“结果指标异常 → 同周期过程指标 → 组成/推荐下钻 → TopN 贡献归因”。主播层级补充开播主播数、观看深度、互动承接、付费和变现过程指标。子层下钻会继承当前结果的周/日上下文；日级对象进入仅周级覆盖的公会、层级或主播层时，自动切换到最近完整周并单独提示，不再出现因沿用日报日期而产生的空表。赛事登记属性仍只在日级品类路径开放，周级路径明确不推荐。
 
+2026-11-26 赛事双视图：首屏和执行摘要同时保留原始全期与赛事剔除视图。大赛事日按每个品类赛事关联 DAU 降序选取前 10%，当前期与比较期同时剔除，形成“非赛事 vs 非赛事”对比。可复用 SQL 为 `sql/templates/赛事品类前10赛事日.sql`，输出 CSV 通过 `--event-top` 传入 V1.2 构建器。未覆盖赛事记录的品类显示“待判断”，不得推断成非赛事；公会、层级和主播的周聚合目前不生成日级赛事剔除评级。
+
 ## 当前成品
 
 2026-11-25 分析工作台：全品类可切换 DAU、流水、打赏人数、归属用户、开播主播数，按下降值、绝对变化或持续天数重新排名。持续异常只使用完整的4个同星期基线，缺记录中断，最多回溯28天；流水使用付费人数与ARPPU对称拆解，两个效应精确回到流水变化。现有公会和主播榜继续使用完整周口径。
@@ -52,6 +54,18 @@ python scripts/refresh_dashboard.py \
 ```
 
 没有赛事 CSV 时删除 `--event-csv`。发布前还必须按 `skill/huya-ecology-dashboard-refresh/SKILL.md` 完成源表独立准确性复算，并生成 `accuracy_reconciliation_<run>.md`；只有准确性复算、`validation_report_<run>.json=passed`、开播主播数 UI 专项检查和浏览器冒烟通过且运行清单完整，才能发布 HTML。
+
+V1.2 单文件日报使用独立构建命令；有新赛事日 CSV 时增加 `--event-top`：
+
+```bash
+python scripts/build_daily_v12.py \
+  --data <dashboard_data.json> \
+  --platform <platform_daily_harmony.csv> \
+  --supplement <metric_supplement_dir> \
+  --event-top <event_top10.csv> \
+  --output <new_run_dir> \
+  --report-date <YYYY-MM-DD>
+```
 
 新电脑需要由 Codex 自动识别工作流时，把 `skill/huya-ecology-dashboard-refresh` 复制到该电脑的 `%USERPROFILE%\.codex\skills\`，重新打开 Codex 后可直接调用该 skill。
 
