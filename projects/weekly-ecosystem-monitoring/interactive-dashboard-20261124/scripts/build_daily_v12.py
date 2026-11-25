@@ -18,8 +18,6 @@ def build_payload(data,platform,supplement,report_day):
             v=dict(v);v.update(lookup.get((dt,str(meta['categories'][idx]['id'])),{}))
             raw=raw_lookup[(dt,idx)];v['viewMinutes']=raw[raw_cols['viewMinutes']]
             platform_live[dt]=max(platform_live.get(dt,0),raw[raw_cols['totalLiveAnchors']])
-            if evidence and evidence['coverageStart']<=dt<=evidence['coverageEnd']:
-                for m in ['newUsers','returnUsers','newReturnUsers']:v.setdefault(m,0)
             category_rows.append([date_index[dt],idx]+[v.get(m) for m in fields])
     global_acq=[]
     if supplement and (Path(supplement)/'v12_platform_acquisition_retry.json').exists():
@@ -27,6 +25,13 @@ def build_payload(data,platform,supplement,report_day):
             values={m:float(r[m]) for m in ['newUsers','returnUsers','newReturnUsers']}
             assert values['newReturnUsers']==values['newUsers']+values['returnUsers']-float(r['intersectionUsers'])
             global_acq.append([r['dt'],values['newUsers'],values['returnUsers'],values['newReturnUsers']])
+    if supplement and (Path(supplement)/'v12_platform_independent.json').exists():
+        independent=read_result(Path(supplement)/'v12_platform_independent.json')
+        actual={r[0]:r for r in global_acq}
+        assert len(independent)==len(global_acq)>0
+        for r in independent:
+            assert [float(r[m]) for m in ['newUsers','returnUsers','newReturnUsers']]==actual[r['dt']][1:]
+        evidence['platformAcquisitionIndependentDates']=len(independent)
     return {'version':'1.2','reportDate':report_day,'dates':date_values,'categories':meta['categories'],'groups':meta['contentGroups'],
             'guilds':meta['guilds'],'anchors':meta['anchors'],'weeks':meta['weeks'],'weekRanges':meta['weekRanges'],
             'categoryMetrics':fields,'categoryRows':category_rows,'anchorDailyColumns':meta['anchorDailyColumns'],
@@ -35,6 +40,7 @@ def build_payload(data,platform,supplement,report_day):
             'evidence':evidence,'sourceLatestPartition':meta.get('sourceLatestPartition'),'ratingVersion':'试行混合规则 v20261125',
             'limitations':['互动率分子/分母语义未通过，暂不可计算正式比率。','日级主播表只有专项历史覆盖；搜索索引覆盖全部已有周表主播，不代表全部都有日历史。',
                '公会、层级、交叉维度只有完整周数据；日级主播记录不带日级公会路径，不能用最新公会替代历史日维度。',
+               '公会开播主播数沿用周路径内同主播最大开播天数，跨品类换播可能低估，尚非精确主播日并集；供给结论待复算。',
                '拉新/回流来自上游四端归因，不含鸿蒙；不能除以含鸿蒙平台DAU作为转化率。',
                '版权非登记日不能区分赛事窗口休赛与窗口外；映射未知不代表无赛事。',
                '旧混合评级未定义低等级，低对象计数为0。未正式校准；比率和新增过程指标等级待判断。']}
@@ -71,7 +77,8 @@ def main():
     for m,s in bt['metrics'].items():text.append(f"|{m}|{s['observations']}|{s['oldCounts'].get('高',0)}|{s['candidateCounts']['高']}|{s['absoluteZQuantiles']['p95']}|")
     (a.output/'评级历史回测_候选未上线.md').write_text('\n'.join(text),encoding='utf-8')
     manifest={'version':'1.2','reportDate':report,'status':'交互待验收；数据与评级部分待验证','htmlBytes':target.stat().st_size,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),
-              'data':{'path':str(a.data),'sha256':hashlib.sha256(a.data.read_bytes()).hexdigest()},'platform':str(a.platform),'counts':{k:len(payload[k]) for k in ['categoryRows','anchorWeekly','anchorDaily','anchors','platformAcquisition']},'limitations':payload['limitations'],'supplementEvidence':payload['evidence']}
+              'data':{'path':str(a.data),'sha256':hashlib.sha256(a.data.read_bytes()).hexdigest()},'platform':str(a.platform),'counts':{k:len(payload[k]) for k in ['categoryRows','anchorWeekly','anchorDaily','anchors','platformAcquisition']},'limitations':payload['limitations'],'supplementEvidence':payload['evidence'],
+              'supplementInputs':[{'name':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(a.supplement.glob('*.json')) if p.name.startswith(('upgrade_result_','upgrade_independent','v12_platform'))] if a.supplement else []}
     (a.output/'V1.2_运行清单.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(manifest,ensure_ascii=False))
 
 if __name__=='__main__':main()

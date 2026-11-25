@@ -1,0 +1,29 @@
+import assert from 'node:assert/strict';
+import {classify,contributions,shapley,completeBucket,createEngine,shift,days} from '../assets/daily_v12_engine.mjs';
+assert.equal(classify('dau',100000,[100000,100000,100000,100000]).severity,'正常');
+assert.equal(classify('dau',100000,[1,null,2,3]).severity,'待判断');
+assert.equal(classify('interactionRate',.1,[.1,.1,.1,.1]).severity,'待判断');
+assert.equal(classify('dau',70000,[100000,100000,100000,100000]).severity,'高');
+assert.ok(classify('dau',70000,[100000,100000,100000,100000]).robustZ<0);
+assert.equal(contributions([{delta:0},{delta:0}],'dau')[0].contribution,null);
+const c=contributions([{delta:-100},{delta:99}],'dau');assert.ok(Math.abs(c.reduce((s,r)=>s+Math.abs(r.contribution),0)-1)<1e-12);
+const bridge=shapley([100,.1,10],[120,.08,15]);assert.ok(Math.abs(bridge.residual)<1e-9);assert.ok(Math.abs(bridge.effects.reduce((a,b)=>a+b,0)-(144-100))<1e-9);assert.equal(shapley([0,1,2],[1,2,3]),null);
+assert.ok(completeBucket('2026-11-16','2026-11-22','week'));assert.ok(!completeBucket('2026-11-17','2026-11-22','week'));
+assert.ok(completeBucket('2026-10-01','2026-10-31','month'));assert.ok(!completeBucket('2026-10-01','2026-10-30','month'));
+const dates=days('2026-10-01','2026-11-24'),fields=['dau','revenue','payUsers','attributionUsers','liveAnchors'];
+const payload={dates,categoryMetrics:fields,categories:[{id:'1',name:'A',group:0},{id:'2',name:'B',group:0}],groups:['游戏'],guilds:['G'],anchors:[],anchorDailyColumns:[],anchorColumns:[],weeks:[],weekRanges:{},anchorWeekly:[],anchorDaily:[],categoryRows:dates.flatMap((d,i)=>[[i,0,100,1000,10,20,2],[i,1,d==='2026-11-24'?90:100,d==='2026-11-24'?2000:1000,10,20,2]]),reportDate:'2026-11-24'};
+const e=createEngine(payload),rank=e.ranking('category','revenue');assert.equal(rank.rows.length,2);assert.equal(rank.rows.find(r=>r.id===1).delta,1000);assert.equal(rank.rows.find(r=>r.id===1).contribution,1);assert.equal(e.ranking('category','dau').rows.find(r=>r.id===1).delta,-10);
+const x=e.aggregate('category','payRate','2026-11-23','2026-11-24').rows.find(r=>r.id===1);assert.equal(x.value,20/190);
+assert.ok(e.ranking('guild','dau').unsupported);
+const missing={...payload,categoryRows:payload.categoryRows.filter(r=>!(dates[r[0]]==='2026-11-17'&&r[1]===1))};assert.equal(createEngine(missing).ranking('category','dau').rows.find(r=>r.id===1).severity,'待判断');
+// Compare ratios from the SAME median numerator/denominator used by the bridge.
+const varying={...payload,categoryRows:payload.categoryRows.map(r=>{const copy=[...r];if(r[1]===0){const vals={'2026-11-17':[10,1],'2026-11-10':[100,2],'2026-11-03':[200,20],'2026-10-27':[1000,500]};const v=vals[dates[r[0]]];if(v){copy[2]=v[0];copy[4]=v[1]}}return copy})};
+const ratioRow=createEngine(varying).ranking('category','payRate').rows.find(r=>r.id===0);
+assert.equal(ratioRow.baseline,ratioRow.baselineParts[0]/ratioRow.baselineParts[1]);
+// Summed counts must not silently include nonmatching days for ratio ingredients.
+const unavailable=classify('arppu',10,[9,10,11,12]);assert.equal(unavailable.severity,'待判断');
+// Missing series data never sorts above a valid change just because abs(-Infinity).
+console.log('V1.2 engine tests passed: rating gates, denominator closure, ratio weighting, Shapley, missing dates and weekly coverage');
+
+assert.equal(contributions([{currentParts:[100,10],baselineParts:[80,10]}],'arppu')[0].contributionKind,'结构比率差');
+assert.equal(contributions([{currentParts:[1,10],baselineParts:[2,10]}],'payRate')[0].contributionKind,'结构百分点');

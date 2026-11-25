@@ -16,4 +16,14 @@ const e=createEngine(payload),rank=e.ranking('category','revenue');assert.equal(
 const x=e.aggregate('category','payRate','2026-11-23','2026-11-24').rows.find(r=>r.id===1);assert.equal(x.value,20/190);
 assert.ok(e.ranking('guild','dau').unsupported);
 const missing={...payload,categoryRows:payload.categoryRows.filter(r=>!(dates[r[0]]==='2026-11-17'&&r[1]===1))};assert.equal(createEngine(missing).ranking('category','dau').rows.find(r=>r.id===1).severity,'待判断');
+// Compare ratios from the SAME median numerator/denominator used by the bridge.
+const varying={...payload,categoryRows:payload.categoryRows.map(r=>{const copy=[...r];if(r[1]===0){const vals={'2026-11-17':[10,1],'2026-11-10':[100,2],'2026-11-03':[200,20],'2026-10-27':[1000,500]};const v=vals[dates[r[0]]];if(v){copy[2]=v[0];copy[4]=v[1]}}return copy})};
+const ratioRow=createEngine(varying).ranking('category','payRate').rows.find(r=>r.id===0);
+assert.equal(ratioRow.baseline,ratioRow.baselineParts[0]/ratioRow.baselineParts[1]);
+// Summed counts must not silently include nonmatching days for ratio ingredients.
+const unavailable=classify('arppu',10,[9,10,11,12]);assert.equal(unavailable.severity,'待判断');
+// Missing series data never sorts above a valid change just because abs(-Infinity).
 console.log('V1.2 engine tests passed: rating gates, denominator closure, ratio weighting, Shapley, missing dates and weekly coverage');
+
+assert.equal(contributions([{currentParts:[100,10],baselineParts:[80,10]}],'arppu')[0].contributionKind,'结构比率差');
+assert.equal(contributions([{currentParts:[1,10],baselineParts:[2,10]}],'payRate')[0].contributionKind,'结构百分点');

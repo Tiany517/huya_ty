@@ -23,6 +23,24 @@ description: 刷新、迁移或验收虎牙生态监控 HTML 看板与异动日�
 
 发布前运行 `python -m unittest discover -s scripts -p 'test_daily*.py' -v`；运行原日报浏览器回归后再运行 `node scripts/test_daily_analysis.mjs`，核对5指标、全品类候选、流水排名、拆解闭合与连续天数上限。此模块、两个新增测试和构建器需同步到桌面和全局Skill。
 
+
+## 日报V1.2工作流与硬门槛
+
+V1.2独立构建，不自动覆盖旧日报。迁移时复制 `scripts/build_daily_v12.py`、其现有依赖 `analyst_upgrade.py/build_daily_alert_report.py/daily_analysis.py/tournament_context.py` 及这些文件的现有依赖，和 `assets/daily_v12.html/.css/.js`、`daily_v12_engine.mjs`、`anomaly_filters.mjs`。依赖缺失停止，不手工拼半截HTML。
+
+1. 复用前述核心CSV/JSON及独立复算流程，确认实际分区、端范围、唯一键和日期。补充数据未返回不补零，失败查询保留但不作为输入。
+2. 用 `python scripts/build_daily_v12.py --data <不可变JSON> --platform <含鸿蒙官方平台CSV> --supplement <补充查询目录> --output <新目录>` 构建。新电脑自行取数；原始数据和内嵌HTML不要求进GitHub。
+3. 先运行 `node scripts/test_anomaly_filters.mjs`、`node scripts/test_daily_v12_engine.mjs`；设置 `V12_TEST_RUNTIME` 为装有jsdom的外部测试目录，再运行 `node scripts/test_daily_v12_ui.mjs <HTML>`。DOM测试不等于浏览器视觉通过。
+4. 用 `python scripts/reconcile_daily_v12.py --data <原始JSON> --html <HTML> --output <对账JSON>` 独立读取原始列，逐行核对6项品类指标及周日原记录；再运行 `node scripts/reconcile_daily_v12_engine.mjs <HTML> <对账JSON>`，核对50项独立Python周聚合与JS引擎。关键UV必须精确一致、金额误差≤0.01元。此步不能代替源表独立查询。
+5. 平台拉新回流必须按用户日并集；独立查询用不同集合路径复算每日期的拉新/回流/并集/交集，保存SQL和查询rid。仅有5日不得冒充连续历史。补充独立验证SQL见项目 `sql/diagnostics/13_平台拉新回流独立集合复算_20261124.sql`，执行新周期时先按实际快照改日期。
+6. 实际浏览器核对首屏、tooltip、日期、下钻返回、8主播比较、模块拖拽/恢复、宽窄屏；未执行写未执行。保留19项验收矩阵、输入和产物哈希、测试记录、回测候选报告；正式替换前备份。
+
+准确性门槛：缺失不补零；比率分子分母共同有效行且同端/用户语义；百分率差异用百分点、ARPPU等用原单位；多日流水拆解用观看用户日总量而非DAU日均，Shapley闭合误差≤0.01元；搜索、TopN、等级过滤不改变完整父级贡献分母；层级固定参考周名单，新增退出与升降层分开并明示固定周期。公会周最大开播天数不等于主播日并集，未复算不作正式供给评级。
+
+互动率语义失败时封锁正式比率及评级；四端拉新回流不含鸿蒙明确备注。版权非登记日不等于非赛事期；缺官方周期核验不声称已剔除赛事。试行混合评级没有低分支，不能把正常改低；保留带方向分，优先级独立。异常分候选必须历史回测、案例核验且用户确认后才切换，不将报警率称准确率。
+
+English: Build V1.2 into a new directory. Independent export-to-UI and warehouse reconciliation are separate gates. DOM success is not browser acceptance. Preserve pending metrics and trial ratings; never silently fill missing data or publish score-only grades.
+
 ## 目标与完成定义
 
 把新周期数据安全地更新进单文件 HTML 看板，并留下能够复核的源数据、SQL、口径、验证结果和运行记录。本文件是可执行主流程；references 只用于查字段、公式和补充清单，不能在主流程未执行时替代验收。
