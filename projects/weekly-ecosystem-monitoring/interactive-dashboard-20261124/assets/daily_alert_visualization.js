@@ -62,6 +62,9 @@
   if(data.platform.length){scopeSelect.add(new Option('平台 DAU（官方去重口径）','platform'));}
   scopeSelect.add(new Option('内容生态 DAU（品类合计）','total'));
   scopeSelect.add(new Option('内容生态流水（品类合计）','revenue'));
+  const extraLabels={interactionUsers:'互动人数（主播UV合计）',newUsers:'拉新人数（不含鸿蒙）',returnUsers:'回流人数（不含鸿蒙）',newReturnUsers:'拉新回流去重合计（不含鸿蒙）'};
+  const extraIndices=Object.fromEntries((data.supplementMetrics||[]).map((m,i)=>[m,5+i]));
+  (data.supplementMetrics||[]).forEach(m=>scopeSelect.add(new Option(extraLabels[m],m)));
   scopeSelect.value=state.scope;
 
   function scopeDates(){
@@ -141,6 +144,9 @@
     resetObjectSelection();
   }
   function updateDrillControls(resetObjects=true){
+    const anchorOption=[...dimensionSelect.options].find(o=>o.value==='anchor');
+    if(anchorOption)anchorOption.disabled=state.scope in extraIndices;
+    if(state.scope in extraIndices&&state.dimension==='anchor')state.dimension='category';
     if(state.scope==='platform'){
       state.dimension='none';dimensionSelect.value='none';dimensionSelect.disabled=true;
     }else{
@@ -155,6 +161,7 @@
     return state.dimension==='anchor'?data.anchorDates[row[0]]:data.dates[row[0]];
   }
   function targetValueAt(row){
+    if(state.scope in extraIndices)return row[extraIndices[state.scope]]==null?null:Number(row[extraIndices[state.scope]]);
     if(state.dimension==='anchor')return Number((state.scope==='revenue'?row[3]:row[2])||0);
     return Number((state.scope==='revenue'?row[4]:row[3])||0);
   }
@@ -162,9 +169,10 @@
     const range=dateWindow();
     if(state.scope==='platform')return [];
     if(state.dimension==='anchor')return data.anchorRows.filter(row=>{const dt=data.anchorDates[row[0]];return dt>=range.start&&dt<=range.end;});
-    return data.rows.filter(row=>{const dt=data.dates[row[0]];return dt>=range.start&&dt<=range.end;});
+    return data.rows.filter(row=>{const dt=data.dates[row[0]];return dt>=range.start&&dt<=range.end&&targetValueAt(row)!=null;});
   }
   function addBucket(map,key,date,value){
+    if(value==null)return;
     const bucket=map.get(key)||{sum:0,days:new Set()};bucket.sum+=value;bucket.days.add(date);map.set(key,bucket);
   }
   function aggregateMain(){
@@ -200,8 +208,8 @@
     return {labels,series};
   }
   function componentForRow(row){
-    if(state.scope==='total'&&state.dimension==='anchor')return {kind:'anchor',drillValue:String(row[1])};
-    if(state.scope==='total'&&state.dimension==='group'&&state.drill==='all')return {kind:'group',drillValue:String(row[2])};
+    if(state.scope!=='platform'&&state.dimension==='anchor')return {kind:'anchor',drillValue:String(row[1])};
+    if(state.scope!=='platform'&&state.dimension==='group'&&state.drill==='all')return {kind:'group',drillValue:String(row[2])};
     return {kind:'category',drillValue:String(row[1])};
   }
   function componentLabel(kind,value){
@@ -233,7 +241,7 @@
     }
     return [...buckets.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([key,bucket])=>({key,label:bucket.label,total:bucket.total,parts:[...bucket.values.values()].sort((a,b)=>b.value-a.value)}));
   }
-  function seriesLabel(){return state.scope==='platform'?'平台 DAU':state.scope==='revenue'?(state.dimension==='anchor'?'主播流水':'内容生态流水'):(state.dimension==='anchor'?'主播 DAU':'内容生态 DAU');}
+  function seriesLabel(){return extraLabels[state.scope]||(state.scope==='platform'?'平台 DAU':state.scope==='revenue'?(state.dimension==='anchor'?'主播流水':'内容生态流水'):(state.dimension==='anchor'?'主播 DAU':'内容生态 DAU'));}
   function svgFrame(content,height=330){
     return `<svg viewBox="0 0 960 ${height}" role="img" aria-label="自由分析 ${esc(seriesLabel())} 图表"><defs><linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#62a9ff"/><stop offset="1" stop-color="#2878df"/></linearGradient></defs>${content}</svg>`;
   }
@@ -248,7 +256,7 @@
     const h=330,p={l:72,r:22,t:24,b:48},values=series.map(item=>item.value),cfg=axisConfig(values,h,p),{x,y,min,max,span}=cfg;
     const grid=Array.from({length:5},(_,index)=>{const value=max-span*index/4,pos=y(value);return `<line class="grid" x1="${p.l}" x2="${960-p.r}" y1="${pos}" y2="${pos}"/><text class="axis" x="${p.l-8}" y="${pos+4}" text-anchor="end">${fmt(value)}</text>`;}).join('');
     const path=series.map((item,index)=>`${index?'L':'M'}${x(index)},${y(item.value)}`).join(' ');
-    const dots=series.map((item,index)=>{const text=`${item.label} · ${seriesLabel()}：${fmt(item.value)}`;return `<circle class="dot-hit" cx="${x(index)}" cy="${y(item.value)}" r="13" data-tooltip="${esc(text)}"><title>${esc(text)}</title></circle><circle class="dot" cx="${x(index)}" cy="${y(item.value)}" r="4" pointer-events="none"/>`;}).join('');
+    const dots=series.map((item,index)=>{const text=`${item.label} · ${seriesLabel()}：${fmt(item.value)}`;return `<circle class="dot-hit" cx="${x(index)}" cy="${y(item.value)}" r="13" data-tooltip="${esc(text)}"><title>${esc(text)}</title></circle><circle class="dot" cx="${x(index)}" cy="${y(item.value)}" r="${series.length>35?0:3}" pointer-events="none"/>`;}).join('');
     const ticks=new Set(tickIndexes(series.length,8));const labels=series.map((item,index)=>ticks.has(index)?`<text class="axis" x="${x(index)}" y="${h-12}" text-anchor="${index===0?'start':index===series.length-1?'end':'middle'}">${esc(item.label)}</text>`:'').join('');
     return svgFrame(grid+`<path class="line-path" d="${path}" style="stroke:${palette[0]}" pointer-events="none"/>`+dots+labels,h);
   }
@@ -266,7 +274,7 @@
     const cfg=axisConfig(allValues,h,p),{x,y,min,max,span}=cfg;
     const grid=Array.from({length:5},(_,index)=>{const value=max-span*index/4,pos=y(value);return `<line class="grid" x1="${p.l}" x2="${960-p.r}" y1="${pos}" y2="${pos}"/><text class="axis" x="${p.l-8}" y="${pos+4}" text-anchor="end">${fmt(value)}</text>`;}).join('');
     const paths=comparison.series.map(item=>{const path=item.points.map((point,index)=>`${index?'L':'M'}${x(index)},${y(point.value)}`).join(' ');return `<path class="line-path" d="${path}" style="stroke:${item.color}" pointer-events="none"/>`;}).join('');
-    const dots=comparison.series.map(item=>item.points.map((point,index)=>{if(!point.present)return '';const text=`${item.label} · ${labels[index].label} · ${seriesLabel()}：${fmt(point.value)}`;return `<circle class="dot-hit" cx="${x(index)}" cy="${y(point.value)}" r="11" data-tooltip="${esc(text)}"><title>${esc(text)}</title></circle><circle class="dot" cx="${x(index)}" cy="${y(point.value)}" r="3.4" style="stroke:${item.color}" pointer-events="none"/>`;}).join('')).join('');
+    const dots=comparison.series.map(item=>item.points.map((point,index)=>{if(!point.present)return '';const text=`${item.label} · ${labels[index].label} · ${seriesLabel()}：${fmt(point.value)}`;return `<circle class="dot-hit" cx="${x(index)}" cy="${y(point.value)}" r="11" data-tooltip="${esc(text)}"><title>${esc(text)}</title></circle><circle class="dot" cx="${x(index)}" cy="${y(point.value)}" r="${labels.length>35?0:3}" style="stroke:${item.color}" pointer-events="none"/>`;}).join('')).join('');
     const ticks=new Set(tickIndexes(labels.length,8));const labelMarkup=labels.map((item,index)=>ticks.has(index)?`<text class="axis" x="${x(index)}" y="${h-16}" text-anchor="${index===0?'start':index===labels.length-1?'end':'middle'}">${esc(item.label)}</text>`:'').join('');
     return svgFrame(grid+paths+dots+labelMarkup,h);
   }
@@ -292,6 +300,7 @@
   function scopeTrail(){
     const root={label:'大盘',dimension:'none',drill:'all'};
     const comparison=aggregateComparison();
+    if(state.scope in extraIndices)return [root,{label:extraLabels[state.scope],dimension:'group',drill:'all'},{label:'补充指标覆盖10/01—11/24；上游端和归因口径见页脚',dimension:state.dimension,drill:state.drill}];
     if(state.scope==='platform')return [root,{label:'平台 DAU（官方）',dimension:'none',drill:'all'}];
     if(state.scope==='revenue')return comparison?[root,{label:'内容生态流水',dimension:'group',drill:'all'},{label:`${dimensionSelect.selectedOptions[0]?.textContent||'对象'}对比 · 已选 ${comparison.series.length} 个`,dimension:state.dimension,drill:'all'}]:[root,{label:'内容生态流水',dimension:'none',drill:'all'}];
     if(comparison)return [root,{label:'内容生态 DAU',dimension:'group',drill:'all'},{label:`${dimensionSelect.selectedOptions[0]?.textContent||'对象'}对比 · 已选 ${comparison.series.length} 个`,dimension:state.dimension,drill:'all'}];
@@ -302,7 +311,7 @@
     return [root,{label:'内容生态 DAU',dimension:'none',drill:'all'}];
   }
   function applyDrill(dimension,drill){
-    state.scope='total';scopeSelect.value='total';state.dimension=dimension==='none'?'group':dimension;state.range='all';rangeSelect.value='all';state.selected=new Set([dimension==='none'?'all':String(drill)]);state.drill=String(drill);updateDrillControls(false);render();
+    if(state.scope==='platform')state.scope='total';scopeSelect.value=state.scope;state.dimension=dimension==='none'?'group':dimension;state.range='all';rangeSelect.value='all';state.selected=new Set([dimension==='none'?'all':String(drill)]);state.drill=String(drill);updateDrillControls(false);render();
   }
   function hideTooltip(){tooltip.classList.remove('visible');}
   function showTooltip(text,event){

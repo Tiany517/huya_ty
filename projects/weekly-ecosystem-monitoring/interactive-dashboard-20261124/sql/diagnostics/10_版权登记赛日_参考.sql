@@ -1,0 +1,2 @@
+-- 参考执行版本；日期为本次快照，不得直接用于其他周期。验收状态见METRIC_UPGRADE.md。
+SELECT DISTINCT CASE WHEN cast(game_id AS varchar)='无畏契约' THEN '5937' WHEN cast(game_id AS varchar)='王者万象棋' THEN '8127' ELSE cast(game_id AS varchar) END gameid,substr(cast(day AS varchar),1,10) dt FROM zhgametemp.hss_huya_dim_game_copyright_info_d_a WHERE dt='2026-11-24' AND substr(cast(day AS varchar),1,10) BETWEEN '2026-05-29' AND '2026-11-24' AND live_type LIKE '%直播%' AND uid IS NOT NULL AND trim(cast(uid AS varchar)) NOT IN ('','0','-1') AND match_id IS NOT NULL ORDER BY 1,2

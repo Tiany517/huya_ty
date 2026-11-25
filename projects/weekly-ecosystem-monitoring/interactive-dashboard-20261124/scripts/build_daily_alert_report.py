@@ -20,6 +20,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 from daily_analysis import build_analysis, render_analysis
 from tournament_context import load_context, render_context
+from analyst_upgrade import build_upgrade, apply_upgrade
 
 PLATFORM_DAU_PRODUCTS = (
     "huya_andriod",
@@ -37,6 +38,11 @@ METRIC_RULES = {
     "payUsers": {"label": "打赏人数", "pct": 0.10, "min_abs": 50},
     "attributionUsers": {"label": "归属用户数", "pct": 0.05, "min_abs": 5000},
     "liveAnchors": {"label": "开播主播数", "pct": 0.10, "min_abs": 10},
+    # 补充指标为试运行阈值；上线后按历史回测校准，不与DAU级别混用。
+    "interactionUsers": {"label": "互动人数（主播UV合计）", "pct": 0.10, "min_abs": 50},
+    "newUsers": {"label": "拉新人数", "pct": 0.10, "min_abs": 50},
+    "returnUsers": {"label": "回流人数", "pct": 0.10, "min_abs": 50},
+    "newReturnUsers": {"label": "拉新回流去重合计", "pct": 0.10, "min_abs": 50},
 }
 
 
@@ -50,6 +56,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report-date", help="YYYY-MM-DD; defaults to the latest category date.")
     parser.add_argument("--baseline-count", type=int, default=4)
     parser.add_argument("--tournament-context", type=Path, help="Dated exploratory tournament evidence JSON; must match report date.")
+    parser.add_argument("--metric-supplement", type=Path, help="Saved acquisition/interaction/event query result envelopes")
     parser.add_argument("--top-n", type=int, default=20)
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--smoke-test", action="store_true", help="Render the report in headless Chrome/Edge.")
@@ -1160,6 +1167,16 @@ def main() -> int:
         report_date,
         anchor_rank_rows=anchor_rows[:50],
     )
+    upgrade_payload = build_upgrade(
+        data, report_date, by_category, dimensions, classify_change,
+        args.metric_supplement.resolve() if args.metric_supplement else None,
+    )
+    if upgrade_payload:
+        visualization_payload["supplementMetrics"] = ["interactionUsers", "newUsers", "returnUsers", "newReturnUsers"]
+        for point in visualization_payload["rows"]:
+            dt_value = visualization_payload["dates"][point[0]]
+            values = by_category.get(dt_value, {}).get(point[1], {})
+            point.extend(values.get(m) for m in visualization_payload["supplementMetrics"])
 
     alerts = build_alerts(list(platform_changes.values()), category_ranked, tier_rows)
     conclusions = conclusion_text(platform_changes, category_ranked, tier_rows, baseline_count)
@@ -1262,6 +1279,12 @@ def main() -> int:
         "checks": checks,
     }
     html_text = render_html(report, visualization_payload)
+    if upgrade_payload:
+        html_text = apply_upgrade(html_text, upgrade_payload)
+        report["upgradeEvidence"] = upgrade_payload["evidence"]
+        report["upgradeFindings"] = upgrade_payload["findings"]
+        report["supplementStatus"] = "exploratory_pending_independent_reconciliation"
+        report["validationScope"] = "checks/status only validate core data and rendering structure; supplement source accuracy and visual acceptance remain pending"
     checks["htmlContainsCoreSections"] = all(token in html_text for token in ("虎牙生态监控异动日报", "自由分析画布", "品类 Top10", "公会 Top20", "主播 Top10", "数据与口径提示", "级别口径说明"))
     if args.smoke_test:
         node = "node"
@@ -1292,15 +1315,25 @@ def main() -> int:
     if not report["status"] == "passed":
         warnings.append("日报存在未通过检查项，不应替换桌面最新日报。")
 
-    html_path.write_text(render_html(report, visualization_payload), encoding="utf-8")
+    final_html = render_html(report, visualization_payload)
+    if upgrade_payload:
+        final_html = apply_upgrade(final_html, upgrade_payload)
+    html_path.write_text(final_html, encoding="utf-8")
     json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    md_path.write_text(render_markdown(report), encoding="utf-8")
+    markdown_text = render_markdown(report)
+    if upgrade_payload:
+        markdown_text += "\n\n## 赛事之外的排查线索（探索）\n\n"
+        for item in upgrade_payload["findings"]:
+            markdown_text += f"- {item['name']} · {item['metric']}：{item['current']:,.2f}，对照 {item['baseline']:,.2f}，变化 {item['changePct']:.1%}。{item['text']} 基线日期：{', '.join(item['baselineDates'])}。\n"
+        markdown_text += "\n补充指标独立源复算与浏览器视觉验收待执行；互动率语义核验未通过，不能发布为正式结论。\n"
+    md_path.write_text(markdown_text, encoding="utf-8")
     manifest = {
         "status": report["status"],
         "reportDate": report["reportDate"],
         "generatedAt": report["generatedAt"],
         "inputs": {
             "data": {"path": str(data_path), "bytes": data_path.stat().st_size, "sha256": sha256(data_path)},
+            **({"metricSupplement": [{"name": p.name, "bytes": p.stat().st_size, "sha256": sha256(p)} for p in sorted(args.metric_supplement.glob("upgrade_result_*.json"))]} if args.metric_supplement else {}),
             **({"tournamentContext": {"path": str(args.tournament_context.resolve()), "sha256": sha256(args.tournament_context)}} if args.tournament_context else {}),
             **({"platformDailyCsv": {"path": str(args.platform_daily_csv.resolve()), "bytes": args.platform_daily_csv.stat().st_size, "sha256": sha256(args.platform_daily_csv)}} if args.platform_daily_csv else {}),
             **({"validationReport": {"path": str(args.validation_report.resolve()), "bytes": args.validation_report.stat().st_size, "sha256": sha256(args.validation_report)}} if args.validation_report else {}),
