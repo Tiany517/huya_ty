@@ -40,3 +40,14 @@ const badBaseline={...payload,categoryRows:payload.categoryRows.map(r=>{const x=
 const invalidBase=createEngine(badBaseline).ranking('category','payRate').rows.find(r=>r.id===0);
 assert.equal(invalidBase.baseline,null);assert.ok(invalidBase.baselineReason.includes('分子分母'));
 console.log('Invalid pay-rate source rows and mixed valid/invalid windows are blocked with reasons');
+
+// Regression: Map.get does not accept an object-style default. The first weekly
+// anchor in a tier must start from 0 instead of poisoning the whole supply mean with NaN.
+const weeklyRow=(week,anchor,liveDays)=>{const r=Array(17).fill(0);r[0]=week;r[1]=0;r[2]=0;r[3]=0;r[4]=anchor;r[9]=3500;r[10]=7;r[11]=700;r[12]=100;r[16]=liveDays;return r};
+const weekly={...payload,weeks:[0,1],weekRanges:{0:{start:'2026-11-09',end:'2026-11-15'},1:{start:'2026-11-16',end:'2026-11-22'}},anchorWeekly:[weeklyRow(0,0,6),weeklyRow(0,1,0),weeklyRow(1,0,7),weeklyRow(1,1,2)]};
+const weeklyEngine=createEngine(weekly);
+const weeklyCurrent=weeklyEngine.aggregate('tier','liveAnchors','2026-11-16','2026-11-22',[]).rows.find(r=>r.id==='腰部');
+const weeklyBaseline=weeklyEngine.aggregate('tier','liveAnchors','2026-11-09','2026-11-15',[]).rows.find(r=>r.id==='腰部');
+assert.equal(weeklyCurrent.value,9/7);
+assert.equal(weeklyBaseline.value,6/7);
+console.log('Weekly tier liveAnchors dedupe starts from a finite zero');

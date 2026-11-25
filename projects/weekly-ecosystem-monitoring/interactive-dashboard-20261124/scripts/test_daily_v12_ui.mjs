@@ -74,8 +74,40 @@ console.log(JSON.stringify({status:'passed',kind:'DOM emulator; visual acceptanc
 api.state.paths=[];api.state.comparison='weekday';api.state.start=api.data.reportDate;api.state.end=api.data.reportDate;
 const diagnosticRows=api.summaryCandidates().slice(0,5);
 for(const row of diagnosticRows){const d=api.processExplanation(row);assert.ok(d.conclusion);for(const e of d.evidence){assert.equal(e.scope,row.scope);assert.equal(e.period,row.period);assert.equal(e.comparisonPeriod,row.comparisonPeriod);assert.ok(Number.isFinite(e.current)&&Number.isFinite(e.baseline));}assert.ok(d.boundary.includes('因果'));}
-api.renderSummary();assert.ok($('summaryCards').querySelector('.finding-values'));assert.ok(!$('summaryCards').textContent.includes('已核对开播主播数'));
+api.setMetric('dau');api.renderSummary();assert.ok($('summaryCards').querySelector('.finding-values'));assert.ok(!$('summaryCards').textContent.includes('已核对开播主播数'));
 console.log('Matched-context process explanation checks passed');
+
+// The compact summary opens one shared result -> process -> child attribution workspace.
+assert.ok(!$('summaryCards').querySelector('details'),'summary cards should not carry long inline evidence');
+const tierRow=api.summaryCandidates().find(r=>r.scope==='tier'&&String(r.name).includes('腰部')&&r.metric==='dau');
+assert.ok(tierRow,'expected a 腰部 DAU tier candidate');
+const tierDiagnosis=api.processExplanation(tierRow);
+const tierSupply=tierDiagnosis.evidence.find(r=>r.metric==='liveAnchors');
+assert.ok(tierSupply,'tier diagnosis omitted liveAnchors');
+assert.ok(Number.isFinite(tierSupply.current)&&Number.isFinite(tierSupply.baseline));
+assert.ok(tierDiagnosis.conclusion.includes('开播主播数'),'tier conclusion should interpret liveAnchors');
+assert.ok(tierDiagnosis.boundary.includes('周路径近似'),'tier supply caveat missing');
+api.renderDiagnosticWorkspace(tierRow);
+const workspace=$('diagnosticWorkspace');assert.equal(workspace.hidden,false);
+assert.ok(workspace.textContent.includes('先看同周期过程指标'));
+assert.ok(workspace.textContent.includes('开播主播数'));
+assert.ok(workspace.textContent.includes('周路径近似'));
+assert.ok(workspace.querySelector('.process-evidence').textContent.includes('贡献'));
+assert.ok(workspace.querySelector('.process-evidence').textContent.includes('异常分'));
+assert.ok(workspace.querySelector('[data-recommended-dim]'),'recommended drill missing');
+assert.ok(![...workspace.querySelectorAll('[data-recommended-dim]')].some(b=>b.dataset.recommendedDim==='event'),'weekly tier must not recommend the unsupported event split');
+assert.ok(workspace.querySelector('[data-workspace-dimension]'),'free drill selector missing');
+assert.ok(![...workspace.querySelector('[data-workspace-dimension]').options].some(o=>o.value==='event'),'weekly tier must not offer the unsupported event split');
+assert.ok(workspace.querySelector('[data-workspace-child] table'),'child contribution table missing');
+const childDrillRows=workspace.querySelectorAll('[data-workspace-child] tbody tr');
+assert.ok(childDrillRows.length>1,'tier -> category drilldown should produce contribution rows');
+assert.ok(!workspace.querySelector('[data-workspace-child]').textContent.includes('无符合条件的对象'),'tier -> category drilldown returned an empty dead end');
+const childPeriod=workspace.querySelector('[data-workspace-period]').textContent;
+assert.ok(childPeriod.includes('2026-11-16—2026-11-22'),'tier child drilldown lost the result object\'s weekly period');
+assert.ok(!childPeriod.includes('请选择完整自然周'),'tier child drilldown used the daily page date instead of its own weekly context');
+$('summaryCards').querySelector('[data-summary-analyze]').click();
+assert.equal(workspace.hidden,false,'summary card did not open shared workspace');
+console.log('Compact summary, tier supply and shared diagnostic workspace passed');
 
 // The object pane exposes process contributions and a freely selected child layer.
 api.state.paths=[];api.state.comparison='weekday';api.setMetric('dau');

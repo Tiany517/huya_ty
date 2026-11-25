@@ -19,6 +19,27 @@ for scope,column in [('guild','guild'),('anchor','anchor')]:
   for metric in ['dau','revenue','payUsers','attributionUsers','interactionUsers']:
    value=sum(r[wc[metric]] for r in selected)/(7 if metric=='dau' else 1)
    expectations.append({'scope':scope,'id':identifier,'metric':metric,'start':wr['start'],'end':wr['end'],'value':value})
+# Independent weekly tier supply expectation: dedupe live days by anchor inside each
+# ACU tier, then divide by seven. This verifies the exact approximate-output contract.
+def fixed_tier(acu):
+ return '头部' if acu>=2000 else '腰部' if acu>=100 else '尾部' if acu>=0 else '非基期主播（新增/历史记录）'
+ref_index=len(meta['weeks'])-2
+ref_acu={}
+for r in raw['anchorWeekly']:
+ if r[wc['week']]!=ref_index:continue
+ total=ref_acu.setdefault(r[wc['anchor']],[0,0]);total[0]+=r[wc['acuSum']];total[1]+=r[wc['acuDays']]
+tier_by_anchor={anchor:fixed_tier(total/day if day else -1) for anchor,(total,day) in ref_acu.items()}
+for week_index in range(len(meta['weeks'])-2,len(meta['weeks'])):
+ week_label=meta['weeks'][week_index]
+ selected=[r for r in raw['anchorWeekly'] if r[wc['week']]==week_index]
+ grouped={tier:{} for tier in ['头部','腰部','尾部']}
+ for r in selected:
+  tier=tier_by_anchor.get(r[wc['anchor']],'非基期主播（新增/历史记录）')
+  if tier not in grouped:continue
+  anchor=r[wc['anchor']];grouped[tier][anchor]=max(grouped[tier].get(anchor,0),r[wc['liveDays']] or 0)
+ for tier,anchor_days in grouped.items():
+  expectations.append({'scope':'tier','id':tier,'metric':'liveAnchors','start':meta['weekRanges'][week_label]['start'],'end':meta['weekRanges'][week_label]['end'],'value':sum(anchor_days.values())/7})
+checks.append({'check':'weekly_tier_supply_expectations_prepared','passed':len(expectations)>=6,'weeks':meta['weeks'][-2:],'tiers':['头部','腰部','尾部'],'note':'周路径近似；跨品类换播可能低估；实际比对由JS引擎对账步骤完成'})
 checks.append({'check':'anchor_weekly_export_unchanged','passed':payload['anchorWeekly']==raw['anchorWeekly']})
 checks.append({'check':'anchor_daily_export_unchanged','passed':payload['anchorDaily']==raw['anchorDaily']})
 report={'status':'passed' if all(c['passed'] for c in checks) else 'failed','scope':'export-to-payload; warehouse all-history and visual acceptance remain separate','checks':checks,'engineExpectations':expectations}
