@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {filterRows,normalizeFilter,levelCounts} from '../assets/anomaly_filters.mjs';
+const rows=[{name:'下降主播',severity:'高',robustZ:-4,delta:-100,contribution:-.5},{name:'增长主播',severity:'低',robustZ:1,delta:100,contribution:.5},{name:'正常主播',severity:'正常',robustZ:0,delta:0,contribution:0},{name:'无历史',severity:'待核验',robustZ:null,delta:5,contribution:0}];
+const original=JSON.stringify(rows);
+assert.deepEqual(filterRows(rows,{levels:['高','低']}).map(r=>r.name),['下降主播','增长主播']);
+assert.equal(filterRows(rows,{min:-5,max:-3})[0].robustZ,-4);
+assert.equal(filterRows(rows,{strength:3,direction:'down'})[0].contribution,-.5);
+assert.equal(filterRows(rows,{levels:['待判断']})[0].robustZ,null);
+assert.equal(filterRows(rows,{min:0}).length,2);
+assert.equal(filterRows(rows,{direction:'flat'}).length,1);
+assert.equal(filterRows(rows,{query:'未命中'}).length,0);
+assert.throws(()=>normalizeFilter({min:5,max:1}));
+assert.throws(()=>normalizeFilter({strength:-1}));
+assert.throws(()=>normalizeFilter({min:Infinity}));
+assert.deepEqual(levelCounts(rows),{'高':1,'中':0,'低':1,'正常':1,'待判断':1});
+assert.equal(JSON.stringify(rows),original,'display filtering mutated scores or contribution denominator');
+console.log('12 anomaly-filter checks passed; unknown remains unknown and contribution unchanged');
