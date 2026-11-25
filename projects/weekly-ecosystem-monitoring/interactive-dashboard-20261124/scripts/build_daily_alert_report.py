@@ -127,24 +127,6 @@ def classify_change(metric: str, current: float, baseline_values: list[float]) -
     }
 
 
-def classify_two_period_change(metric: str, current: float, baseline: float) -> dict:
-    """按单个对比期判定级别，用于主播行的本期周值与上期周值比较。"""
-    rule = METRIC_RULES[metric]
-    delta = current - baseline
-    pct = pct_change(current, baseline)
-    severity = "正常"
-    if abs(delta) >= rule["min_abs"]:
-        if pct is None or abs(pct) >= rule["pct"] * 3:
-            severity = "高"
-        elif abs(pct) >= rule["pct"]:
-            severity = "中"
-    return {
-        "severity": severity,
-        "severityLabel": "低" if severity == "正常" else severity,
-        "direction": "上升" if delta > 0 else "下降" if delta < 0 else "基本持平",
-    }
-
-
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -372,6 +354,8 @@ def aggregate_weekly_rows(data: dict) -> dict:
         return {"available": False, "weeks": weeks}
     current_week_idx = len(weeks) - 1
     previous_week_idx = current_week_idx - 1
+    history_start_idx = max(0, current_week_idx - 4)
+    history_week_idxs = list(range(history_start_idx, current_week_idx))
     current_week = weeks[current_week_idx]
     previous_week = weeks[previous_week_idx]
 
@@ -397,6 +381,17 @@ def aggregate_weekly_rows(data: dict) -> dict:
         previous_week_idx: defaultdict(float),
     }
     anchor_meta = {}
+    anchor_dau_history = defaultdict(lambda: defaultdict(float))
+    for row in data["anchorWeekly"]:
+        week_idx = int(row[columns["week"]])
+        if week_idx not in history_week_idxs:
+            continue
+        key = (
+            int(row[columns["anchor"]]),
+            int(row[columns["category"]]),
+            int(row[columns["guild"]]),
+        )
+        anchor_dau_history[key][week_idx] += parse_number(row[columns["dau"]])
     for row in data["anchorWeekly"]:
         week_idx = int(row[columns["week"]])
         if week_idx not in (current_week_idx, previous_week_idx):
@@ -455,6 +450,8 @@ def aggregate_weekly_rows(data: dict) -> dict:
         "anchorMeta": anchor_meta,
         "currentWeekIdx": current_week_idx,
         "previousWeekIdx": previous_week_idx,
+        "anchorHistoryWeekIdxs": history_week_idxs,
+        "anchorDauHistory": {key: dict(values) for key, values in anchor_dau_history.items()},
     }
 
 
@@ -516,6 +513,28 @@ def weekly_rows_for(
         row["contributionShare"] = row["delta"] / abs(root_delta) if root_delta else None
     rows.sort(key=lambda item: abs(item["delta"]), reverse=True)
     return rows
+
+
+def apply_anchor_history_severity(row: dict, weekly: dict) -> dict:
+    """按主播路径自身前四个完整周的中位数、MAD 和异常分判定级别。"""
+    history = weekly.get("anchorDauHistory", {}).get(row["_key"], {})
+    baseline_values = [
+        parse_number(history[index])
+        for index in weekly.get("anchorHistoryWeekIdxs", [])
+        if index in history
+    ]
+    change = classify_change("dau", parse_number(row.get("currentDau")), baseline_values)
+    row.update({
+        "severity": change["severity"],
+        "severityLabel": "低" if change["severity"] == "正常" else change["severity"],
+        "severityDirection": change["direction"],
+        "severityBaseline": change["baseline"],
+        "severityChangePct": change["changePct"],
+        "severityRobustZ": change["robustZ"],
+        "severityConfidence": change["confidence"],
+        "historyWeeksAvailable": len(baseline_values),
+    })
+    return row
 
 
 def build_alerts(platform_changes: list[dict], category_ranked: list[dict], tier_rows: list[dict]) -> list[dict]:
@@ -631,7 +650,7 @@ def severity_rule_lines() -> list[str]:
         "5. 变化率达到中级线的 3 倍，或达到中级线的 1.5 倍且异常分绝对值 ≥3，也判为高；异常分绝对值 ≥2.5，也判为中。",
         "6. 基线少于 4 个点，或历史变异系数大于 30%，视为低把握，级别为高时降为中；变异系数 15%–30% 为中把握，≤15% 为高把握。",
         "7. 未达到中级别条件的显示为低（正常）。级别用于异动优先级，不等同于统计显著性。",
-        "8. 主播榜按每一行主播自身的最新完整周 DAU 与上一完整周 DAU 比较：最小绝对变化 5,000，变化率 ≥5% 为中，≥15% 为高。",
+        "8. 主播榜按每一行主播路径自身前 4 个完整周的 DAU 中位数、MAD 和异常分判定；缺周不补 0，历史不足 4 周按低把握降级。",
     ]
 
 
@@ -846,7 +865,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
   <section><div class="section-head"><h2>品类 Top10</h2><p>按报告日 DAU 变化绝对值排序｜计数指标可比较，用户可能跨品类重叠</p></div>{render_table(category_rows, category_columns)}</section>
   <section><div class="section-head"><h2>公会 Top20</h2><p>{html.escape(report['weeklyComparison'])}｜按开播主播数日均变化绝对值排序</p></div>{render_table(report['guildTop20'][:20], guild_columns)}</section>
   <section><div class="section-head"><div><h2>主播层级</h2><p class="tier-note">头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100</p></div></div>{render_table(report['tierRows'], tier_columns)}</section>
-  <section><div class="section-head"><div><h2 id="anchorTopTitle">主播 Top{anchor_default_limit}</h2><p>按主播 + 品类 + 公会路径的周 DAU 变化排序｜级别按该行主播本期周 DAU 对上期判定</p></div><div class="section-tools"><label class="row-limit-control" for="anchorTopLimit">展示 Top <input id="anchorTopLimit" type="number" min="1" max="50" step="1" value="{anchor_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(anchor_rows, anchor_columns, table_id='anchorTable')}</section>
+  <section><div class="section-head"><div><h2 id="anchorTopTitle">主播 Top{anchor_default_limit}</h2><p>按主播 + 品类 + 公会路径的周 DAU 变化排序｜级别按该行主播自身前 4 个完整周异常分判定</p></div><div class="section-tools"><label class="row-limit-control" for="anchorTopLimit">展示 Top <input id="anchorTopLimit" type="number" min="1" max="50" step="1" value="{anchor_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(anchor_rows, anchor_columns, table_id='anchorTable')}</section>
   <section class="method-notes" aria-labelledby="methodNotesTitle"><h2 id="methodNotesTitle">数据与口径提示</h2><ul>{warning_items}</ul></section>
   <footer>输入文件：{html.escape(report['inputs']['data'])}<br>说明：平台 DAU 使用官方平台活跃用户表；品类、公会、主播数据仅用于归因，不直接相加成平台去重用户。互动率仅用于相对趋势，互动人数跨场次可能重叠。<br><br>{severity_rule_html}</footer>
 </main>
@@ -972,7 +991,7 @@ def main() -> int:
             category_name = meta_dimensions["categories"][key[1]]["name"]
             guild_name = meta_dimensions["guilds"][key[2]]
             row["pathLabel"] = f"{category_name} / {guild_name}"
-            row.update(classify_two_period_change("dau", row["currentDau"], row["previousDau"]))
+            apply_anchor_history_severity(row, weekly)
         guild_rows.sort(key=lambda row: abs(row.get("liveAnchorDelta") or 0), reverse=True)
         order = {"头部": 0, "腰部": 1, "尾部": 2, "未知": 3}
         tier_rows.sort(key=lambda row: order.get(row["label"], 9))

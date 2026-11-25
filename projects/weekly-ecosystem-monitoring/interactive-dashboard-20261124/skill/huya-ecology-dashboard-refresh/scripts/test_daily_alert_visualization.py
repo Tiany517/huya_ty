@@ -73,13 +73,29 @@ class VisualizationPayloadTest(unittest.TestCase):
         self.assertEqual(payload["platform"], [["2026-11-23", 5_600_000], ["2026-11-24", 5_700_000]])
         self.assertEqual(payload["rows"][0][-1], 100)
 
-    def test_anchor_level_uses_its_own_two_period_change(self):
-        high = MODULE.classify_two_period_change("dau", 20_000, 10_000)
-        medium = MODULE.classify_two_period_change("dau", 110_000, 100_000)
-        low = MODULE.classify_two_period_change("dau", 10_100, 10_000)
-        self.assertEqual(high["severityLabel"], "高")
-        self.assertEqual(medium["severityLabel"], "中")
-        self.assertEqual(low["severityLabel"], "低")
+    def test_anchor_level_uses_its_own_four_week_history(self):
+        row = {"_key": (0, 0, 0), "currentDau": 20_000}
+        weekly = {
+            "anchorHistoryWeekIdxs": [0, 1, 2, 3],
+            "anchorDauHistory": {(0, 0, 0): {0: 10_000, 1: 10_000, 2: 10_000, 3: 10_000}},
+        }
+        MODULE.apply_anchor_history_severity(row, weekly)
+        self.assertEqual(row["severityLabel"], "高")
+        self.assertEqual(row["severityConfidence"], "high")
+        self.assertEqual(row["historyWeeksAvailable"], 4)
+        self.assertGreater(abs(row["severityRobustZ"]), 3)
+
+    def test_anchor_level_missing_history_does_not_fill_zero(self):
+        row = {"_key": (0, 0, 0), "currentDau": 20_000}
+        weekly = {
+            "anchorHistoryWeekIdxs": [0, 1, 2, 3],
+            "anchorDauHistory": {(0, 0, 0): {0: 10_000, 1: 10_000}},
+        }
+        MODULE.apply_anchor_history_severity(row, weekly)
+        self.assertEqual(row["historyWeeksAvailable"], 2)
+        self.assertEqual(row["severityBaseline"], 10_000)
+        self.assertEqual(row["severityConfidence"], "low")
+        self.assertEqual(row["severityLabel"], "中")
 
     def test_guild_live_anchors_are_deduplicated_across_categories(self):
         columns = [
@@ -151,7 +167,7 @@ class VisualizationRenderTest(unittest.TestCase):
         self.assertIn("头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100", html_text)
         self.assertIn('id="anchorTopLimit"', html_text)
         self.assertIn('id="anchorTopTitle">主播 Top10</h2>', html_text)
-        self.assertIn("级别按该行主播本期周 DAU 对上期判定", html_text)
+        self.assertIn("级别按该行主播自身前 4 个完整周异常分判定", html_text)
         self.assertIn("主播</th>", html_text)
         self.assertLess(html_text.index('id="anchorTable"'), html_text.index('id="methodNotesTitle"'))
 
