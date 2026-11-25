@@ -264,7 +264,7 @@ python scripts/verify_dashboard_package.py `
 - `liveAnchorCountsValid = true`：品类/内容大类/平台开播主播数满足包含关系，主播 `live_days` 在 0–7，主播日 `is_live` 仅为 0/1。
 - `nonEmptyCoreData = true`，三类核心数据均非空。
 
-启用日报时，`refresh_dashboard.py --daily-report` 会在主看板验证后继续调用 `build_daily_alert_report.py`。日报固定包含平台 DAU、打赏流水、打赏人数、归属用户数、开播主播数，过去 4 个相同星期中位数基线，以及品类、公会、主播层级和主播 Top20。
+启用日报时，`refresh_dashboard.py --daily-report` 会在主看板验证后继续调用 `build_daily_alert_report.py`。日报固定包含平台 DAU、打赏流水、打赏人数、归属用户数、开播主播数，过去 4 个相同星期中位数基线，以及品类 Top10、公会 Top20、主播层级和主播 Top10；主播榜在页面内支持自定义展开 1–50 名。分析范围仅保留平台 DAU 与内容生态 DAU，内容大类和品类必须通过独立下钻控件选择。
 
 `daily_alert_report_<run>.json` 的以下检查必须全部为 `true`：
 
@@ -272,7 +272,7 @@ python scripts/verify_dashboard_package.py `
 - `platformDauAvailable`：官方平台 DAU 在日报日期和基线日期均有值。
 - `weeklyComparisonAvailable`：至少有当前和上一个完整自然周。
 - `sourceValidationPassed`：输入的主看板 `validation_report` 为 `passed` 且全部检查为 `true`。
-- `topTablesPopulated`、`visualizationDataAvailable`、`htmlContainsCoreSections`、`allNumbersFinite`。
+- `topTablesPopulated`、`visualizationDataAvailable`、`htmlContainsCoreSections`、`allNumbersFinite`。零基线变化率必须返回空值，不得写入 Infinity。
 - 启用浏览器检查时 `browserSmokePassed=true`。
 
 平台 DAU 下降且开播主播数显著下降时才提示供给问题；开播主播数轻微波动不得生成“供给减少”的强结论。品类、公会、主播贡献率必须保留正负方向，贡献分母使用变化绝对值，不能因根节点为负而把跌幅显示成正贡献。
@@ -316,9 +316,10 @@ node scripts/smoke_test_dashboard.mjs `
 7. “开播主播数”可按时间切换，且首屏 KPI、趋势和单层/复层表都能显示。
 8. 赛事状态为 `pending` 时赛事筛选被禁用或明确提示；不能静默显示 0。
 9. 主看板和日报均使用浅色液态玻璃视觉，正文与表格对比度足够；不得只在局部页面应用。
-10. 两个自由分析画布默认展示大盘 DAU 趋势，可切换日/周/月/季度，支持折线、柱状和 100% 堆积；内容生态堆积可从内容大类下钻到品类。
+10. 两个自由分析画布默认展示大盘 DAU 趋势，可切换日/周/月/季度，支持折线、柱状和 100% 堆积；内容生态堆积可从内容大类下钻到品类。悬停应显示时间桶和具体数值 Tooltip。
 11. 日报所有周期标签必须写清“日/周/月”等口径，例如“平台 DAU（日）”和“最新完整周 DAU（7 日求和）”。
 12. 移动端无关键控件遮挡、页面级横向溢出或无法展开；表格自身可以横向滚动。
+13. 日报分析范围只能包含平台 DAU 和内容生态 DAU；内容大类、品类位于下钻维度。品类榜为 Top10，主播榜默认 Top10 且支持 1–50，公会榜主指标为开播主播数日均，层级阈值和灰色口径说明位于页面下方。
 
 开发模板或画布交互时可运行以下回归检查：
 

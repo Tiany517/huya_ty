@@ -55,6 +55,10 @@ def sample_data() -> dict:
 
 
 class VisualizationPayloadTest(unittest.TestCase):
+    def test_zero_baseline_change_rate_is_not_infinite(self):
+        self.assertIsNone(MODULE.pct_change(10, 0))
+        self.assertIsNone(MODULE.pct_change(0, 0))
+
     def test_payload_keeps_daily_values_and_dimension_hierarchy(self):
         payload = MODULE.build_visualization_payload(
             sample_data(),
@@ -68,6 +72,42 @@ class VisualizationPayloadTest(unittest.TestCase):
         self.assertEqual(payload["categories"][0]["name"], "英雄联盟")
         self.assertEqual(payload["platform"], [["2026-11-23", 5_600_000], ["2026-11-24", 5_700_000]])
         self.assertEqual(payload["rows"][0][-1], 100)
+
+    def test_guild_live_anchors_are_deduplicated_across_categories(self):
+        columns = [
+            "week", "category", "group", "guild", "anchor", "dau", "revenue",
+            "payUsers", "live", "acuSum", "acuDays", "viewMinutes", "viewDays",
+            "attributionUsers", "interactionCount", "interactionUsers", "liveDays",
+        ]
+
+        def row(week, category, anchor, live_days, dau):
+            return [week, category, 0, 0, anchor, dau, 0, 0, 1, 1_000, live_days, 0, 0, 0, 0, 0, live_days]
+
+        data = {
+            "meta": {
+                "weeks": ["2026-11-10", "2026-11-17"],
+                "anchorColumns": columns,
+            },
+            "anchorWeekly": [
+                row(0, 0, 0, 7, 200),
+                row(1, 0, 0, 7, 220),
+                row(1, 1, 0, 7, 180),
+                row(1, 0, 1, 3, 90),
+            ],
+        }
+        weekly = MODULE.aggregate_weekly_rows(data)
+        current = weekly["guild"][weekly["currentWeekIdx"]][0]
+        self.assertEqual(current["liveDays"], 10)
+        rows = MODULE.weekly_rows_for(
+            weekly,
+            "guild",
+            weekly["currentWeekIdx"],
+            weekly["previousWeekIdx"],
+            {},
+            lambda key: key,
+            lambda key, _: "测试公会",
+        )
+        self.assertAlmostEqual(rows[0]["currentLiveAnchors"], 10 / 7)
 
 
 class VisualizationRenderTest(unittest.TestCase):
@@ -92,9 +132,18 @@ class VisualizationRenderTest(unittest.TestCase):
         self.assertIn('id="visualizationGranularity"', html_text)
         self.assertIn('id="visualizationChartType"', html_text)
         self.assertIn('id="visualizationScope"', html_text)
+        self.assertIn('id="visualizationDimension"', html_text)
+        self.assertIn('id="visualizationDrillValue"', html_text)
+        self.assertIn('id="visualizationTooltip"', html_text)
         self.assertIn('data-chart-type="line"', html_text)
         self.assertIn('data-chart-type="bar"', html_text)
         self.assertIn('data-chart-type="stack"', html_text)
+        self.assertIn("品类 Top10", html_text)
+        self.assertIn("最新完整周 开播主播数（日均）", html_text)
+        self.assertIn("头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100", html_text)
+        self.assertIn('id="anchorTopLimit"', html_text)
+        self.assertIn('id="anchorTopTitle">主播 Top10</h2>', html_text)
+        self.assertLess(html_text.index('id="anchorTable"'), html_text.index('id="methodNotesTitle"'))
 
 
 if __name__ == "__main__":
