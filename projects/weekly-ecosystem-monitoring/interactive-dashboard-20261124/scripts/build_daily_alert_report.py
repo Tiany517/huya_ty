@@ -18,6 +18,15 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
+PLATFORM_DAU_PRODUCTS = (
+    "huya_andriod",
+    "huya_ipad",
+    "huya_pad",
+    "huya_ios",
+    "hmos_kiwi",
+)
+PLATFORM_DAU_SCOPE_LABEL = "官方平台活跃用户表（huya Android/iOS/iPad/Pad/HarmonyOS，剔除黑名单用户）"
+
 METRIC_RULES = {
     "platformDau": {"label": "平台 DAU", "pct": 0.05, "min_abs": 5000},
     "dau": {"label": "内容生态 DAU", "pct": 0.05, "min_abs": 5000},
@@ -189,6 +198,7 @@ def build_visualization_payload(
             category_index[category_id],
             int(row[columns["group"]]),
             parse_number(row[columns["dau"]]),
+            parse_number(row[columns["revenue"]]),
         ])
     platform = [
         [dt_value, parse_number(platform_daily[dt_value])]
@@ -231,6 +241,7 @@ def build_visualization_payload(
                 anchor_date_index[row[anchor_columns["date"]]],
                 anchor_option_index[anchor_idx],
                 parse_number(row[anchor_columns["dau"]]),
+                parse_number(row[anchor_columns["revenue"]]),
             ])
         if anchor_dates:
             anchor_available_start = anchor_dates[0]
@@ -375,6 +386,12 @@ def rank_daily_categories(
         ]
         baseline_dau = median(baseline_values)
         delta = current_dau - baseline_dau
+        current_revenue = parse_number(current_values.get("revenue"))
+        baseline_revenue_values = [
+            parse_number(by_category.get(item.isoformat(), {}).get(category_idx, {}).get("revenue"))
+            for item in baseline_dates
+        ]
+        baseline_revenue = median(baseline_revenue_values)
         change = classify_change("dau", current_dau, baseline_values)
         category = categories[category_idx]
         rows.append({
@@ -382,11 +399,10 @@ def rank_daily_categories(
             "id": str(category["id"]),
             "name": category["name"],
             "group": groups[int(category["group"])],
-            "currentRevenue": parse_number(current_values.get("revenue")),
-            "baselineRevenue": median([
-                parse_number(by_category.get(item.isoformat(), {}).get(category_idx, {}).get("revenue"))
-                for item in baseline_dates
-            ]),
+            "currentRevenue": current_revenue,
+            "baselineRevenue": baseline_revenue,
+            "revenueDelta": current_revenue - baseline_revenue,
+            "revenueChangePct": pct_change(current_revenue, baseline_revenue),
         })
     gross_delta = sum(abs(row["delta"]) for row in rows)
     for row in rows:
@@ -556,6 +572,7 @@ def weekly_rows_for(
             "currentRevenue": parse_number(current_values.get("revenue")),
             "previousRevenue": parse_number(previous_values.get("revenue")),
             "revenueDelta": parse_number(current_values.get("revenue")) - parse_number(previous_values.get("revenue")),
+            "revenueChangePct": pct_change(parse_number(current_values.get("revenue")), parse_number(previous_values.get("revenue"))),
             "currentPayUsers": parse_number(current_values.get("payUsers")),
             "previousPayUsers": parse_number(previous_values.get("payUsers")),
             "currentAttributionUsers": parse_number(current_values.get("attributionUsers")),
@@ -773,6 +790,10 @@ def render_html(report: dict, visualization_payload: dict) -> str:
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
         ("贡献占比（绝对值口径）", lambda row: format_pct(row.get("contributionShare"))),
+        ("报告日流水（元）", lambda row: format_number(row.get("currentRevenue"))),
+        ("同星期流水基线（元）", lambda row: format_number(row.get("baselineRevenue"))),
+        ("流水变化值（元）", lambda row: (format_delta(row.get("revenueDelta")), "delta-down" if (row.get("revenueDelta") or 0) < 0 else "delta-up")),
+        ("流水变化率", lambda row: format_pct(row.get("revenueChangePct"))),
         ("级别", severity_cell),
     ]
     guild_columns = [
@@ -784,6 +805,10 @@ def render_html(report: dict, visualization_payload: dict) -> str:
             "delta-down" if (row.get("liveAnchorDelta") or 0) < 0 else "delta-up",
         )),
         ("变化率", lambda row: format_pct(row.get("liveAnchorChangePct"))),
+        ("最新完整周流水（元）", lambda row: format_number(row.get("currentRevenue"))),
+        ("上一完整周流水（元）", lambda row: format_number(row.get("previousRevenue"))),
+        ("流水变化值（元）", lambda row: (format_delta(row.get("revenueDelta")), "delta-down" if (row.get("revenueDelta") or 0) < 0 else "delta-up")),
+        ("流水变化率", lambda row: format_pct(row.get("revenueChangePct"))),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
         ("互动率", lambda row: format_pct(row["currentInteractionRate"])),
         ("级别", severity_cell),
@@ -794,6 +819,10 @@ def render_html(report: dict, visualization_payload: dict) -> str:
         ("上一完整周 DAU（7 日求和）", lambda row: format_number(row["previousDau"])),
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
+        ("最新完整周流水（元）", lambda row: format_number(row.get("currentRevenue"))),
+        ("上一完整周流水（元）", lambda row: format_number(row.get("previousRevenue"))),
+        ("流水变化值（元）", lambda row: (format_delta(row.get("revenueDelta")), "delta-down" if (row.get("revenueDelta") or 0) < 0 else "delta-up")),
+        ("流水变化率", lambda row: format_pct(row.get("revenueChangePct"))),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
         ("互动率", lambda row: format_pct(row["currentInteractionRate"])),
     ]
@@ -804,6 +833,10 @@ def render_html(report: dict, visualization_payload: dict) -> str:
         ("上一完整周 DAU（7 日求和）", lambda row: format_number(row["previousDau"])),
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
+        ("最新完整周流水（元）", lambda row: format_number(row.get("currentRevenue"))),
+        ("上一完整周流水（元）", lambda row: format_number(row.get("previousRevenue"))),
+        ("流水变化值（元）", lambda row: (format_delta(row.get("revenueDelta")), "delta-down" if (row.get("revenueDelta") or 0) < 0 else "delta-up")),
+        ("流水变化率", lambda row: format_pct(row.get("revenueChangePct"))),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
         ("互动率", lambda row: format_pct(row["currentInteractionRate"])),
         ("级别", severity_cell),
@@ -947,8 +980,8 @@ def render_html(report: dict, visualization_payload: dict) -> str:
   </div>
   <section class="visualization-space" data-visualization-canvas="true">
     <div class="section-head">
-      <div><h2>自由分析画布</h2><p>默认展示大盘 DAU 趋势，可切换粒度、图表类型和内容层级</p></div>
-      <div class="visualization-head-tools"><span class="badge severity-低">DAU 日均口径</span></div>
+      <div><h2>自由分析画布</h2><p>默认展示大盘 DAU 趋势，可切换流水、粒度、图表类型和内容层级</p></div>
+      <div class="visualization-head-tools"><span class="badge severity-低">DAU / 流水口径</span></div>
     </div>
     <div class="visualization-controls">
       <div class="visualization-control"><label for="visualizationScope">分析范围</label><select id="visualizationScope"></select></div>
@@ -1057,7 +1090,7 @@ def main() -> int:
     platform_available = report_date.isoformat() in platform_daily and all(value > 0 for value in platform_values)
     if platform_available:
         platform_metric = classify_change("platformDau", platform_daily[report_date.isoformat()], platform_values)
-        platform_mode = "官方平台活跃用户表（huya Android/iOS/iPad/Pad，剔除黑名单用户）"
+        platform_mode = PLATFORM_DAU_SCOPE_LABEL
     else:
         platform_metric = classify_change("dau", parse_number(current_category.get("dau")), [parse_number(item.get("dau")) for item in baseline_days])
         platform_metric["label"] = "平台 DAU（品类合计口径）"
@@ -1154,6 +1187,7 @@ def main() -> int:
         )
     warnings = [
         "平台 DAU 使用官方活跃用户表；品类 DAU、归属用户和互动人数可能跨品类重叠，不能直接相加成全站去重用户。",
+        "打赏流水来自品类整体和主播周明细：内容生态流水可做趋势与结构比较，但不同品类或主播路径可能重复覆盖同一用户。",
         "品类、公会、主播榜使用对应指标变化绝对值排序；页面默认分别为 Top10、Top20、Top10，均支持自定义 1–50。低基数对象即使变化率很高，也可能只是小样本波动。",
         "品类贡献占比 = 品类 DAU 变化 / 全部品类 DAU 变化绝对值之和，范围为 -100% 至 100%，不除以可能接近零的大盘变化值。",
         "互动率 = 互动人数 / DAU，仅用于相对趋势；互动人数跨场次可能重叠。",

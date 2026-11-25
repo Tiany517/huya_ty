@@ -21,6 +21,13 @@
     if(granularity==='month')return key.replace('-','/');
     return key;
   }
+  function tickIndexes(length,maxTicks=8){
+    if(length<=0)return [];
+    if(length<=maxTicks)return Array.from({length},(_,index)=>index);
+    const intervals=Math.max(1,maxTicks-1),indices=new Set();
+    for(let index=0;index<=intervals;index+=1)indices.add(Math.round(index*(length-1)/intervals));
+    return [...indices].sort((a,b)=>a-b);
+  }
   async function loadData(){
     const encoded=document.getElementById('visualization-data-gzip').textContent.trim();
     const compressed=Uint8Array.from(atob(encoded),ch=>ch.charCodeAt(0));
@@ -54,6 +61,7 @@
 
   if(data.platform.length){scopeSelect.add(new Option('平台 DAU（官方去重口径）','platform'));}
   scopeSelect.add(new Option('内容生态 DAU（品类合计）','total'));
+  scopeSelect.add(new Option('内容生态流水（品类合计）','revenue'));
   scopeSelect.value=state.scope;
 
   function scopeDates(){
@@ -146,6 +154,10 @@
   function targetDateAt(row){
     return state.dimension==='anchor'?data.anchorDates[row[0]]:data.dates[row[0]];
   }
+  function targetValueAt(row){
+    if(state.dimension==='anchor')return Number((state.scope==='revenue'?row[3]:row[2])||0);
+    return Number((state.scope==='revenue'?row[4]:row[3])||0);
+  }
   function scopeRows(){
     const range=dateWindow();
     if(state.scope==='platform')return [];
@@ -163,7 +175,7 @@
       return [...buckets.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([key,item])=>({key,label:bucketLabel(key,state.granularity),value:item.sum/Math.max(item.days.size,1)}));
     }
     const buckets=new Map();
-    for(const row of scopeRows()){const dt=targetDateAt(row);const value=state.dimension==='anchor'?row[2]:row[3];addBucket(buckets,bucketKey(dt,state.granularity),dt,value);}
+    for(const row of scopeRows()){const dt=targetDateAt(row);addBucket(buckets,bucketKey(dt,state.granularity),dt,targetValueAt(row));}
     return [...buckets.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([key,item])=>({key,label:bucketLabel(key,state.granularity),value:item.sum/Math.max(item.days.size,1)}));
   }
   function selectedComparisonOptions(){
@@ -175,9 +187,9 @@
     if(!components.length)return null;
     const range=dateWindow();const seriesMaps=new Map(components.map(item=>[item.value,new Map()]));
     if(state.dimension==='anchor'){
-      for(const row of data.anchorRows){const dt=data.anchorDates[row[0]];if(dt<range.start||dt>range.end)continue;const value=String(row[1]);const buckets=seriesMaps.get(value);if(buckets)addBucket(buckets,bucketKey(dt,state.granularity),dt,row[2]);}
+      for(const row of data.anchorRows){const dt=data.anchorDates[row[0]];if(dt<range.start||dt>range.end)continue;const value=String(row[1]);const buckets=seriesMaps.get(value);if(buckets)addBucket(buckets,bucketKey(dt,state.granularity),dt,targetValueAt(row));}
     }else{
-      for(const row of data.rows){const dt=data.dates[row[0]];if(dt<range.start||dt>range.end)continue;const value=state.dimension==='group'?String(row[2]):String(row[1]);const buckets=seriesMaps.get(value);if(buckets)addBucket(buckets,bucketKey(dt,state.granularity),dt,row[3]);}
+      for(const row of data.rows){const dt=data.dates[row[0]];if(dt<range.start||dt>range.end)continue;const value=state.dimension==='group'?String(row[2]):String(row[1]);const buckets=seriesMaps.get(value);if(buckets)addBucket(buckets,bucketKey(dt,state.granularity),dt,targetValueAt(row));}
     }
     const allKeys=[...new Set([...seriesMaps.values()].flatMap(map=>[...map.keys()]))].sort();
     const labels=allKeys.map(key=>({key,label:bucketLabel(key,state.granularity)}));
@@ -209,7 +221,7 @@
       return aggregateMain().map(item=>({key:item.key,label:item.label,total:item.value,parts:[{id:'platform',kind:null,drillValue:'all',label:'平台 DAU（官方去重）',value:item.value,color:palette[0]}]}));
     }
     const rows=scopeRows();const totals=new Map();
-    for(const row of rows){const component=componentForRow(row);const key=`${component.kind}:${component.drillValue}`;totals.set(key,(totals.get(key)||0)+row[3]);}
+    for(const row of rows){const component=componentForRow(row);const key=`${component.kind}:${component.drillValue}`;totals.set(key,(totals.get(key)||0)+targetValueAt(row));}
     const keep=new Set([...totals.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8).map(item=>item[0]));
     const buckets=new Map();
     for(const row of rows){
@@ -217,13 +229,13 @@
       const entry={id:componentKey,kind:keep.has(rawKey)?component.kind:null,drillValue:keep.has(rawKey)?component.drillValue:'all',label:keep.has(rawKey)?componentLabel(component.kind,component.drillValue):'其他'};
       const key=bucketKey(data.dates[row[0]],state.granularity);
       const bucket=buckets.get(key)||{label:bucketLabel(key,state.granularity),values:new Map(),total:0};
-      const part=bucket.values.get(componentKey)||{...entry,value:0};part.value+=row[3];bucket.values.set(componentKey,part);bucket.total+=row[3];buckets.set(key,bucket);
+      const value=targetValueAt(row);const part=bucket.values.get(componentKey)||{...entry,value:0};part.value+=value;bucket.values.set(componentKey,part);bucket.total+=value;buckets.set(key,bucket);
     }
     return [...buckets.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([key,bucket])=>({key,label:bucket.label,total:bucket.total,parts:[...bucket.values.values()].sort((a,b)=>b.value-a.value)}));
   }
-  function seriesLabel(){return state.scope==='platform'?'平台 DAU':state.dimension==='anchor'?'主播 DAU':'内容生态 DAU';}
+  function seriesLabel(){return state.scope==='platform'?'平台 DAU':state.scope==='revenue'?(state.dimension==='anchor'?'主播流水':'内容生态流水'):(state.dimension==='anchor'?'主播 DAU':'内容生态 DAU');}
   function svgFrame(content,height=330){
-    return `<svg viewBox="0 0 960 ${height}" role="img" aria-label="自由分析 DAU 图表"><defs><linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#62a9ff"/><stop offset="1" stop-color="#2878df"/></linearGradient></defs>${content}</svg>`;
+    return `<svg viewBox="0 0 960 ${height}" role="img" aria-label="自由分析 ${esc(seriesLabel())} 图表"><defs><linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#62a9ff"/><stop offset="1" stop-color="#2878df"/></linearGradient></defs>${content}</svg>`;
   }
   function axisConfig(values,h=330,p={l:72,r:22,t:24,b:48}){
     const min=Math.min(...values,0),max=Math.max(...values,1),span=max-min||1;
@@ -237,15 +249,15 @@
     const grid=Array.from({length:5},(_,index)=>{const value=max-span*index/4,pos=y(value);return `<line class="grid" x1="${p.l}" x2="${960-p.r}" y1="${pos}" y2="${pos}"/><text class="axis" x="${p.l-8}" y="${pos+4}" text-anchor="end">${fmt(value)}</text>`;}).join('');
     const path=series.map((item,index)=>`${index?'L':'M'}${x(index)},${y(item.value)}`).join(' ');
     const dots=series.map((item,index)=>{const text=`${item.label} · ${seriesLabel()}：${fmt(item.value)}`;return `<circle class="dot-hit" cx="${x(index)}" cy="${y(item.value)}" r="13" data-tooltip="${esc(text)}"><title>${esc(text)}</title></circle><circle class="dot" cx="${x(index)}" cy="${y(item.value)}" r="4" pointer-events="none"/>`;}).join('');
-    const step=Math.max(1,Math.ceil(series.length/10));const labels=series.map((item,index)=>index%step===0||index===series.length-1?`<text class="axis" x="${x(index)}" y="${h-12}" text-anchor="${index===0?'start':index===series.length-1?'end':'middle'}">${esc(item.label)}</text>`:'').join('');
-    return svgFrame(grid+`<path class="line-path" d="${path}" pointer-events="none"/>`+dots+labels,h);
+    const ticks=new Set(tickIndexes(series.length,8));const labels=series.map((item,index)=>ticks.has(index)?`<text class="axis" x="${x(index)}" y="${h-12}" text-anchor="${index===0?'start':index===series.length-1?'end':'middle'}">${esc(item.label)}</text>`:'').join('');
+    return svgFrame(grid+`<path class="line-path" d="${path}" style="stroke:${palette[0]}" pointer-events="none"/>`+dots+labels,h);
   }
   function drawBars(series){
     if(!series.length)return '<div class="visualization-empty">当前口径无可展示数据</div>';
     const h=330,p={l:72,r:22,t:24,b:48},max=Math.max(...series.map(item=>item.value),1),bw=(960-p.l-p.r)/Math.max(series.length,1)*.62;
     const grid=Array.from({length:5},(_,index)=>{const value=max*(4-index)/4,pos=p.t+index*(h-p.t-p.b)/4;return `<line class="grid" x1="${p.l}" x2="${960-p.r}" y1="${pos}" y2="${pos}"/><text class="axis" x="${p.l-8}" y="${pos+4}" text-anchor="end">${fmt(value)}</text>`;}).join('');
     const bars=series.map((item,index)=>{const cx=p.l+(index+.5)*(960-p.l-p.r)/Math.max(series.length,1);const barH=(h-p.t-p.b)*item.value/max;const text=`${item.label} · ${seriesLabel()}：${fmt(item.value)}`;return `<rect class="bar" x="${cx-bw/2}" y="${h-p.b-barH}" width="${bw}" height="${Math.max(barH,1)}" data-tooltip="${esc(text)}"><title>${esc(text)}</title></rect>`;}).join('');
-    const step=Math.max(1,Math.ceil(series.length/10));const labels=series.map((item,index)=>index%step===0||index===series.length-1?`<text class="axis" x="${p.l+(index+.5)*(960-p.l-p.r)/Math.max(series.length,1)}" y="${h-12}" text-anchor="middle">${esc(item.label)}</text>`:'').join('');
+    const ticks=new Set(tickIndexes(series.length,8));const labels=series.map((item,index)=>ticks.has(index)?`<text class="axis" x="${p.l+(index+.5)*(960-p.l-p.r)/Math.max(series.length,1)}" y="${h-12}" text-anchor="middle">${esc(item.label)}</text>`:'').join('');
     return svgFrame(grid+bars+labels,h);
   }
   function drawMultiLine(comparison){
@@ -253,9 +265,9 @@
     const h=360,p={l:72,r:22,t:32,b:58},labels=comparison.labels,allValues=comparison.series.flatMap(item=>item.points.map(point=>point.value));
     const cfg=axisConfig(allValues,h,p),{x,y,min,max,span}=cfg;
     const grid=Array.from({length:5},(_,index)=>{const value=max-span*index/4,pos=y(value);return `<line class="grid" x1="${p.l}" x2="${960-p.r}" y1="${pos}" y2="${pos}"/><text class="axis" x="${p.l-8}" y="${pos+4}" text-anchor="end">${fmt(value)}</text>`;}).join('');
-    const paths=comparison.series.map(item=>{const path=item.points.map((point,index)=>`${index?'L':'M'}${x(index)},${y(point.value)}`).join(' ');return `<path class="line-path" d="${path}" stroke="${item.color}" pointer-events="none"/>`;}).join('');
-    const dots=comparison.series.map(item=>item.points.map((point,index)=>{if(!point.present)return '';const text=`${item.label} · ${labels[index].label} · ${seriesLabel()}：${fmt(point.value)}`;return `<circle class="dot-hit" cx="${x(index)}" cy="${y(point.value)}" r="11" data-tooltip="${esc(text)}"><title>${esc(text)}</title></circle><circle class="dot" cx="${x(index)}" cy="${y(point.value)}" r="3.4" stroke="${item.color}" pointer-events="none"/>`;}).join('')).join('');
-    const step=Math.max(1,Math.ceil(labels.length/10));const labelMarkup=labels.map((item,index)=>index%step===0||index===labels.length-1?`<text class="axis" x="${x(index)}" y="${h-16}" text-anchor="${index===0?'start':index===labels.length-1?'end':'middle'}">${esc(item.label)}</text>`:'').join('');
+    const paths=comparison.series.map(item=>{const path=item.points.map((point,index)=>`${index?'L':'M'}${x(index)},${y(point.value)}`).join(' ');return `<path class="line-path" d="${path}" style="stroke:${item.color}" pointer-events="none"/>`;}).join('');
+    const dots=comparison.series.map(item=>item.points.map((point,index)=>{if(!point.present)return '';const text=`${item.label} · ${labels[index].label} · ${seriesLabel()}：${fmt(point.value)}`;return `<circle class="dot-hit" cx="${x(index)}" cy="${y(point.value)}" r="11" data-tooltip="${esc(text)}"><title>${esc(text)}</title></circle><circle class="dot" cx="${x(index)}" cy="${y(point.value)}" r="3.4" style="stroke:${item.color}" pointer-events="none"/>`;}).join('')).join('');
+    const ticks=new Set(tickIndexes(labels.length,8));const labelMarkup=labels.map((item,index)=>ticks.has(index)?`<text class="axis" x="${x(index)}" y="${h-16}" text-anchor="${index===0?'start':index===labels.length-1?'end':'middle'}">${esc(item.label)}</text>`:'').join('');
     return svgFrame(grid+paths+dots+labelMarkup,h);
   }
   function drawMultiBars(comparison){
@@ -263,8 +275,8 @@
     const h=360,p={l:72,r:22,t:32,b:58},labels=comparison.labels,max=Math.max(...comparison.series.flatMap(item=>item.points.map(point=>point.value)),1);
     const grid=Array.from({length:5},(_,index)=>{const value=max*(4-index)/4,pos=p.t+index*(h-p.t-p.b)/4;return `<line class="grid" x1="${p.l}" x2="${960-p.r}" y1="${pos}" y2="${pos}"/><text class="axis" x="${p.l-8}" y="${pos+4}" text-anchor="end">${fmt(value)}</text>`;}).join('');
     const slot=(960-p.l-p.r)/Math.max(labels.length,1),groupWidth=Math.min(slot*.78,54),barWidth=Math.max(2,groupWidth/Math.max(comparison.series.length,1)-2);
-    const bars=labels.map((label,index)=>{const left=p.l+index*slot+(slot-groupWidth)/2;return comparison.series.map((item,seriesIndex)=>{const value=item.points[index]?.value||0,barH=(h-p.t-p.b)*value/max,xPos=left+seriesIndex*(barWidth+2),text=`${item.label} · ${label.label} · ${seriesLabel()}：${fmt(value)}`;return `<rect class="bar" fill="${item.color}" x="${xPos}" y="${h-p.b-barH}" width="${barWidth}" height="${Math.max(barH,1)}" data-tooltip="${esc(text)}"><title>${esc(text)}</title></rect>`;}).join('');}).join('');
-    const step=Math.max(1,Math.ceil(labels.length/10));const labelMarkup=labels.map((item,index)=>index%step===0||index===labels.length-1?`<text class="axis" x="${p.l+(index+.5)*slot}" y="${h-16}" text-anchor="middle">${esc(item.label)}</text>`:'').join('');
+    const bars=labels.map((label,index)=>{const left=p.l+index*slot+(slot-groupWidth)/2;return comparison.series.map((item,seriesIndex)=>{const value=item.points[index]?.value||0,barH=(h-p.t-p.b)*value/max,xPos=left+seriesIndex*(barWidth+2),text=`${item.label} · ${label.label} · ${seriesLabel()}：${fmt(value)}`;return `<rect class="bar" style="fill:${item.color}" x="${xPos}" y="${h-p.b-barH}" width="${barWidth}" height="${Math.max(barH,1)}" data-tooltip="${esc(text)}"><title>${esc(text)}</title></rect>`;}).join('');}).join('');
+    const ticks=new Set(tickIndexes(labels.length,8));const labelMarkup=labels.map((item,index)=>ticks.has(index)?`<text class="axis" x="${p.l+(index+.5)*slot}" y="${h-16}" text-anchor="middle">${esc(item.label)}</text>`:'').join('');
     return svgFrame(grid+bars+labelMarkup,h);
   }
   function drawStacks(buckets){
@@ -274,13 +286,14 @@
     const components=[...componentSet.entries()].map(([id,part],index)=>({...part,id,color:part.color||palette[index%palette.length]})),colors=new Map(components.map(item=>[item.id,item.color]));
     const grid=Array.from({length:5},(_,index)=>{const value=100-index*25,pos=p.t+index*(h-p.t-p.b)/4;return `<line class="grid" x1="${p.l}" x2="${960-p.r}" y1="${pos}" y2="${pos}"/><text class="axis" x="${p.l-8}" y="${pos+4}" text-anchor="end">${value}%</text>`;}).join('');
     const bars=buckets.map((bucket,index)=>{let cursor=h-p.b;const cx=p.l+(index+.5)*slot;return bucket.parts.map(part=>{const share=bucket.total?part.value/bucket.total:0,height=share*(h-p.t-p.b);cursor-=height;const action=part.kind?` data-drill-dim="${part.kind}" data-drill-value="${part.drillValue}"` : '';const text=`${bucket.label} · ${part.label}：${fmt(part.value)}（${(share*100).toFixed(1)}%）`;return `<rect class="stack-segment"${action} fill="${colors.get(part.id)}" x="${cx-bw/2}" y="${cursor}" width="${bw}" height="${Math.max(height,.5)}" rx="4" data-tooltip="${esc(text)}"><title>${esc(text)}</title></rect>`;}).join('');}).join('');
-    const step=Math.max(1,Math.ceil(buckets.length/10));const labels=buckets.map((bucket,index)=>index%step===0||index===buckets.length-1?`<text class="axis" x="${p.l+(index+.5)*slot}" y="${h-12}" text-anchor="middle">${esc(bucket.label)}</text>`:'').join('');
+    const ticks=new Set(tickIndexes(buckets.length,8));const labels=buckets.map((bucket,index)=>ticks.has(index)?`<text class="axis" x="${p.l+(index+.5)*slot}" y="${h-12}" text-anchor="middle">${esc(bucket.label)}</text>`:'').join('');
     legendHost.innerHTML=components.map(item=>`<span><i style="background:${item.color}"></i>${esc(item.label)}</span>`).join('');return svgFrame(grid+bars+labels,h);
   }
   function scopeTrail(){
     const root={label:'大盘',dimension:'none',drill:'all'};
     const comparison=aggregateComparison();
     if(state.scope==='platform')return [root,{label:'平台 DAU（官方）',dimension:'none',drill:'all'}];
+    if(state.scope==='revenue')return comparison?[root,{label:'内容生态流水',dimension:'group',drill:'all'},{label:`${dimensionSelect.selectedOptions[0]?.textContent||'对象'}对比 · 已选 ${comparison.series.length} 个`,dimension:state.dimension,drill:'all'}]:[root,{label:'内容生态流水',dimension:'none',drill:'all'}];
     if(comparison)return [root,{label:'内容生态 DAU',dimension:'group',drill:'all'},{label:`${dimensionSelect.selectedOptions[0]?.textContent||'对象'}对比 · 已选 ${comparison.series.length} 个`,dimension:state.dimension,drill:'all'}];
     if(state.scope==='total'&&state.dimension==='group'&&state.drill!=='all')return [root,{label:'内容生态 DAU',dimension:'group',drill:'all'},{label:componentLabel('group',state.drill),dimension:'group',drill:state.drill}];
     if(state.scope==='total'&&state.dimension==='category'&&state.drill!=='all'){
@@ -346,6 +359,6 @@
   chartHost.addEventListener('pointerleave',hideTooltip);
   crumbHost.addEventListener('click',event=>{const button=event.target.closest('[data-scope-dimension]');if(button)applyDrill(button.dataset.scopeDimension,button.dataset.scopeDrill);});
   rowLimitSpecs.forEach(spec=>{spec.input?.addEventListener('input',applyRowLimits);spec.input?.addEventListener('change',applyRowLimits);});
-  window.__visualizationDebug={state,aggregateMain,aggregateStacks,aggregateComparison,render,applyRowLimits,getSelected:()=>selectedValues(),dataLength:data.rows.length,anchorDataLength:data.anchorRows.length};
+  window.__visualizationDebug={state,aggregateMain,aggregateStacks,aggregateComparison,render,applyRowLimits,getSelected:()=>selectedValues(),targetValueAt,tickIndexes,dataLength:data.rows.length,anchorDataLength:data.anchorRows.length,revenueDataLength:data.rows.filter(row=>row.length>4).length,anchorRevenueDataLength:data.anchorRows.filter(row=>row.length>3).length};
   state.drill='all';updateDrillControls();applyRowLimits();window.__visualizationReady=true;render();
 })();

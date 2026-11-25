@@ -11,7 +11,8 @@ WHERE dt BETWEEN '<start>' AND '<end>'
       'huya_andriod',
       'huya_ipad',
       'huya_pad',
-      'huya_ios'
+      'huya_ios',
+      'hmos_kiwi'
   )
   AND is_black_ukey = 0
 GROUP BY dt

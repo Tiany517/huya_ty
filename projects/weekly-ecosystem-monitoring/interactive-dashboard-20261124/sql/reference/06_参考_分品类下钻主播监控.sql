@@ -58,7 +58,8 @@ session_user_daily as (
           'huya_andriod',
           'huya_ipad',
           'huya_pad',
-          'huya_ios'
+          'huya_ios',
+          'hmos_kiwi'
       )
       and s.user_ukey is not null
       and s.luid is not null

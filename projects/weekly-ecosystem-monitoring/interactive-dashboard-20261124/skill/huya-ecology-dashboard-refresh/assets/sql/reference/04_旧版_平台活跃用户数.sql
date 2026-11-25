@@ -8,7 +8,8 @@ with daily_active as (
         'huya_andriod',
         'huya_ipad',
         'huya_pad',
-        'huya_ios'
+        'huya_ios',
+        'hmos_kiwi'
     )
     and is_black_ukey = 0
   group by dt

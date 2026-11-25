@@ -48,24 +48,28 @@ def sample_data() -> dict:
             ],
         },
         "categoryDaily": [
-            ["2026-11-17", 0, 0, 100, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-17", 1, 0, 50, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-17", 2, 1, 20, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-18", 0, 0, 120, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-18", 1, 0, 60, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-18", 2, 1, 30, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-24", 0, 0, 150, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-24", 1, 0, 80, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-24", 2, 1, 40, 0, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-17", 0, 0, 100, 1000, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-17", 1, 0, 50, 500, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-17", 2, 1, 20, 200, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-18", 0, 0, 120, 1200, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-18", 1, 0, 60, 600, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-18", 2, 1, 30, 300, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-24", 0, 0, 150, 1500, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-24", 1, 0, 80, 800, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-24", 2, 1, 40, 400, 0, 0, 0, 0, 1, 1, 1],
         ],
         "anchorDaily": [
-            ["2026-11-17", 0, 30, 0, 0, 0, 0, 0, 0, 1],
-            ["2026-11-18", 0, 35, 0, 0, 0, 0, 0, 0, 1],
+            ["2026-11-17", 0, 30, 300, 0, 0, 0, 0, 0, 1],
+            ["2026-11-18", 0, 35, 350, 0, 0, 0, 0, 0, 1],
         ],
     }
 
 
 class VisualizationPayloadTest(unittest.TestCase):
+    def test_platform_dau_scope_includes_harmonyos(self):
+        self.assertIn("hmos_kiwi", MODULE.PLATFORM_DAU_PRODUCTS)
+        self.assertIn("HarmonyOS", MODULE.PLATFORM_DAU_SCOPE_LABEL)
+
     def test_zero_baseline_change_rate_is_not_infinite(self):
         self.assertIsNone(MODULE.pct_change(10, 0))
         self.assertIsNone(MODULE.pct_change(0, 0))
@@ -82,7 +86,7 @@ class VisualizationPayloadTest(unittest.TestCase):
         self.assertEqual(payload["groups"][0]["name"], "游戏")
         self.assertEqual(payload["categories"][0]["name"], "英雄联盟")
         self.assertEqual(payload["platform"], [["2026-11-23", 5_600_000], ["2026-11-24", 5_700_000]])
-        self.assertEqual(payload["rows"][0][-1], 100)
+        self.assertEqual(payload["rows"][0][-2:], [100, 1000])
 
     def test_payload_includes_anchor_comparison_data_and_available_range(self):
         payload = MODULE.build_visualization_payload(
@@ -93,7 +97,7 @@ class VisualizationPayloadTest(unittest.TestCase):
         )
         self.assertEqual(payload["anchorOptions"][0]["name"], "测试主播甲")
         self.assertEqual(payload["anchorDates"], ["2026-11-17", "2026-11-18"])
-        self.assertEqual(payload["anchorRows"], [[0, 0, 30], [1, 0, 35]])
+        self.assertEqual(payload["anchorRows"], [[0, 0, 30, 300], [1, 0, 35, 350]])
         self.assertEqual(payload["anchorAvailableStart"], "2026-11-17")
 
     def test_category_contribution_uses_gross_delta_and_stays_bounded(self):
@@ -264,6 +268,9 @@ class VisualizationRenderTest(unittest.TestCase):
         self.assertIn('data-chart-type="stack"', html_text)
         self.assertIn("品类 Top10", html_text)
         self.assertIn("贡献占比（绝对值口径）", html_text)
+        self.assertIn("报告日流水（元）", html_text)
+        self.assertIn("同星期流水基线（元）", html_text)
+        self.assertIn("最新完整周流水（元）", html_text)
         self.assertIn('id="categoryTopLimit"', html_text)
         self.assertIn('id="categoryTable"', html_text)
         self.assertIn('id="guildTopLimit"', html_text)

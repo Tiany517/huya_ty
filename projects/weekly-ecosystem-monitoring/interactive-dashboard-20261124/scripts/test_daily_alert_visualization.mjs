@@ -177,6 +177,23 @@ const anchorCompare = await evaluate(`(() => {
   return {selected:window.__visualizationDebug.getSelected(),anchorRows:window.__visualizationDebug.anchorDataLength,legend:[...document.querySelectorAll("#visualizationLegend span")].map(x=>x.textContent.trim()),lines:document.querySelectorAll("#visualizationChart path.line-path").length,dateMin:document.getElementById("visualizationStartDate").min,dateMax:document.getElementById("visualizationStartDate").max};
 })()`);
 
+const revenueCanvas = await evaluate(`(() => {
+  const scope=document.getElementById("visualizationScope");scope.value="revenue";scope.dispatchEvent(new Event("change",{bubbles:true}));
+  const dimension=document.getElementById("visualizationDimension");dimension.value="category";dimension.dispatchEvent(new Event("change",{bubbles:true}));
+  const main=window.__visualizationDebug.aggregateMain();
+  return {scope:window.__visualizationDebug.state.scope,rows:main.length,values:main.map(item=>item.value),revenueDataLength:window.__visualizationDebug.revenueDataLength,anchorRevenueDataLength:window.__visualizationDebug.anchorRevenueDataLength};
+})()`);
+
+const multiLineRender = await evaluate(`(() => {
+  const scope=document.getElementById("visualizationScope");scope.value="total";scope.dispatchEvent(new Event("change",{bubbles:true}));
+  const dimension=document.getElementById("visualizationDimension");dimension.value="group";dimension.dispatchEvent(new Event("change",{bubbles:true}));
+  const search=document.getElementById("visualizationObjectSearch");search.value="";search.dispatchEvent(new Event("input",{bubbles:true}));
+  document.getElementById("visualizationSelectVisible").click();
+  const paths=[...document.querySelectorAll("#visualizationChart path.line-path")];
+  const axisLabels=[...document.querySelectorAll("#visualizationChart text.axis")].map(node=>node.textContent.trim());
+  return {paths:paths.length,strokes:new Set(paths.map(path=>getComputedStyle(path).stroke)).size,axisCount:axisLabels.length};
+})()`);
+
 async function clickChartType(type) {
   await evaluate(`document.querySelector('[data-chart-type="${type}"]').click()`);
   await delay(300);
@@ -218,7 +235,7 @@ await delay(250);
 const monthly = await evaluate(`(() => ({type:window.__visualizationDebug.state.chartType,large:document.querySelectorAll("#visualizationChart .stack-segment").length,breadcrumb:document.getElementById("visualizationBreadcrumb").textContent.replace(/\s+/g," ").trim()}))()`);
 
 const checks = {
-  initialized: initial.ready && initial.rows > 0 && initial.scopeOptions === 2 && initial.charts === 1,
+  initialized: initial.ready && initial.rows > 0 && initial.scopeOptions === 3 && initial.charts === 1,
   analysisScopeIsPlatformAndEcosystem: initial.scopeLabels.some(label => label.includes("平台 DAU")) && initial.scopeLabels.some(label => label.includes("内容生态 DAU")) && initial.scopeLabels.every(label => !label.includes("内容大类") && !label.includes("品类 ·")),
   drillDimensionsAvailable: initial.dimensionOptions.join(",") === "none,group,category,anchor" && initial.dimensionDisabled === true,
   defaultPlatformDaily: initial.scope === "platform" && initial.dimension === "none" && initial.granularity === "day" && initial.chartType === "line",
@@ -232,6 +249,8 @@ const checks = {
   customTimeRange: initial.rangeOptions.includes("custom") && initial.startDatePresent && initial.endDatePresent && customRange.range === "custom" && customRange.start === "2026-11-01" && customRange.end === "2026-11-10" && customRange.points === 10,
   fuzzyMultiCategoryCompare: categoryCompare.selected.length >= 2 && categoryCompare.legend.length >= 2 && categoryCompare.lines >= 2,
   anchorMultiCompareReady: initial.anchorRows > 0 && anchorCompare.anchorRows > 0 && anchorCompare.selected.length === 2 && anchorCompare.legend.length === 2 && anchorCompare.lines >= 2 && anchorCompare.dateMin === "2026-10-12" && anchorCompare.dateMax === "2026-11-22",
+  revenueCanvasAvailable: initial.scopeLabels.some(label => label.includes("内容生态流水")) && revenueCanvas.scope === "revenue" && revenueCanvas.rows > 0 && revenueCanvas.values.every(Number.isFinite) && revenueCanvas.revenueDataLength > 0 && revenueCanvas.anchorRevenueDataLength > 0,
+  multiLineColorsAndTicks: multiLineRender.paths >= 2 && multiLineRender.strokes >= 2 && multiLineRender.axisCount <= 15,
   customAnchorTopN: topN.supported && topN.total >= 5 && topN.visible === 5 && topN.title === "主播 Top5",
   methodNotesAtBottom: initial.methodNotesAfterAnchors,
   barRendered: bar.state === "bar" && bar.bars > 0,
@@ -242,6 +261,6 @@ const checks = {
   noRuntimeExceptions: exceptions.length === 0,
 };
 
-console.log(JSON.stringify({ status: Object.values(checks).every(Boolean) ? "passed" : "failed", checks, initial, customRange, tooltip, topN, categoryTopN, guildTopN, categoryCompare, anchorCompare, bar, stackPlatform, stackTotal, drillClick, drilledGroup, monthly, exceptions }, null, 2));
+console.log(JSON.stringify({ status: Object.values(checks).every(Boolean) ? "passed" : "failed", checks, initial, customRange, tooltip, topN, categoryTopN, guildTopN, categoryCompare, anchorCompare, revenueCanvas, multiLineRender, bar, stackPlatform, stackTotal, drillClick, drilledGroup, monthly, exceptions }, null, 2));
 ws.close();
 if (!Object.values(checks).every(Boolean)) process.exitCode = 1;

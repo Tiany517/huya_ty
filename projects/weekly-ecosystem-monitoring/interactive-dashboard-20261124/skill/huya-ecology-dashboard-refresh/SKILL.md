@@ -381,7 +381,7 @@ node scripts/test_daily_alert_visualization.mjs '<daily_alert_report.html>'
 ### 指标
 
 - 观看 DAU：`dau` 的日均。
-- 平台 DAU：官方平台活跃用户表中 `count(distinct user_ukey)`，端范围按 `06_平台日活趋势.sql`，剔除黑名单用户；用于日报平台总盘，不得用品类 DAU 合计替代。
+- 平台 DAU：官方平台活跃用户表中 `count(distinct user_ukey)`，端范围为 `huya_andriod/huya_ipad/huya_pad/huya_ios/hmos_kiwi`（鸿蒙），剔除黑名单用户；用于日报平台总盘，不得用品类 DAU 合计替代。
 - 归属 DAU：`attribution_user_cnt` 的日均。
 - 打赏流水：`daily_revenue / revenue_sum` 的日均。
 - 打赏人数：`daily_pay_user_cnt / pay_sum` 的日均。

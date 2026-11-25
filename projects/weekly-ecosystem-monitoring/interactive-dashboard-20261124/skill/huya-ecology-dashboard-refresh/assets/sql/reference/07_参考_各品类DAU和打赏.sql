@@ -54,7 +54,8 @@ session_user_daily AS (
           'huya_andriod',
           'huya_ipad',
           'huya_pad',
-          'huya_ios'
+          'huya_ios',
+          'hmos_kiwi'
       )
       AND s.user_ukey IS NOT NULL
     GROUP BY

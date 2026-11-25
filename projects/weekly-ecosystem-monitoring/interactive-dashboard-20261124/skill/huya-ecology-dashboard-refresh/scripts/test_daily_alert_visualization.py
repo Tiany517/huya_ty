@@ -39,22 +39,37 @@ def sample_data() -> dict:
                 {"id": "2", "name": "王者荣耀", "group": 0},
                 {"id": "3", "name": "星秀", "group": 1},
             ],
+            "anchors": [
+                {"id": "10001", "name": "测试主播甲", "roomid": "20001"},
+            ],
+            "anchorDailyColumns": [
+                "date", "anchor", "dau", "revenue", "payUsers", "viewMinutes",
+                "attributionUsers", "interactionCount", "interactionUsers", "isLive",
+            ],
         },
         "categoryDaily": [
-            ["2026-11-17", 0, 0, 100, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-17", 1, 0, 50, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-17", 2, 1, 20, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-18", 0, 0, 120, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-18", 1, 0, 60, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-18", 2, 1, 30, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-24", 0, 0, 150, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-24", 1, 0, 80, 0, 0, 0, 0, 0, 1, 1, 1],
-            ["2026-11-24", 2, 1, 40, 0, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-17", 0, 0, 100, 1000, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-17", 1, 0, 50, 500, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-17", 2, 1, 20, 200, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-18", 0, 0, 120, 1200, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-18", 1, 0, 60, 600, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-18", 2, 1, 30, 300, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-24", 0, 0, 150, 1500, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-24", 1, 0, 80, 800, 0, 0, 0, 0, 1, 1, 1],
+            ["2026-11-24", 2, 1, 40, 400, 0, 0, 0, 0, 1, 1, 1],
+        ],
+        "anchorDaily": [
+            ["2026-11-17", 0, 30, 300, 0, 0, 0, 0, 0, 1],
+            ["2026-11-18", 0, 35, 350, 0, 0, 0, 0, 0, 1],
         ],
     }
 
 
 class VisualizationPayloadTest(unittest.TestCase):
+    def test_platform_dau_scope_includes_harmonyos(self):
+        self.assertIn("hmos_kiwi", MODULE.PLATFORM_DAU_PRODUCTS)
+        self.assertIn("HarmonyOS", MODULE.PLATFORM_DAU_SCOPE_LABEL)
+
     def test_zero_baseline_change_rate_is_not_infinite(self):
         self.assertIsNone(MODULE.pct_change(10, 0))
         self.assertIsNone(MODULE.pct_change(0, 0))
@@ -71,7 +86,47 @@ class VisualizationPayloadTest(unittest.TestCase):
         self.assertEqual(payload["groups"][0]["name"], "游戏")
         self.assertEqual(payload["categories"][0]["name"], "英雄联盟")
         self.assertEqual(payload["platform"], [["2026-11-23", 5_600_000], ["2026-11-24", 5_700_000]])
-        self.assertEqual(payload["rows"][0][-1], 100)
+        self.assertEqual(payload["rows"][0][-2:], [100, 1000])
+
+    def test_payload_includes_anchor_comparison_data_and_available_range(self):
+        payload = MODULE.build_visualization_payload(
+            sample_data(),
+            {"2026-11-23": 5_600_000, "2026-11-24": 5_700_000},
+            date(2026, 11, 24),
+            anchor_rank_rows=[{"_key": (0, 0, 0)}],
+        )
+        self.assertEqual(payload["anchorOptions"][0]["name"], "测试主播甲")
+        self.assertEqual(payload["anchorDates"], ["2026-11-17", "2026-11-18"])
+        self.assertEqual(payload["anchorRows"], [[0, 0, 30, 300], [1, 0, 35, 350]])
+        self.assertEqual(payload["anchorAvailableStart"], "2026-11-17")
+
+    def test_category_contribution_uses_gross_delta_and_stays_bounded(self):
+        dimensions = {
+            "categories": sample_data()["meta"]["categories"],
+            "groups": sample_data()["meta"]["contentGroups"],
+        }
+        by_category = {
+            "2026-11-23": {
+                0: {"dau": 100},
+                1: {"dau": 100},
+                2: {"dau": 100},
+            },
+            "2026-11-16": {
+                0: {"dau": 90},
+                1: {"dau": 110},
+                2: {"dau": 100},
+            },
+        }
+        rows = MODULE.rank_daily_categories(
+            date(2026, 11, 23),
+            [date(2026, 11, 16)],
+            by_category,
+            dimensions,
+            3,
+        )
+        shares = [row["contributionShare"] for row in rows]
+        self.assertAlmostEqual(sum(abs(value) for value in shares), 1.0)
+        self.assertTrue(all(-1 <= value <= 1 for value in shares))
 
     def test_anchor_level_uses_its_own_four_week_history(self):
         row = {"_key": (0, 0, 0), "currentDau": 20_000}
@@ -109,19 +164,39 @@ class VisualizationPayloadTest(unittest.TestCase):
 
         data = {
             "meta": {
-                "weeks": ["2026-11-10", "2026-11-17"],
+                "weeks": [
+                    "2026-10-12",
+                    "2026-10-19",
+                    "2026-10-26",
+                    "2026-11-02",
+                    "2026-11-09",
+                    "2026-11-16",
+                ],
                 "anchorColumns": columns,
             },
             "anchorWeekly": [
-                row(0, 0, 0, 7, 200),
-                row(1, 0, 0, 7, 220),
+                row(1, 0, 0, 7, 200),
                 row(1, 1, 0, 7, 180),
-                row(1, 0, 1, 3, 90),
+                row(1, 0, 1, 2, 90),
+                row(2, 0, 0, 7, 210),
+                row(3, 0, 0, 7, 215),
+                row(3, 1, 0, 4, 170),
+                row(3, 0, 1, 2, 85),
+                row(4, 0, 0, 6, 200),
+                row(4, 0, 1, 1, 80),
+                row(5, 0, 0, 7, 220),
+                row(5, 1, 0, 7, 180),
+                row(5, 0, 1, 3, 90),
             ],
         }
         weekly = MODULE.aggregate_weekly_rows(data)
         current = weekly["guild"][weekly["currentWeekIdx"]][0]
         self.assertEqual(current["liveDays"], 10)
+        history = weekly["guildLiveAnchorHistory"][0]
+        self.assertAlmostEqual(history[1], 9 / 7)
+        self.assertAlmostEqual(history[2], 7 / 7)
+        self.assertAlmostEqual(history[3], 9 / 7)
+        self.assertAlmostEqual(history[4], 7 / 7)
         rows = MODULE.weekly_rows_for(
             weekly,
             "guild",
@@ -132,6 +207,30 @@ class VisualizationPayloadTest(unittest.TestCase):
             lambda key, _: "测试公会",
         )
         self.assertAlmostEqual(rows[0]["currentLiveAnchors"], 10 / 7)
+
+    def test_guild_level_uses_its_own_four_week_live_anchor_history(self):
+        row = {"_key": 0, "currentLiveAnchors": 140}
+        weekly = {
+            "anchorHistoryWeekIdxs": [0, 1, 2, 3],
+            "guildLiveAnchorHistory": {0: {0: 100, 1: 100, 2: 100, 3: 100}},
+        }
+        MODULE.apply_guild_history_severity(row, weekly)
+        self.assertEqual(row["severityLabel"], "高")
+        self.assertEqual(row["severityConfidence"], "high")
+        self.assertEqual(row["historyWeeksAvailable"], 4)
+        self.assertGreater(abs(row["severityRobustZ"]), 3)
+
+    def test_guild_level_missing_history_does_not_fill_zero(self):
+        row = {"_key": 0, "currentLiveAnchors": 140}
+        weekly = {
+            "anchorHistoryWeekIdxs": [0, 1, 2, 3],
+            "guildLiveAnchorHistory": {0: {0: 100, 1: 100}},
+        }
+        MODULE.apply_guild_history_severity(row, weekly)
+        self.assertEqual(row["historyWeeksAvailable"], 2)
+        self.assertEqual(row["severityBaseline"], 100)
+        self.assertEqual(row["severityConfidence"], "low")
+        self.assertEqual(row["severityLabel"], "中")
 
 
 class VisualizationRenderTest(unittest.TestCase):
@@ -159,10 +258,24 @@ class VisualizationRenderTest(unittest.TestCase):
         self.assertIn('id="visualizationDimension"', html_text)
         self.assertIn('id="visualizationDrillValue"', html_text)
         self.assertIn('id="visualizationTooltip"', html_text)
+        self.assertIn('id="visualizationObjectSearch"', html_text)
+        self.assertIn('id="visualizationStartDate"', html_text)
+        self.assertIn('id="visualizationEndDate"', html_text)
+        self.assertIn('<option value="custom">自定义时间段</option>', html_text)
+        self.assertIn('<option value="anchor">主播（异动 Top50）</option>', html_text)
         self.assertIn('data-chart-type="line"', html_text)
         self.assertIn('data-chart-type="bar"', html_text)
         self.assertIn('data-chart-type="stack"', html_text)
         self.assertIn("品类 Top10", html_text)
+        self.assertIn("贡献占比（绝对值口径）", html_text)
+        self.assertIn("报告日流水（元）", html_text)
+        self.assertIn("同星期流水基线（元）", html_text)
+        self.assertIn("最新完整周流水（元）", html_text)
+        self.assertIn('id="categoryTopLimit"', html_text)
+        self.assertIn('id="categoryTable"', html_text)
+        self.assertIn('id="guildTopLimit"', html_text)
+        self.assertIn('id="guildTable"', html_text)
+        self.assertIn("级别按公会自身前 4 个完整周异常分判定", html_text)
         self.assertIn("最新完整周 开播主播数（日均）", html_text)
         self.assertIn("头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100", html_text)
         self.assertIn('id="anchorTopLimit"', html_text)

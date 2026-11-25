@@ -18,6 +18,15 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
+PLATFORM_DAU_PRODUCTS = (
+    "huya_andriod",
+    "huya_ipad",
+    "huya_pad",
+    "huya_ios",
+    "hmos_kiwi",
+)
+PLATFORM_DAU_SCOPE_LABEL = "官方平台活跃用户表（huya Android/iOS/iPad/Pad/HarmonyOS，剔除黑名单用户）"
+
 METRIC_RULES = {
     "platformDau": {"label": "平台 DAU", "pct": 0.05, "min_abs": 5000},
     "dau": {"label": "内容生态 DAU", "pct": 0.05, "min_abs": 5000},
@@ -161,7 +170,12 @@ def load_platform_daily(path: Path | None) -> dict[str, float]:
     return result
 
 
-def build_visualization_payload(data: dict, platform_daily: dict[str, float], report_date: date) -> dict:
+def build_visualization_payload(
+    data: dict,
+    platform_daily: dict[str, float],
+    report_date: date,
+    anchor_rank_rows: list[dict] | None = None,
+) -> dict:
     """构造日报自由分析画布的轻量日级数据，供前端按日/周/月/季度聚合。"""
     meta = data["meta"]
     columns = {name: index for index, name in enumerate(meta["categoryColumns"])}
@@ -184,12 +198,54 @@ def build_visualization_payload(data: dict, platform_daily: dict[str, float], re
             category_index[category_id],
             int(row[columns["group"]]),
             parse_number(row[columns["dau"]]),
+            parse_number(row[columns["revenue"]]),
         ])
     platform = [
         [dt_value, parse_number(platform_daily[dt_value])]
         for dt_value in sorted(platform_daily)
         if dt_value in date_index or dt_value <= report_date.isoformat()
     ]
+    anchor_options = []
+    anchor_dates = []
+    anchor_rows = []
+    anchor_available_start = ""
+    anchor_available_end = ""
+    if anchor_rank_rows and data.get("anchorDaily"):
+        anchor_columns = {name: index for index, name in enumerate(meta["anchorDailyColumns"])}
+        selected_anchor_ids = []
+        selected_anchor_set = set()
+        for row in anchor_rank_rows:
+            anchor_idx = int(row["_key"][0])
+            if anchor_idx in selected_anchor_set:
+                continue
+            selected_anchor_set.add(anchor_idx)
+            selected_anchor_ids.append(anchor_idx)
+            anchor = meta["anchors"][anchor_idx]
+            anchor_options.append({
+                "id": str(anchor["id"]),
+                "name": anchor["name"],
+                "roomid": str(anchor.get("roomid") or ""),
+            })
+        anchor_option_index = {anchor_idx: index for index, anchor_idx in enumerate(selected_anchor_ids)}
+        anchor_dates = sorted({
+            row[anchor_columns["date"]]
+            for row in data["anchorDaily"]
+            if int(row[anchor_columns["anchor"]]) in selected_anchor_set
+        })
+        anchor_date_index = {value: index for index, value in enumerate(anchor_dates)}
+        for row in data["anchorDaily"]:
+            anchor_idx = int(row[anchor_columns["anchor"]])
+            if anchor_idx not in selected_anchor_set:
+                continue
+            anchor_rows.append([
+                anchor_date_index[row[anchor_columns["date"]]],
+                anchor_option_index[anchor_idx],
+                parse_number(row[anchor_columns["dau"]]),
+                parse_number(row[anchor_columns["revenue"]]),
+            ])
+        if anchor_dates:
+            anchor_available_start = anchor_dates[0]
+            anchor_available_end = anchor_dates[-1]
     return {
         "reportDate": report_date.isoformat(),
         "availableStart": dates[0] if dates else "",
@@ -203,6 +259,11 @@ def build_visualization_payload(data: dict, platform_daily: dict[str, float], re
         "dates": dates,
         "platform": platform,
         "rows": rows,
+        "anchorDates": anchor_dates,
+        "anchorOptions": anchor_options,
+        "anchorRows": anchor_rows,
+        "anchorAvailableStart": anchor_available_start,
+        "anchorAvailableEnd": anchor_available_end,
     }
 
 
@@ -315,7 +376,6 @@ def rank_daily_categories(
     all_ids = set(current)
     for baseline_date in baseline_dates:
         all_ids.update(by_category.get(baseline_date.isoformat(), {}))
-    root_delta = 0.0
     rows = []
     for category_idx in all_ids:
         current_values = current.get(category_idx, {})
@@ -326,7 +386,12 @@ def rank_daily_categories(
         ]
         baseline_dau = median(baseline_values)
         delta = current_dau - baseline_dau
-        root_delta += delta
+        current_revenue = parse_number(current_values.get("revenue"))
+        baseline_revenue_values = [
+            parse_number(by_category.get(item.isoformat(), {}).get(category_idx, {}).get("revenue"))
+            for item in baseline_dates
+        ]
+        baseline_revenue = median(baseline_revenue_values)
         change = classify_change("dau", current_dau, baseline_values)
         category = categories[category_idx]
         rows.append({
@@ -334,14 +399,15 @@ def rank_daily_categories(
             "id": str(category["id"]),
             "name": category["name"],
             "group": groups[int(category["group"])],
-            "currentRevenue": parse_number(current_values.get("revenue")),
-            "baselineRevenue": median([
-                parse_number(by_category.get(item.isoformat(), {}).get(category_idx, {}).get("revenue"))
-                for item in baseline_dates
-            ]),
+            "currentRevenue": current_revenue,
+            "baselineRevenue": baseline_revenue,
+            "revenueDelta": current_revenue - baseline_revenue,
+            "revenueChangePct": pct_change(current_revenue, baseline_revenue),
         })
+    gross_delta = sum(abs(row["delta"]) for row in rows)
     for row in rows:
-        row["contributionShare"] = row["delta"] / abs(root_delta) if root_delta else None
+        # 品类 DAU 存在跨品类重叠，使用全部品类变化绝对值之和作分母，避免总盘变化接近 0 时百分比爆炸。
+        row["contributionShare"] = row["delta"] / gross_delta if gross_delta else None
     rows.sort(key=lambda item: abs(item["delta"]), reverse=True)
     return rows[:top_n]
 
@@ -380,6 +446,7 @@ def aggregate_weekly_rows(data: dict) -> dict:
         current_week_idx: defaultdict(float),
         previous_week_idx: defaultdict(float),
     }
+    guild_anchor_live_days_history = defaultdict(lambda: defaultdict(float))
     anchor_meta = {}
     anchor_dau_history = defaultdict(lambda: defaultdict(float))
     for row in data["anchorWeekly"]:
@@ -392,6 +459,11 @@ def aggregate_weekly_rows(data: dict) -> dict:
             int(row[columns["guild"]]),
         )
         anchor_dau_history[key][week_idx] += parse_number(row[columns["dau"]])
+        guild_anchor = (int(row[columns["guild"]]), int(row[columns["anchor"]]))
+        guild_anchor_live_days_history[week_idx][guild_anchor] = max(
+            guild_anchor_live_days_history[week_idx][guild_anchor],
+            parse_number(row[columns["liveDays"]]),
+        )
     for row in data["anchorWeekly"]:
         week_idx = int(row[columns["week"]])
         if week_idx not in (current_week_idx, previous_week_idx):
@@ -438,6 +510,12 @@ def aggregate_weekly_rows(data: dict) -> dict:
     for week_idx in (current_week_idx, previous_week_idx):
         for (guild_idx, _), live_days in guild_anchor_live_days[week_idx].items():
             guild[week_idx][guild_idx]["liveDays"] += live_days
+    guild_live_anchor_history = defaultdict(dict)
+    for week_idx, guild_anchors in guild_anchor_live_days_history.items():
+        for (guild_idx, _), live_days in guild_anchors.items():
+            guild_live_anchor_history[guild_idx][week_idx] = (
+                guild_live_anchor_history[guild_idx].get(week_idx, 0.0) + live_days / 7
+            )
     return {
         "available": True,
         "weeks": weeks,
@@ -452,6 +530,7 @@ def aggregate_weekly_rows(data: dict) -> dict:
         "previousWeekIdx": previous_week_idx,
         "anchorHistoryWeekIdxs": history_week_idxs,
         "anchorDauHistory": {key: dict(values) for key, values in anchor_dau_history.items()},
+        "guildLiveAnchorHistory": {key: dict(values) for key, values in guild_live_anchor_history.items()},
     }
 
 
@@ -493,6 +572,7 @@ def weekly_rows_for(
             "currentRevenue": parse_number(current_values.get("revenue")),
             "previousRevenue": parse_number(previous_values.get("revenue")),
             "revenueDelta": parse_number(current_values.get("revenue")) - parse_number(previous_values.get("revenue")),
+            "revenueChangePct": pct_change(parse_number(current_values.get("revenue")), parse_number(previous_values.get("revenue"))),
             "currentPayUsers": parse_number(current_values.get("payUsers")),
             "previousPayUsers": parse_number(previous_values.get("payUsers")),
             "currentAttributionUsers": parse_number(current_values.get("attributionUsers")),
@@ -524,6 +604,28 @@ def apply_anchor_history_severity(row: dict, weekly: dict) -> dict:
         if index in history
     ]
     change = classify_change("dau", parse_number(row.get("currentDau")), baseline_values)
+    row.update({
+        "severity": change["severity"],
+        "severityLabel": "低" if change["severity"] == "正常" else change["severity"],
+        "severityDirection": change["direction"],
+        "severityBaseline": change["baseline"],
+        "severityChangePct": change["changePct"],
+        "severityRobustZ": change["robustZ"],
+        "severityConfidence": change["confidence"],
+        "historyWeeksAvailable": len(baseline_values),
+    })
+    return row
+
+
+def apply_guild_history_severity(row: dict, weekly: dict) -> dict:
+    """按公会自身前四个完整周的开播主播数日均异常分判定级别。"""
+    history = weekly.get("guildLiveAnchorHistory", {}).get(row["_key"], {})
+    baseline_values = [
+        parse_number(history[index])
+        for index in weekly.get("anchorHistoryWeekIdxs", [])
+        if index in history
+    ]
+    change = classify_change("liveAnchors", parse_number(row.get("currentLiveAnchors")), baseline_values)
     row.update({
         "severity": change["severity"],
         "severityLabel": "低" if change["severity"] == "正常" else change["severity"],
@@ -651,13 +753,17 @@ def severity_rule_lines() -> list[str]:
         "6. 基线少于 4 个点，或历史变异系数大于 30%，视为低把握，级别为高时降为中；变异系数 15%–30% 为中把握，≤15% 为高把握。",
         "7. 未达到中级别条件的显示为低（正常）。级别用于异动优先级，不等同于统计显著性。",
         "8. 主播榜按每一行主播路径自身前 4 个完整周的 DAU 中位数、MAD 和异常分判定；缺周不补 0，历史不足 4 周按低把握降级。",
+        "9. 公会榜按公会自身前 4 个完整周的开播主播数日均中位数、MAD 和异常分判定；跨品类按主播去重，缺周不补 0，历史不足 4 周按低把握降级。",
     ]
 
 
 def render_html(report: dict, visualization_payload: dict) -> str:
     metrics = report["platformMetrics"]
-    category_rows = report["categoryTop20"][:10]
+    category_rows = report.get("categoryRows", report["categoryTop20"])[:50]
+    guild_rows = report.get("guildRows", report["guildTop20"])[:50]
     anchor_rows = report.get("anchorRows", report["anchorTop20"])[:50]
+    category_default_limit = min(10, len(category_rows))
+    guild_default_limit = min(20, len(guild_rows))
     anchor_default_limit = min(10, len(anchor_rows))
     cards = []
     for metric in metrics:
@@ -683,7 +789,11 @@ def render_html(report: dict, visualization_payload: dict) -> str:
         ("过去 4 个同星期中位数（日）", lambda row: format_number(row["baseline"])),
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
-        ("贡献占比", lambda row: format_pct(row.get("contributionShare"))),
+        ("贡献占比（绝对值口径）", lambda row: format_pct(row.get("contributionShare"))),
+        ("报告日流水（元）", lambda row: format_number(row.get("currentRevenue"))),
+        ("同星期流水基线（元）", lambda row: format_number(row.get("baselineRevenue"))),
+        ("流水变化值（元）", lambda row: (format_delta(row.get("revenueDelta")), "delta-down" if (row.get("revenueDelta") or 0) < 0 else "delta-up")),
+        ("流水变化率", lambda row: format_pct(row.get("revenueChangePct"))),
         ("级别", severity_cell),
     ]
     guild_columns = [
@@ -695,8 +805,13 @@ def render_html(report: dict, visualization_payload: dict) -> str:
             "delta-down" if (row.get("liveAnchorDelta") or 0) < 0 else "delta-up",
         )),
         ("变化率", lambda row: format_pct(row.get("liveAnchorChangePct"))),
+        ("最新完整周流水（元）", lambda row: format_number(row.get("currentRevenue"))),
+        ("上一完整周流水（元）", lambda row: format_number(row.get("previousRevenue"))),
+        ("流水变化值（元）", lambda row: (format_delta(row.get("revenueDelta")), "delta-down" if (row.get("revenueDelta") or 0) < 0 else "delta-up")),
+        ("流水变化率", lambda row: format_pct(row.get("revenueChangePct"))),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
         ("互动率", lambda row: format_pct(row["currentInteractionRate"])),
+        ("级别", severity_cell),
     ]
     tier_columns = [
         ("主播层级", lambda row: row["label"]),
@@ -704,6 +819,10 @@ def render_html(report: dict, visualization_payload: dict) -> str:
         ("上一完整周 DAU（7 日求和）", lambda row: format_number(row["previousDau"])),
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
+        ("最新完整周流水（元）", lambda row: format_number(row.get("currentRevenue"))),
+        ("上一完整周流水（元）", lambda row: format_number(row.get("previousRevenue"))),
+        ("流水变化值（元）", lambda row: (format_delta(row.get("revenueDelta")), "delta-down" if (row.get("revenueDelta") or 0) < 0 else "delta-up")),
+        ("流水变化率", lambda row: format_pct(row.get("revenueChangePct"))),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
         ("互动率", lambda row: format_pct(row["currentInteractionRate"])),
     ]
@@ -714,6 +833,10 @@ def render_html(report: dict, visualization_payload: dict) -> str:
         ("上一完整周 DAU（7 日求和）", lambda row: format_number(row["previousDau"])),
         ("变化值", lambda row: (format_delta(row["delta"]), "delta-down" if row["delta"] < 0 else "delta-up")),
         ("变化率", lambda row: format_pct(row["changePct"])),
+        ("最新完整周流水（元）", lambda row: format_number(row.get("currentRevenue"))),
+        ("上一完整周流水（元）", lambda row: format_number(row.get("previousRevenue"))),
+        ("流水变化值（元）", lambda row: (format_delta(row.get("revenueDelta")), "delta-down" if (row.get("revenueDelta") or 0) < 0 else "delta-up")),
+        ("流水变化率", lambda row: format_pct(row.get("revenueChangePct"))),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
         ("互动率", lambda row: format_pct(row["currentInteractionRate"])),
         ("级别", severity_cell),
@@ -760,7 +883,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
     .kpi-change span {{ margin-left:10px; font-weight:700; color:var(--ink); }}
     .grid-two {{ display:grid; grid-template-columns:1.15fr .85fr; gap:18px; margin-top:18px; }}
     section {{ margin-top:18px; border:1px solid var(--glass-stroke); border-radius:20px; background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.48)); box-shadow:var(--liquid-shadow); overflow:hidden; backdrop-filter:blur(26px) saturate(165%); -webkit-backdrop-filter:blur(26px) saturate(165%); }}
-    .section-head {{ padding:18px 20px 15px; border-bottom:1px solid rgba(255,255,255,.5); display:flex; justify-content:space-between; align-items:center; gap:16px; background:linear-gradient(90deg,rgba(255,255,255,.34),rgba(255,255,255,.08)); }}
+    .section-head {{ padding:18px 20px 15px; border-bottom:1px solid rgba(255,255,255,.5); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; background:linear-gradient(90deg,rgba(255,255,255,.34),rgba(255,255,255,.08)); }}
     .section-head h2 {{ margin:0; font-size:18px; }} .section-head p {{ margin:0; color:var(--muted); font-size:12px; }}
     .section-body {{ padding:18px 20px 20px; }}
     .conclusions {{ margin:0; padding-left:22px; line-height:1.9; }}
@@ -780,7 +903,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
     .empty {{ padding:22px; color:var(--muted); text-align:center; background:#f8fafc; border-radius:12px; }}
     .notes {{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }}
     .notes ul {{ margin:0; padding-left:20px; line-height:1.85; color:#4f6076; }}
-    .section-tools {{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }}
+    .section-tools {{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-left:auto; }}
     .row-limit-control {{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:12px; color:var(--muted); font-size:12px; font-weight:700; background:rgba(255,255,255,.58); border:1px solid rgba(255,255,255,.76); }}
     .row-limit-control input {{ width:58px; min-height:30px; padding:4px 7px; border:1px solid rgba(116,140,176,.28); border-radius:8px; color:var(--ink); background:rgba(255,255,255,.9); font:inherit; font-weight:800; text-align:center; outline:none; }}
     .row-limit-control input:focus {{ border-color:#5d8fe8; box-shadow:0 0 0 3px rgba(93,143,232,.16); }}
@@ -794,6 +917,19 @@ def render_html(report: dict, visualization_payload: dict) -> str:
     .visualization-control label {{ color:var(--muted); font-size:11px; font-weight:700; }}
     .visualization-control select {{ width:100%; min-height:38px; padding:8px 10px; color:var(--ink); font:inherit; font-size:12px; font-weight:700; border:1px solid rgba(255,255,255,.78); border-radius:12px; outline:none; background:rgba(255,255,255,.64); box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 8px 20px rgba(48,74,116,.07); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }}
     .visualization-control select:disabled {{ cursor:not-allowed; color:#98a4b5; background:rgba(236,241,248,.62); }}
+    .object-search {{ width:100%; min-height:38px; padding:8px 10px; color:var(--ink); font:inherit; font-size:12px; border:1px solid rgba(255,255,255,.78); border-radius:12px; outline:none; background:rgba(255,255,255,.76); box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 8px 20px rgba(48,74,116,.07); }}
+    .object-search:focus {{ border-color:#5d8fe8; box-shadow:0 0 0 3px rgba(93,143,232,.16); }}
+    .object-list {{ max-height:166px; overflow:auto; padding:5px; border:1px solid rgba(116,140,176,.18); border-radius:12px; background:rgba(255,255,255,.52); }}
+    .object-option {{ display:grid; grid-template-columns:18px minmax(0,1fr) auto; align-items:center; gap:7px; padding:7px 8px; border-radius:8px; color:#40506a; font-size:12px; cursor:pointer; }}
+    .object-option:hover {{ background:rgba(40,120,223,.08); }}
+    .object-option input {{ accent-color:#2878df; }}
+    .object-option span {{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }}
+    .object-option small {{ color:#8a97a9; font-size:10px; }}
+    .object-actions {{ display:flex; align-items:center; justify-content:space-between; gap:8px; color:#748196; font-size:10px; }}
+    .object-actions button {{ border:0; padding:3px 7px; border-radius:7px; color:#315fae; background:rgba(255,255,255,.72); font:inherit; font-weight:700; cursor:pointer; }}
+    .custom-date-range {{ display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:6px; color:var(--muted); font-size:11px; }}
+    .custom-date-range input {{ width:100%; min-height:34px; padding:6px 8px; color:var(--ink); font:inherit; font-size:11px; border:1px solid rgba(255,255,255,.78); border-radius:10px; outline:none; background:rgba(255,255,255,.68); }}
+    .custom-date-range input:disabled {{ color:#98a4b5; background:rgba(236,241,248,.62); }}
     .chart-type-tabs {{ display:flex; gap:4px; padding:4px; border-radius:13px; background:rgba(235,241,250,.7); }}
     .chart-type-tabs button {{ flex:1; border:0; border-radius:10px; padding:8px 10px; background:transparent; color:var(--muted); font-size:12px; font-weight:800; }}
     .chart-type-tabs button.active {{ color:#2458b5; background:rgba(255,255,255,.88); box-shadow:0 6px 16px rgba(48,74,116,.1),inset 0 1px 0 #fff; }}
@@ -817,7 +953,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
     .visualization-tooltip {{ position:fixed; z-index:50; max-width:280px; padding:8px 10px; border-radius:10px; color:#eef6ff; background:rgba(29,45,68,.92); box-shadow:0 12px 28px rgba(28,45,70,.2); font-size:12px; line-height:1.45; pointer-events:none; opacity:0; transform:translateY(4px); transition:opacity .14s ease,transform .14s ease; }}
     .visualization-tooltip.visible {{ opacity:1; transform:translateY(0); }}
     footer {{ margin-top:22px; color:var(--muted); font-size:12px; line-height:1.8; }}
-    @media (max-width:1100px) {{ .kpis {{ grid-template-columns:repeat(3,1fr); }} .grid-two {{ grid-template-columns:1fr; }} .visualization-controls {{ grid-template-columns:1fr 1fr; }} }}
+    @media (max-width:1100px) {{ .kpis {{ grid-template-columns:repeat(3,1fr); }} .grid-two {{ grid-template-columns:1fr; }} .visualization-controls {{ grid-template-columns:1fr 1fr; }} .section-head {{ align-items:flex-start; }} }}
     @media (max-width:720px) {{ main {{ width:min(100% - 24px,1420px); padding-top:22px; }} .hero {{ display:block; }} .stamp {{ margin-top:16px; }} h1 {{ font-size:27px; }} .kpis {{ grid-template-columns:1fr 1fr; }} .notes,.visualization-controls {{ grid-template-columns:1fr; }} .section-head {{ align-items:flex-start; flex-direction:column; }} }}
     @media (prefers-reduced-motion: reduce) {{ *,*::before,*::after {{ animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }} }}
   </style>
@@ -844,15 +980,15 @@ def render_html(report: dict, visualization_payload: dict) -> str:
   </div>
   <section class="visualization-space" data-visualization-canvas="true">
     <div class="section-head">
-      <div><h2>自由分析画布</h2><p>默认展示大盘 DAU 趋势，可切换粒度、图表类型和内容层级</p></div>
-      <div class="visualization-head-tools"><span class="badge severity-低">DAU 日均口径</span></div>
+      <div><h2>自由分析画布</h2><p>默认展示大盘 DAU 趋势，可切换流水、粒度、图表类型和内容层级</p></div>
+      <div class="visualization-head-tools"><span class="badge severity-低">DAU / 流水口径</span></div>
     </div>
     <div class="visualization-controls">
       <div class="visualization-control"><label for="visualizationScope">分析范围</label><select id="visualizationScope"></select></div>
-      <div class="visualization-control"><label for="visualizationDimension">下钻维度</label><select id="visualizationDimension"><option value="none">整体</option><option value="group">内容大类</option><option value="category">品类</option></select></div>
-      <div class="visualization-control"><label for="visualizationDrillValue">下钻对象</label><select id="visualizationDrillValue"><option value="all">全部</option></select></div>
+      <div class="visualization-control"><label for="visualizationDimension">下钻维度</label><select id="visualizationDimension"><option value="none">整体</option><option value="group">内容大类</option><option value="category">品类</option><option value="anchor">主播（异动 Top50）</option></select></div>
+      <div class="visualization-control"><label for="visualizationObjectSearch">下钻对象 <span id="visualizationObjectCount">已选 1 个</span></label><input class="object-search" id="visualizationObjectSearch" type="search" placeholder="输入品类、游戏或主播昵称模糊搜索；可多选对比" autocomplete="off"><div class="object-list" id="visualizationDrillValue" role="listbox" aria-multiselectable="true"></div><div class="object-actions"><span>最多同时对比 8 个对象</span><span><button type="button" id="visualizationSelectVisible">选择搜索结果</button> <button type="button" id="visualizationResetObjects">恢复全部</button></span></div></div>
       <div class="visualization-control"><label for="visualizationGranularity">时间粒度</label><select id="visualizationGranularity"><option value="day">按日</option><option value="week">按周</option><option value="month">按月</option><option value="quarter">按季度</option></select></div>
-      <div class="visualization-control"><label for="visualizationRange">时间范围</label><select id="visualizationRange"><option value="all">全部可用日期</option><option value="90">近 90 天</option><option value="30">近 30 天</option></select></div>
+      <div class="visualization-control"><label for="visualizationRange">时间范围</label><select id="visualizationRange"><option value="all">全部可用日期</option><option value="90">近 90 天</option><option value="30">近 30 天</option><option value="custom">自定义时间段</option></select><div class="custom-date-range"><input id="visualizationStartDate" type="date" aria-label="开始日期"><span>至</span><input id="visualizationEndDate" type="date" aria-label="结束日期"></div></div>
       <div class="visualization-control"><label>图表类型</label><div class="chart-type-tabs" id="visualizationChartType"><button type="button" data-chart-type="line" class="active">折线</button><button type="button" data-chart-type="bar">柱状</button><button type="button" data-chart-type="stack">100% 堆积</button></div></div>
     </div>
     <div class="visualization-stage">
@@ -862,8 +998,8 @@ def render_html(report: dict, visualization_payload: dict) -> str:
       <div class="visualization-tooltip" id="visualizationTooltip" role="status" aria-live="polite"></div>
     </div>
   </section>
-  <section><div class="section-head"><h2>品类 Top10</h2><p>按报告日 DAU 变化绝对值排序｜计数指标可比较，用户可能跨品类重叠</p></div>{render_table(category_rows, category_columns)}</section>
-  <section><div class="section-head"><h2>公会 Top20</h2><p>{html.escape(report['weeklyComparison'])}｜按开播主播数日均变化绝对值排序</p></div>{render_table(report['guildTop20'][:20], guild_columns)}</section>
+  <section><div class="section-head"><div><h2 id="categoryTopTitle">品类 Top{category_default_limit}</h2><p>按报告日 DAU 变化绝对值排序｜贡献占比分母为全部品类变化绝对值之和｜用户可能跨品类重叠</p></div><div class="section-tools"><label class="row-limit-control" for="categoryTopLimit">展示 Top <input id="categoryTopLimit" type="number" min="1" max="50" step="1" value="{category_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(category_rows, category_columns, table_id='categoryTable')}</section>
+  <section><div class="section-head"><div><h2 id="guildTopTitle">公会 Top{guild_default_limit}</h2><p>{html.escape(report['weeklyComparison'])}｜按开播主播数日均变化绝对值排序｜级别按公会自身前 4 个完整周异常分判定</p></div><div class="section-tools"><label class="row-limit-control" for="guildTopLimit">展示 Top <input id="guildTopLimit" type="number" min="1" max="50" step="1" value="{guild_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(guild_rows, guild_columns, table_id='guildTable')}</section>
   <section><div class="section-head"><div><h2>主播层级</h2><p class="tier-note">头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100</p></div></div>{render_table(report['tierRows'], tier_columns)}</section>
   <section><div class="section-head"><div><h2 id="anchorTopTitle">主播 Top{anchor_default_limit}</h2><p>按主播 + 品类 + 公会路径的周 DAU 变化排序｜级别按该行主播自身前 4 个完整周异常分判定</p></div><div class="section-tools"><label class="row-limit-control" for="anchorTopLimit">展示 Top <input id="anchorTopLimit" type="number" min="1" max="50" step="1" value="{anchor_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(anchor_rows, anchor_columns, table_id='anchorTable')}</section>
   <section class="method-notes" aria-labelledby="methodNotesTitle"><h2 id="methodNotesTitle">数据与口径提示</h2><ul>{warning_items}</ul></section>
@@ -897,7 +1033,7 @@ def render_markdown(report: dict) -> str:
         )
     for title, key, columns in (
         ("品类 Top10", "categoryTop20", [("品类", "name"), ("报告日 DAU（日）", "current"), ("过去 4 个同星期中位数（日）", "baseline"), ("变化值", "delta"), ("变化率", "changePct")]),
-        ("公会 Top20", "guildTop20", [("公会", "label"), ("最新完整周 开播主播数（日均）", "currentLiveAnchors"), ("上一完整周 开播主播数（日均）", "previousLiveAnchors"), ("变化值", "liveAnchorDelta"), ("变化率", "liveAnchorChangePct")]),
+        ("公会 Top20", "guildTop20", [("公会", "label"), ("最新完整周 开播主播数（日均）", "currentLiveAnchors"), ("上一完整周 开播主播数（日均）", "previousLiveAnchors"), ("变化值", "liveAnchorDelta"), ("变化率", "liveAnchorChangePct"), ("级别", "severityLabel")]),
         ("主播 Top10", "anchorTop20", [("主播", "label"), ("路径", "pathLabel"), ("最新完整周 DAU（7 日求和）", "currentDau"), ("上一完整周 DAU（7 日求和）", "previousDau"), ("变化值", "delta"), ("变化率", "changePct"), ("级别", "severityLabel")]),
     ):
         lines += ["", f"## {title}", ""]
@@ -942,8 +1078,6 @@ def main() -> int:
     baseline_dates = previous_weekdays(report_date, args.baseline_count)
     daily, by_category, _, dimensions = build_daily_series(data)
     platform_daily = load_platform_daily(args.platform_daily_csv.resolve() if args.platform_daily_csv else None)
-    visualization_payload = build_visualization_payload(data, platform_daily, report_date)
-
     current_category = daily.get(report_date.isoformat())
     if current_category is None:
         raise SystemExit(f"report date not found in categoryDaily: {report_date.isoformat()}")
@@ -956,7 +1090,7 @@ def main() -> int:
     platform_available = report_date.isoformat() in platform_daily and all(value > 0 for value in platform_values)
     if platform_available:
         platform_metric = classify_change("platformDau", platform_daily[report_date.isoformat()], platform_values)
-        platform_mode = "官方平台活跃用户表（huya Android/iOS/iPad/Pad，剔除黑名单用户）"
+        platform_mode = PLATFORM_DAU_SCOPE_LABEL
     else:
         platform_metric = classify_change("dau", parse_number(current_category.get("dau")), [parse_number(item.get("dau")) for item in baseline_days])
         platform_metric["label"] = "平台 DAU（品类合计口径）"
@@ -969,7 +1103,7 @@ def main() -> int:
         "attributionUsers": classify_change("attributionUsers", parse_number(current_category.get("attributionUsers")), [parse_number(item.get("attributionUsers")) for item in baseline_days]),
         "liveAnchors": classify_change("liveAnchors", parse_number(current_category.get("liveAnchors")), [parse_number(item.get("liveAnchors")) for item in baseline_days]),
     }
-    category_ranked = rank_daily_categories(report_date, baseline_dates, by_category, dimensions, max(10, args.top_n))
+    category_ranked = rank_daily_categories(report_date, baseline_dates, by_category, dimensions, max(50, args.top_n))
     weekly = aggregate_weekly_rows(data)
     guild_rows = []
     tier_rows = []
@@ -992,6 +1126,8 @@ def main() -> int:
             guild_name = meta_dimensions["guilds"][key[2]]
             row["pathLabel"] = f"{category_name} / {guild_name}"
             apply_anchor_history_severity(row, weekly)
+        for row in guild_rows:
+            apply_guild_history_severity(row, weekly)
         guild_rows.sort(key=lambda row: abs(row.get("liveAnchorDelta") or 0), reverse=True)
         order = {"头部": 0, "腰部": 1, "尾部": 2, "未知": 3}
         tier_rows.sort(key=lambda row: order.get(row["label"], 9))
@@ -1001,6 +1137,13 @@ def main() -> int:
         weekly_comparison = f"{weekly['currentWeek']} vs {weekly['previousWeek']}"
     else:
         weekly_comparison = "最新仅有一个完整周，暂不做周环比"
+
+    visualization_payload = build_visualization_payload(
+        data,
+        platform_daily,
+        report_date,
+        anchor_rank_rows=anchor_rows[:50],
+    )
 
     alerts = build_alerts(list(platform_changes.values()), category_ranked, tier_rows)
     conclusions = conclusion_text(platform_changes, category_ranked, tier_rows, baseline_count)
@@ -1028,6 +1171,13 @@ def main() -> int:
         "weeklyComparisonAvailable": weekly["available"],
         "topTablesPopulated": bool(category_ranked and guild_rows and anchor_rows),
         "visualizationDataAvailable": bool(visualization_payload["rows"]),
+        "categoryContributionBounded": all(
+            row.get("contributionShare") is None or -1 <= row["contributionShare"] <= 1
+            for row in category_ranked
+        ),
+        "anchorVisualizationAvailable": bool(
+            visualization_payload["anchorOptions"] and visualization_payload["anchorRows"]
+        ),
     }
     if args.validation_report:
         source_validation = json.loads(args.validation_report.read_text(encoding="utf-8"))
@@ -1037,7 +1187,9 @@ def main() -> int:
         )
     warnings = [
         "平台 DAU 使用官方活跃用户表；品类 DAU、归属用户和互动人数可能跨品类重叠，不能直接相加成全站去重用户。",
-        "品类 Top10、公会 Top20、主播 Top10 使用对应指标变化绝对值排序；低基数对象即使变化率很高，也可能只是小样本波动。",
+        "打赏流水来自品类整体和主播周明细：内容生态流水可做趋势与结构比较，但不同品类或主播路径可能重复覆盖同一用户。",
+        "品类、公会、主播榜使用对应指标变化绝对值排序；页面默认分别为 Top10、Top20、Top10，均支持自定义 1–50。低基数对象即使变化率很高，也可能只是小样本波动。",
+        "品类贡献占比 = 品类 DAU 变化 / 全部品类 DAU 变化绝对值之和，范围为 -100% 至 100%，不除以可能接近零的大盘变化值。",
         "互动率 = 互动人数 / DAU，仅用于相对趋势；互动人数跨场次可能重叠。",
         "主播周表只覆盖最新完整自然周；主播日和公会归因不替代平台总盘。",
     ]
@@ -1067,7 +1219,9 @@ def main() -> int:
         },
         "platformMetrics": [platform_changes[key] for key in ("platformDau", "revenue", "payUsers", "attributionUsers", "liveAnchors")],
         "categoryTop20": category_ranked[:10],
-        "guildTop20": guild_rows[: max(20, args.top_n)],
+        "categoryRows": category_ranked[:50],
+        "guildTop20": guild_rows[:20],
+        "guildRows": guild_rows[:50],
         "tierRows": tier_rows,
         "anchorTop20": anchor_rows[:10],
         "anchorRows": anchor_rows[:50],
@@ -1081,6 +1235,10 @@ def main() -> int:
             "availableEnd": visualization_payload["availableEnd"],
             "rowCount": len(visualization_payload["rows"]),
             "platformPointCount": len(visualization_payload["platform"]),
+            "anchorOptionCount": len(visualization_payload["anchorOptions"]),
+            "anchorPointCount": len(visualization_payload["anchorRows"]),
+            "anchorAvailableStart": visualization_payload["anchorAvailableStart"],
+            "anchorAvailableEnd": visualization_payload["anchorAvailableEnd"],
         },
         "checks": checks,
     }
