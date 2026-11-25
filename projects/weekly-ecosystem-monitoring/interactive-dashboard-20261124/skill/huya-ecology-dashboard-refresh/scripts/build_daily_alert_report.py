@@ -17,6 +17,8 @@ from pathlib import Path
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR))
+from daily_analysis import build_analysis, render_analysis
 
 PLATFORM_DAU_PRODUCTS = (
     "huya_andriod",
@@ -974,6 +976,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
     </div>
   </header>
   <div class="kpis">{''.join(cards)}</div>
+{render_analysis(report.get('analysisRecords', []))}
   <div class="grid-two">
     <section><div class="section-head"><h2>今日结论</h2><p>自动事实摘要</p></div><div class="section-body"><ul class="conclusions">{conclusion_items}</ul></div></section>
     <section><div class="section-head"><h2>重点异动</h2><p>按严重度排序</p></div><div class="section-body"><div class="alert-list">{alert_items}</div></div></section>
@@ -1218,6 +1221,7 @@ def main() -> int:
             "eventStatus": meta.get("eventStatus"),
         },
         "platformMetrics": [platform_changes[key] for key in ("platformDau", "revenue", "payUsers", "attributionUsers", "liveAnchors")],
+        "analysisRecords": build_analysis(report_date, by_category, dimensions, classify_change),
         "categoryTop20": category_ranked[:10],
         "categoryRows": category_ranked[:50],
         "guildTop20": guild_rows[:20],

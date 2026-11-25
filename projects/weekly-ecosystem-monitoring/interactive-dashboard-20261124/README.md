@@ -22,6 +22,10 @@
 
 ## 当前成品
 
+2026-11-25 分析工作台：全品类可切换 DAU、流水、打赏人数、归属用户、开播主播数，按下降值、绝对变化或持续天数重新排名。持续异常只使用完整的4个同星期基线，缺记录中断，最多回溯28天；流水使用付费人数与ARPPU对称拆解，两个效应精确回到流水变化。现有公会和主播榜继续使用完整周口径。
+
+Analyst workbench: rank all categories by five selectable daily metrics, absolute change or persistence. Missing observations break streaks; four same-weekday baselines are required. Revenue uses an exact symmetric payer/ARPPU bridge, which is descriptive rather than causal. Guild and anchor rankings retain full-week comparisons.
+
 - 运行版看板：不进入 GitHub，由 `refresh_dashboard.py` 在当前电脑生成；目录边界见 `dashboard/README.md`
 - 新增指标：开播主播数，按当天 `is_live=1` 的 `luid` 去重后计算周期日均；公会榜跨品类时按主播去重
 - 源表：`zhgametemp.zty_category_ecology_health_daily_d_i_0827_v1`
