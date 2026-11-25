@@ -81,6 +81,8 @@ const initial = await evaluate(`(() => ({
   periodLabels: [...document.querySelectorAll(".kpi-label")].map(x => x.textContent.trim()),
   headers: [...document.querySelectorAll("section:not(.visualization-space) thead th")].map(x => x.textContent.trim()),
   categoryTitle: [...document.querySelectorAll("section h2")].map(x => x.textContent.trim()).find(x => x.startsWith("品类 Top")),
+  anchorHeaders: [...document.querySelectorAll("#anchorTable thead th")].map(x => x.textContent.trim()),
+  anchorLevelCells: document.querySelectorAll("#anchorTableBody td.severity-高, #anchorTableBody td.severity-中, #anchorTableBody td.severity-低").length,
   methodNotesAfterAnchors: Boolean(document.querySelector("#anchorTable") && document.querySelector("#methodNotesTitle") && (document.querySelector("#anchorTable").compareDocumentPosition(document.querySelector("#methodNotesTitle")) & Node.DOCUMENT_POSITION_FOLLOWING)),
   visibleAnchorRows: document.querySelectorAll("#anchorTableBody tr:not([hidden])").length,
   totalAnchorRows: document.querySelectorAll("#anchorTableBody tr").length
@@ -152,6 +154,7 @@ const checks = {
   defaultPlatformDaily: initial.scope === "platform" && initial.dimension === "none" && initial.granularity === "day" && initial.chartType === "line",
   explicitPeriodLabels: initial.periodLabels.every(label => label.endsWith("（日）")) && initial.headers.includes("最新完整周 DAU（7 日求和）"),
   categoryTop10: initial.categoryTitle === "品类 Top10",
+  anchorSelfLevel: initial.anchorHeaders.includes("级别") && initial.anchorLevelCells === initial.totalAnchorRows,
   guildLiveAnchors: initial.headers.includes("最新完整周 开播主播数（日均）") && initial.headers.includes("上一完整周 开播主播数（日均）"),
   tooltipVisible: tooltip.found && tooltip.visible && tooltip.text.length > 0,
   customAnchorTopN: topN.supported && topN.total >= 5 && topN.visible === 5 && topN.title === "主播 Top5",

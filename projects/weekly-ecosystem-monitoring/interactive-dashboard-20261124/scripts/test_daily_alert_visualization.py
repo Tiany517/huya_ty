@@ -73,6 +73,14 @@ class VisualizationPayloadTest(unittest.TestCase):
         self.assertEqual(payload["platform"], [["2026-11-23", 5_600_000], ["2026-11-24", 5_700_000]])
         self.assertEqual(payload["rows"][0][-1], 100)
 
+    def test_anchor_level_uses_its_own_two_period_change(self):
+        high = MODULE.classify_two_period_change("dau", 20_000, 10_000)
+        medium = MODULE.classify_two_period_change("dau", 110_000, 100_000)
+        low = MODULE.classify_two_period_change("dau", 10_100, 10_000)
+        self.assertEqual(high["severityLabel"], "高")
+        self.assertEqual(medium["severityLabel"], "中")
+        self.assertEqual(low["severityLabel"], "低")
+
     def test_guild_live_anchors_are_deduplicated_across_categories(self):
         columns = [
             "week", "category", "group", "guild", "anchor", "dau", "revenue",
@@ -143,6 +151,8 @@ class VisualizationRenderTest(unittest.TestCase):
         self.assertIn("头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100", html_text)
         self.assertIn('id="anchorTopLimit"', html_text)
         self.assertIn('id="anchorTopTitle">主播 Top10</h2>', html_text)
+        self.assertIn("级别按该行主播本期周 DAU 对上期判定", html_text)
+        self.assertIn("主播</th>", html_text)
         self.assertLess(html_text.index('id="anchorTable"'), html_text.index('id="methodNotesTitle"'))
 
 

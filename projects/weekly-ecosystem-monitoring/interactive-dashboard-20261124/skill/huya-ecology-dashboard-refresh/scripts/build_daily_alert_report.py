@@ -127,6 +127,24 @@ def classify_change(metric: str, current: float, baseline_values: list[float]) -
     }
 
 
+def classify_two_period_change(metric: str, current: float, baseline: float) -> dict:
+    """按单个对比期判定级别，用于主播行的本期周值与上期周值比较。"""
+    rule = METRIC_RULES[metric]
+    delta = current - baseline
+    pct = pct_change(current, baseline)
+    severity = "正常"
+    if abs(delta) >= rule["min_abs"]:
+        if pct is None or abs(pct) >= rule["pct"] * 3:
+            severity = "高"
+        elif abs(pct) >= rule["pct"]:
+            severity = "中"
+    return {
+        "severity": severity,
+        "severityLabel": "低" if severity == "正常" else severity,
+        "direction": "上升" if delta > 0 else "下降" if delta < 0 else "基本持平",
+    }
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -613,6 +631,7 @@ def severity_rule_lines() -> list[str]:
         "5. 变化率达到中级线的 3 倍，或达到中级线的 1.5 倍且异常分绝对值 ≥3，也判为高；异常分绝对值 ≥2.5，也判为中。",
         "6. 基线少于 4 个点，或历史变异系数大于 30%，视为低把握，级别为高时降为中；变异系数 15%–30% 为中把握，≤15% 为高把握。",
         "7. 未达到中级别条件的显示为低（正常）。级别用于异动优先级，不等同于统计显著性。",
+        "8. 主播榜按每一行主播自身的最新完整周 DAU 与上一完整周 DAU 比较：最小绝对变化 5,000，变化率 ≥5% 为中，≥15% 为高。",
     ]
 
 
@@ -678,6 +697,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
         ("变化率", lambda row: format_pct(row["changePct"])),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
         ("互动率", lambda row: format_pct(row["currentInteractionRate"])),
+        ("级别", severity_cell),
     ]
     warning_items = "".join(f"<li>{html.escape(item)}</li>" for item in report["warnings"]) or "<li>无</li>"
     severity_rule_html = "<br>".join(html.escape(item) for item in severity_rule_lines())
@@ -826,7 +846,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
   <section><div class="section-head"><h2>品类 Top10</h2><p>按报告日 DAU 变化绝对值排序｜计数指标可比较，用户可能跨品类重叠</p></div>{render_table(category_rows, category_columns)}</section>
   <section><div class="section-head"><h2>公会 Top20</h2><p>{html.escape(report['weeklyComparison'])}｜按开播主播数日均变化绝对值排序</p></div>{render_table(report['guildTop20'][:20], guild_columns)}</section>
   <section><div class="section-head"><div><h2>主播层级</h2><p class="tier-note">头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100</p></div></div>{render_table(report['tierRows'], tier_columns)}</section>
-  <section><div class="section-head"><div><h2 id="anchorTopTitle">主播 Top{anchor_default_limit}</h2><p>按主播 + 品类 + 公会路径的周 DAU 变化排序</p></div><div class="section-tools"><label class="row-limit-control" for="anchorTopLimit">展示 Top <input id="anchorTopLimit" type="number" min="1" max="50" step="1" value="{anchor_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(anchor_rows, anchor_columns, table_id='anchorTable')}</section>
+  <section><div class="section-head"><div><h2 id="anchorTopTitle">主播 Top{anchor_default_limit}</h2><p>按主播 + 品类 + 公会路径的周 DAU 变化排序｜级别按该行主播本期周 DAU 对上期判定</p></div><div class="section-tools"><label class="row-limit-control" for="anchorTopLimit">展示 Top <input id="anchorTopLimit" type="number" min="1" max="50" step="1" value="{anchor_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(anchor_rows, anchor_columns, table_id='anchorTable')}</section>
   <section class="method-notes" aria-labelledby="methodNotesTitle"><h2 id="methodNotesTitle">数据与口径提示</h2><ul>{warning_items}</ul></section>
   <footer>输入文件：{html.escape(report['inputs']['data'])}<br>说明：平台 DAU 使用官方平台活跃用户表；品类、公会、主播数据仅用于归因，不直接相加成平台去重用户。互动率仅用于相对趋势，互动人数跨场次可能重叠。<br><br>{severity_rule_html}</footer>
 </main>
@@ -859,7 +879,7 @@ def render_markdown(report: dict) -> str:
     for title, key, columns in (
         ("品类 Top10", "categoryTop20", [("品类", "name"), ("报告日 DAU（日）", "current"), ("过去 4 个同星期中位数（日）", "baseline"), ("变化值", "delta"), ("变化率", "changePct")]),
         ("公会 Top20", "guildTop20", [("公会", "label"), ("最新完整周 开播主播数（日均）", "currentLiveAnchors"), ("上一完整周 开播主播数（日均）", "previousLiveAnchors"), ("变化值", "liveAnchorDelta"), ("变化率", "liveAnchorChangePct")]),
-        ("主播 Top10", "anchorTop20", [("主播", "label"), ("路径", "pathLabel"), ("最新完整周 DAU（7 日求和）", "currentDau"), ("上一完整周 DAU（7 日求和）", "previousDau"), ("变化值", "delta"), ("变化率", "changePct")]),
+        ("主播 Top10", "anchorTop20", [("主播", "label"), ("路径", "pathLabel"), ("最新完整周 DAU（7 日求和）", "currentDau"), ("上一完整周 DAU（7 日求和）", "previousDau"), ("变化值", "delta"), ("变化率", "changePct"), ("级别", "severityLabel")]),
     ):
         lines += ["", f"## {title}", ""]
         lines.append("| " + " | ".join(label for label, _ in columns) + " |")
@@ -952,6 +972,7 @@ def main() -> int:
             category_name = meta_dimensions["categories"][key[1]]["name"]
             guild_name = meta_dimensions["guilds"][key[2]]
             row["pathLabel"] = f"{category_name} / {guild_name}"
+            row.update(classify_two_period_change("dau", row["currentDau"], row["previousDau"]))
         guild_rows.sort(key=lambda row: abs(row.get("liveAnchorDelta") or 0), reverse=True)
         order = {"头部": 0, "腰部": 1, "尾部": 2, "未知": 3}
         tier_rows.sort(key=lambda row: order.get(row["label"], 9))
