@@ -109,19 +109,39 @@ class VisualizationPayloadTest(unittest.TestCase):
 
         data = {
             "meta": {
-                "weeks": ["2026-11-10", "2026-11-17"],
+                "weeks": [
+                    "2026-10-12",
+                    "2026-10-19",
+                    "2026-10-26",
+                    "2026-11-02",
+                    "2026-11-09",
+                    "2026-11-16",
+                ],
                 "anchorColumns": columns,
             },
             "anchorWeekly": [
-                row(0, 0, 0, 7, 200),
-                row(1, 0, 0, 7, 220),
+                row(1, 0, 0, 7, 200),
                 row(1, 1, 0, 7, 180),
-                row(1, 0, 1, 3, 90),
+                row(1, 0, 1, 2, 90),
+                row(2, 0, 0, 7, 210),
+                row(3, 0, 0, 7, 215),
+                row(3, 1, 0, 4, 170),
+                row(3, 0, 1, 2, 85),
+                row(4, 0, 0, 6, 200),
+                row(4, 0, 1, 1, 80),
+                row(5, 0, 0, 7, 220),
+                row(5, 1, 0, 7, 180),
+                row(5, 0, 1, 3, 90),
             ],
         }
         weekly = MODULE.aggregate_weekly_rows(data)
         current = weekly["guild"][weekly["currentWeekIdx"]][0]
         self.assertEqual(current["liveDays"], 10)
+        history = weekly["guildLiveAnchorHistory"][0]
+        self.assertAlmostEqual(history[1], 9 / 7)
+        self.assertAlmostEqual(history[2], 7 / 7)
+        self.assertAlmostEqual(history[3], 9 / 7)
+        self.assertAlmostEqual(history[4], 7 / 7)
         rows = MODULE.weekly_rows_for(
             weekly,
             "guild",
@@ -132,6 +152,30 @@ class VisualizationPayloadTest(unittest.TestCase):
             lambda key, _: "测试公会",
         )
         self.assertAlmostEqual(rows[0]["currentLiveAnchors"], 10 / 7)
+
+    def test_guild_level_uses_its_own_four_week_live_anchor_history(self):
+        row = {"_key": 0, "currentLiveAnchors": 140}
+        weekly = {
+            "anchorHistoryWeekIdxs": [0, 1, 2, 3],
+            "guildLiveAnchorHistory": {0: {0: 100, 1: 100, 2: 100, 3: 100}},
+        }
+        MODULE.apply_guild_history_severity(row, weekly)
+        self.assertEqual(row["severityLabel"], "高")
+        self.assertEqual(row["severityConfidence"], "high")
+        self.assertEqual(row["historyWeeksAvailable"], 4)
+        self.assertGreater(abs(row["severityRobustZ"]), 3)
+
+    def test_guild_level_missing_history_does_not_fill_zero(self):
+        row = {"_key": 0, "currentLiveAnchors": 140}
+        weekly = {
+            "anchorHistoryWeekIdxs": [0, 1, 2, 3],
+            "guildLiveAnchorHistory": {0: {0: 100, 1: 100}},
+        }
+        MODULE.apply_guild_history_severity(row, weekly)
+        self.assertEqual(row["historyWeeksAvailable"], 2)
+        self.assertEqual(row["severityBaseline"], 100)
+        self.assertEqual(row["severityConfidence"], "low")
+        self.assertEqual(row["severityLabel"], "中")
 
 
 class VisualizationRenderTest(unittest.TestCase):
@@ -163,6 +207,11 @@ class VisualizationRenderTest(unittest.TestCase):
         self.assertIn('data-chart-type="bar"', html_text)
         self.assertIn('data-chart-type="stack"', html_text)
         self.assertIn("品类 Top10", html_text)
+        self.assertIn('id="categoryTopLimit"', html_text)
+        self.assertIn('id="categoryTable"', html_text)
+        self.assertIn('id="guildTopLimit"', html_text)
+        self.assertIn('id="guildTable"', html_text)
+        self.assertIn("级别按公会自身前 4 个完整周异常分判定", html_text)
         self.assertIn("最新完整周 开播主播数（日均）", html_text)
         self.assertIn("头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100", html_text)
         self.assertIn('id="anchorTopLimit"', html_text)

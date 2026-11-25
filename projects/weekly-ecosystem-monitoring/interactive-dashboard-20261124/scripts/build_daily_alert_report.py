@@ -380,6 +380,7 @@ def aggregate_weekly_rows(data: dict) -> dict:
         current_week_idx: defaultdict(float),
         previous_week_idx: defaultdict(float),
     }
+    guild_anchor_live_days_history = defaultdict(lambda: defaultdict(float))
     anchor_meta = {}
     anchor_dau_history = defaultdict(lambda: defaultdict(float))
     for row in data["anchorWeekly"]:
@@ -392,6 +393,11 @@ def aggregate_weekly_rows(data: dict) -> dict:
             int(row[columns["guild"]]),
         )
         anchor_dau_history[key][week_idx] += parse_number(row[columns["dau"]])
+        guild_anchor = (int(row[columns["guild"]]), int(row[columns["anchor"]]))
+        guild_anchor_live_days_history[week_idx][guild_anchor] = max(
+            guild_anchor_live_days_history[week_idx][guild_anchor],
+            parse_number(row[columns["liveDays"]]),
+        )
     for row in data["anchorWeekly"]:
         week_idx = int(row[columns["week"]])
         if week_idx not in (current_week_idx, previous_week_idx):
@@ -438,6 +444,12 @@ def aggregate_weekly_rows(data: dict) -> dict:
     for week_idx in (current_week_idx, previous_week_idx):
         for (guild_idx, _), live_days in guild_anchor_live_days[week_idx].items():
             guild[week_idx][guild_idx]["liveDays"] += live_days
+    guild_live_anchor_history = defaultdict(dict)
+    for week_idx, guild_anchors in guild_anchor_live_days_history.items():
+        for (guild_idx, _), live_days in guild_anchors.items():
+            guild_live_anchor_history[guild_idx][week_idx] = (
+                guild_live_anchor_history[guild_idx].get(week_idx, 0.0) + live_days / 7
+            )
     return {
         "available": True,
         "weeks": weeks,
@@ -452,6 +464,7 @@ def aggregate_weekly_rows(data: dict) -> dict:
         "previousWeekIdx": previous_week_idx,
         "anchorHistoryWeekIdxs": history_week_idxs,
         "anchorDauHistory": {key: dict(values) for key, values in anchor_dau_history.items()},
+        "guildLiveAnchorHistory": {key: dict(values) for key, values in guild_live_anchor_history.items()},
     }
 
 
@@ -524,6 +537,28 @@ def apply_anchor_history_severity(row: dict, weekly: dict) -> dict:
         if index in history
     ]
     change = classify_change("dau", parse_number(row.get("currentDau")), baseline_values)
+    row.update({
+        "severity": change["severity"],
+        "severityLabel": "低" if change["severity"] == "正常" else change["severity"],
+        "severityDirection": change["direction"],
+        "severityBaseline": change["baseline"],
+        "severityChangePct": change["changePct"],
+        "severityRobustZ": change["robustZ"],
+        "severityConfidence": change["confidence"],
+        "historyWeeksAvailable": len(baseline_values),
+    })
+    return row
+
+
+def apply_guild_history_severity(row: dict, weekly: dict) -> dict:
+    """按公会自身前四个完整周的开播主播数日均异常分判定级别。"""
+    history = weekly.get("guildLiveAnchorHistory", {}).get(row["_key"], {})
+    baseline_values = [
+        parse_number(history[index])
+        for index in weekly.get("anchorHistoryWeekIdxs", [])
+        if index in history
+    ]
+    change = classify_change("liveAnchors", parse_number(row.get("currentLiveAnchors")), baseline_values)
     row.update({
         "severity": change["severity"],
         "severityLabel": "低" if change["severity"] == "正常" else change["severity"],
@@ -651,13 +686,17 @@ def severity_rule_lines() -> list[str]:
         "6. 基线少于 4 个点，或历史变异系数大于 30%，视为低把握，级别为高时降为中；变异系数 15%–30% 为中把握，≤15% 为高把握。",
         "7. 未达到中级别条件的显示为低（正常）。级别用于异动优先级，不等同于统计显著性。",
         "8. 主播榜按每一行主播路径自身前 4 个完整周的 DAU 中位数、MAD 和异常分判定；缺周不补 0，历史不足 4 周按低把握降级。",
+        "9. 公会榜按公会自身前 4 个完整周的开播主播数日均中位数、MAD 和异常分判定；跨品类按主播去重，缺周不补 0，历史不足 4 周按低把握降级。",
     ]
 
 
 def render_html(report: dict, visualization_payload: dict) -> str:
     metrics = report["platformMetrics"]
-    category_rows = report["categoryTop20"][:10]
+    category_rows = report.get("categoryRows", report["categoryTop20"])[:50]
+    guild_rows = report.get("guildRows", report["guildTop20"])[:50]
     anchor_rows = report.get("anchorRows", report["anchorTop20"])[:50]
+    category_default_limit = min(10, len(category_rows))
+    guild_default_limit = min(20, len(guild_rows))
     anchor_default_limit = min(10, len(anchor_rows))
     cards = []
     for metric in metrics:
@@ -697,6 +736,7 @@ def render_html(report: dict, visualization_payload: dict) -> str:
         ("变化率", lambda row: format_pct(row.get("liveAnchorChangePct"))),
         ("互动人数", lambda row: format_number(row["currentInteractionUsers"])),
         ("互动率", lambda row: format_pct(row["currentInteractionRate"])),
+        ("级别", severity_cell),
     ]
     tier_columns = [
         ("主播层级", lambda row: row["label"]),
@@ -862,8 +902,8 @@ def render_html(report: dict, visualization_payload: dict) -> str:
       <div class="visualization-tooltip" id="visualizationTooltip" role="status" aria-live="polite"></div>
     </div>
   </section>
-  <section><div class="section-head"><h2>品类 Top10</h2><p>按报告日 DAU 变化绝对值排序｜计数指标可比较，用户可能跨品类重叠</p></div>{render_table(category_rows, category_columns)}</section>
-  <section><div class="section-head"><h2>公会 Top20</h2><p>{html.escape(report['weeklyComparison'])}｜按开播主播数日均变化绝对值排序</p></div>{render_table(report['guildTop20'][:20], guild_columns)}</section>
+  <section><div class="section-head"><div><h2 id="categoryTopTitle">品类 Top{category_default_limit}</h2><p>按报告日 DAU 变化绝对值排序｜计数指标可比较，用户可能跨品类重叠</p></div><div class="section-tools"><label class="row-limit-control" for="categoryTopLimit">展示 Top <input id="categoryTopLimit" type="number" min="1" max="50" step="1" value="{category_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(category_rows, category_columns, table_id='categoryTable')}</section>
+  <section><div class="section-head"><div><h2 id="guildTopTitle">公会 Top{guild_default_limit}</h2><p>{html.escape(report['weeklyComparison'])}｜按开播主播数日均变化绝对值排序｜级别按公会自身前 4 个完整周异常分判定</p></div><div class="section-tools"><label class="row-limit-control" for="guildTopLimit">展示 Top <input id="guildTopLimit" type="number" min="1" max="50" step="1" value="{guild_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(guild_rows, guild_columns, table_id='guildTable')}</section>
   <section><div class="section-head"><div><h2>主播层级</h2><p class="tier-note">头部：周平均 ACU ≥ 2,000；腰部：100–1,999；尾部：&lt;100</p></div></div>{render_table(report['tierRows'], tier_columns)}</section>
   <section><div class="section-head"><div><h2 id="anchorTopTitle">主播 Top{anchor_default_limit}</h2><p>按主播 + 品类 + 公会路径的周 DAU 变化排序｜级别按该行主播自身前 4 个完整周异常分判定</p></div><div class="section-tools"><label class="row-limit-control" for="anchorTopLimit">展示 Top <input id="anchorTopLimit" type="number" min="1" max="50" step="1" value="{anchor_default_limit}" inputmode="numeric"> 名</label></div></div>{render_table(anchor_rows, anchor_columns, table_id='anchorTable')}</section>
   <section class="method-notes" aria-labelledby="methodNotesTitle"><h2 id="methodNotesTitle">数据与口径提示</h2><ul>{warning_items}</ul></section>
@@ -897,7 +937,7 @@ def render_markdown(report: dict) -> str:
         )
     for title, key, columns in (
         ("品类 Top10", "categoryTop20", [("品类", "name"), ("报告日 DAU（日）", "current"), ("过去 4 个同星期中位数（日）", "baseline"), ("变化值", "delta"), ("变化率", "changePct")]),
-        ("公会 Top20", "guildTop20", [("公会", "label"), ("最新完整周 开播主播数（日均）", "currentLiveAnchors"), ("上一完整周 开播主播数（日均）", "previousLiveAnchors"), ("变化值", "liveAnchorDelta"), ("变化率", "liveAnchorChangePct")]),
+        ("公会 Top20", "guildTop20", [("公会", "label"), ("最新完整周 开播主播数（日均）", "currentLiveAnchors"), ("上一完整周 开播主播数（日均）", "previousLiveAnchors"), ("变化值", "liveAnchorDelta"), ("变化率", "liveAnchorChangePct"), ("级别", "severityLabel")]),
         ("主播 Top10", "anchorTop20", [("主播", "label"), ("路径", "pathLabel"), ("最新完整周 DAU（7 日求和）", "currentDau"), ("上一完整周 DAU（7 日求和）", "previousDau"), ("变化值", "delta"), ("变化率", "changePct"), ("级别", "severityLabel")]),
     ):
         lines += ["", f"## {title}", ""]
@@ -969,7 +1009,7 @@ def main() -> int:
         "attributionUsers": classify_change("attributionUsers", parse_number(current_category.get("attributionUsers")), [parse_number(item.get("attributionUsers")) for item in baseline_days]),
         "liveAnchors": classify_change("liveAnchors", parse_number(current_category.get("liveAnchors")), [parse_number(item.get("liveAnchors")) for item in baseline_days]),
     }
-    category_ranked = rank_daily_categories(report_date, baseline_dates, by_category, dimensions, max(10, args.top_n))
+    category_ranked = rank_daily_categories(report_date, baseline_dates, by_category, dimensions, max(50, args.top_n))
     weekly = aggregate_weekly_rows(data)
     guild_rows = []
     tier_rows = []
@@ -992,6 +1032,8 @@ def main() -> int:
             guild_name = meta_dimensions["guilds"][key[2]]
             row["pathLabel"] = f"{category_name} / {guild_name}"
             apply_anchor_history_severity(row, weekly)
+        for row in guild_rows:
+            apply_guild_history_severity(row, weekly)
         guild_rows.sort(key=lambda row: abs(row.get("liveAnchorDelta") or 0), reverse=True)
         order = {"头部": 0, "腰部": 1, "尾部": 2, "未知": 3}
         tier_rows.sort(key=lambda row: order.get(row["label"], 9))
@@ -1067,7 +1109,9 @@ def main() -> int:
         },
         "platformMetrics": [platform_changes[key] for key in ("platformDau", "revenue", "payUsers", "attributionUsers", "liveAnchors")],
         "categoryTop20": category_ranked[:10],
-        "guildTop20": guild_rows[: max(20, args.top_n)],
+        "categoryRows": category_ranked[:50],
+        "guildTop20": guild_rows[:20],
+        "guildRows": guild_rows[:50],
         "tierRows": tier_rows,
         "anchorTop20": anchor_rows[:10],
         "anchorRows": anchor_rows[:50],

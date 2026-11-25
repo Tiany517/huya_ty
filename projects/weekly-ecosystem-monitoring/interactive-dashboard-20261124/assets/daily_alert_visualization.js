@@ -35,9 +35,11 @@
   const legendHost=document.getElementById('visualizationLegend');
   const crumbHost=document.getElementById('visualizationBreadcrumb');
   const tooltip=document.getElementById('visualizationTooltip');
-  const anchorLimitInput=document.getElementById('anchorTopLimit');
-  const anchorTitle=document.getElementById('anchorTopTitle');
-  const anchorTableRows=anchorLimitInput?[...document.querySelectorAll('#anchorTableBody tr')]:[];
+  const rowLimitSpecs=[
+    {label:'品类',inputId:'categoryTopLimit',titleId:'categoryTopTitle',bodyId:'categoryTableBody',defaultLimit:10},
+    {label:'公会',inputId:'guildTopLimit',titleId:'guildTopTitle',bodyId:'guildTableBody',defaultLimit:20},
+    {label:'主播',inputId:'anchorTopLimit',titleId:'anchorTopTitle',bodyId:'anchorTableBody',defaultLimit:10}
+  ].map(spec=>({...spec,input:document.getElementById(spec.inputId),title:document.getElementById(spec.titleId),rows:[...document.querySelectorAll(`#${spec.bodyId} tr`)]}));
 
   if(data.platform.length){scopeSelect.add(new Option('平台 DAU（官方去重口径）','platform'));}
   scopeSelect.add(new Option('内容生态 DAU（品类合计）','total'));
@@ -181,11 +183,14 @@
     if(state.chartType==='stack')chartHost.innerHTML=drawStacks(aggregateStacks());
     else{const series=aggregateMain();chartHost.innerHTML=state.chartType==='bar'?drawBars(series):drawLine(series);}
   }
-  function applyAnchorLimit(){
-    if(!anchorLimitInput||!anchorTitle)return;
-    const max=Math.max(1,Math.min(50,anchorTableRows.length));
-    let limit=Math.round(Number(anchorLimitInput.value)||10);limit=Math.max(1,Math.min(max,limit));anchorLimitInput.value=String(limit);anchorTitle.textContent=`主播 Top${limit}`;
-    anchorTableRows.forEach((row,index)=>{row.hidden=index>=limit;});
+  function applyRowLimit(spec){
+    if(!spec.input||!spec.title)return;
+    const max=Math.max(1,Math.min(50,spec.rows.length));
+    let limit=Math.round(Number(spec.input.value)||spec.defaultLimit);limit=Math.max(1,Math.min(max,limit));spec.input.value=String(limit);spec.title.textContent=`${spec.label} Top${limit}`;
+    spec.rows.forEach((row,index)=>{row.hidden=index>=limit;});
+  }
+  function applyRowLimits(){
+    rowLimitSpecs.forEach(applyRowLimit);
   }
   scopeSelect.addEventListener('change',()=>{state.scope=scopeSelect.value;state.dimension=state.scope==='platform'?'none':'group';state.drill='all';updateDrillControls();render();});
   dimensionSelect.addEventListener('change',()=>{state.dimension=dimensionSelect.value;state.drill='all';updateDrillControls();render();});
@@ -197,8 +202,10 @@
   chartHost.addEventListener('pointermove',event=>{const target=event.target.closest('[data-tooltip]');if(target)showTooltip(target.dataset.tooltip,event);else hideTooltip();});
   chartHost.addEventListener('pointerleave',hideTooltip);
   crumbHost.addEventListener('click',event=>{const button=event.target.closest('[data-scope-dimension]');if(button)applyDrill(button.dataset.scopeDimension,button.dataset.scopeDrill);});
-  anchorLimitInput?.addEventListener('input',applyAnchorLimit);
-  anchorLimitInput?.addEventListener('change',applyAnchorLimit);
-  window.__visualizationDebug={state,aggregateMain,aggregateStacks,render,applyAnchorLimit,dataLength:data.rows.length};
-  updateDrillControls();applyAnchorLimit();window.__visualizationReady=true;render();
+  rowLimitSpecs.forEach(spec=>{
+    spec.input?.addEventListener('input',applyRowLimits);
+    spec.input?.addEventListener('change',applyRowLimits);
+  });
+  window.__visualizationDebug={state,aggregateMain,aggregateStacks,render,applyRowLimits,dataLength:data.rows.length};
+  updateDrillControls();applyRowLimits();window.__visualizationReady=true;render();
 })();

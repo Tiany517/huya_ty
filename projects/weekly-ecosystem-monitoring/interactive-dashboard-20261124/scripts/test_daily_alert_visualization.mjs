@@ -81,9 +81,18 @@ const initial = await evaluate(`(() => ({
   periodLabels: [...document.querySelectorAll(".kpi-label")].map(x => x.textContent.trim()),
   headers: [...document.querySelectorAll("section:not(.visualization-space) thead th")].map(x => x.textContent.trim()),
   categoryTitle: [...document.querySelectorAll("section h2")].map(x => x.textContent.trim()).find(x => x.startsWith("品类 Top")),
+  guildTitle: [...document.querySelectorAll("section h2")].map(x => x.textContent.trim()).find(x => x.startsWith("公会 Top")),
+  categoryHeaders: [...document.querySelectorAll("#categoryTable thead th")].map(x => x.textContent.trim()),
+  guildHeaders: [...document.querySelectorAll("#guildTable thead th")].map(x => x.textContent.trim()),
+  categoryLevelCells: document.querySelectorAll("#categoryTableBody td.severity-高, #categoryTableBody td.severity-中, #categoryTableBody td.severity-低").length,
+  guildLevelCells: document.querySelectorAll("#guildTableBody td.severity-高, #guildTableBody td.severity-中, #guildTableBody td.severity-低").length,
   anchorHeaders: [...document.querySelectorAll("#anchorTable thead th")].map(x => x.textContent.trim()),
   anchorLevelCells: document.querySelectorAll("#anchorTableBody td.severity-高, #anchorTableBody td.severity-中, #anchorTableBody td.severity-低").length,
   methodNotesAfterAnchors: Boolean(document.querySelector("#anchorTable") && document.querySelector("#methodNotesTitle") && (document.querySelector("#anchorTable").compareDocumentPosition(document.querySelector("#methodNotesTitle")) & Node.DOCUMENT_POSITION_FOLLOWING)),
+  visibleCategoryRows: document.querySelectorAll("#categoryTableBody tr:not([hidden])").length,
+  totalCategoryRows: document.querySelectorAll("#categoryTableBody tr").length,
+  visibleGuildRows: document.querySelectorAll("#guildTableBody tr:not([hidden])").length,
+  totalGuildRows: document.querySelectorAll("#guildTableBody tr").length,
   visibleAnchorRows: document.querySelectorAll("#anchorTableBody tr:not([hidden])").length,
   totalAnchorRows: document.querySelectorAll("#anchorTableBody tr").length
 }))()`);
@@ -105,6 +114,30 @@ const topN = await evaluate(`(() => {
     visible:document.querySelectorAll("#anchorTableBody tr:not([hidden])").length,
     total:document.querySelectorAll("#anchorTableBody tr").length,
     title:document.getElementById("anchorTopTitle")?.textContent.trim()
+  };
+})()`);
+
+const categoryTopN = await evaluate(`(() => {
+  const input=document.getElementById("categoryTopLimit");
+  if(!input)return {supported:false,visible:0,total:0,title:""};
+  input.value="5";input.dispatchEvent(new Event("input",{bubbles:true}));
+  return {
+    supported:true,
+    visible:document.querySelectorAll("#categoryTableBody tr:not([hidden])").length,
+    total:document.querySelectorAll("#categoryTableBody tr").length,
+    title:document.getElementById("categoryTopTitle")?.textContent.trim()
+  };
+})()`);
+
+const guildTopN = await evaluate(`(() => {
+  const input=document.getElementById("guildTopLimit");
+  if(!input)return {supported:false,visible:0,total:0,title:""};
+  input.value="5";input.dispatchEvent(new Event("input",{bubbles:true}));
+  return {
+    supported:true,
+    visible:document.querySelectorAll("#guildTableBody tr:not([hidden])").length,
+    total:document.querySelectorAll("#guildTableBody tr").length,
+    title:document.getElementById("guildTopTitle")?.textContent.trim()
   };
 })()`);
 
@@ -153,7 +186,9 @@ const checks = {
   drillDimensionsAvailable: initial.dimensionOptions.join(",") === "none,group,category" && initial.dimensionDisabled === true,
   defaultPlatformDaily: initial.scope === "platform" && initial.dimension === "none" && initial.granularity === "day" && initial.chartType === "line",
   explicitPeriodLabels: initial.periodLabels.every(label => label.endsWith("（日）")) && initial.headers.includes("最新完整周 DAU（7 日求和）"),
-  categoryTop10: initial.categoryTitle === "品类 Top10",
+  configurableCategoryTopN: categoryTopN.supported && initial.categoryTitle === "品类 Top10" && initial.visibleCategoryRows === 10 && initial.totalCategoryRows === 50 && categoryTopN.visible === 5 && categoryTopN.title === "品类 Top5",
+  configurableGuildTopN: guildTopN.supported && initial.guildTitle === "公会 Top20" && initial.visibleGuildRows === 20 && initial.totalGuildRows === 50 && guildTopN.visible === 5 && guildTopN.title === "公会 Top5",
+  guildSelfLevel: initial.guildHeaders.includes("级别") && initial.guildLevelCells === initial.totalGuildRows,
   anchorSelfLevel: initial.anchorHeaders.includes("级别") && initial.anchorLevelCells === initial.totalAnchorRows,
   guildLiveAnchors: initial.headers.includes("最新完整周 开播主播数（日均）") && initial.headers.includes("上一完整周 开播主播数（日均）"),
   tooltipVisible: tooltip.found && tooltip.visible && tooltip.text.length > 0,
@@ -167,6 +202,6 @@ const checks = {
   noRuntimeExceptions: exceptions.length === 0,
 };
 
-console.log(JSON.stringify({ status: Object.values(checks).every(Boolean) ? "passed" : "failed", checks, initial, tooltip, topN, bar, stackPlatform, stackTotal, drillClick, drilledGroup, monthly, exceptions }, null, 2));
+console.log(JSON.stringify({ status: Object.values(checks).every(Boolean) ? "passed" : "failed", checks, initial, tooltip, topN, categoryTopN, guildTopN, bar, stackPlatform, stackTotal, drillClick, drilledGroup, monthly, exceptions }, null, 2));
 ws.close();
 if (!Object.values(checks).every(Boolean)) process.exitCode = 1;
