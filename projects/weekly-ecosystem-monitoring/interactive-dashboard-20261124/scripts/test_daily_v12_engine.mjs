@@ -27,3 +27,16 @@ console.log('V1.2 engine tests passed: rating gates, denominator closure, ratio 
 
 assert.equal(contributions([{currentParts:[100,10],baselineParts:[80,10]}],'arppu')[0].contributionKind,'结构比率差');
 assert.equal(contributions([{currentParts:[1,10],baselineParts:[2,10]}],'payRate')[0].contributionKind,'结构百分点');
+
+// Counterexample: one invalid day/path must invalidate the object, not disappear
+// from the denominator or be clipped into a plausible rate.
+const badRatio={...payload,categoryRows:payload.categoryRows.map(r=>{const x=[...r];if(r[1]===0&&dates[r[0]]==='2026-11-24'){x[2]=98;x[4]=4751}return x})};
+const invalid=createEngine(badRatio).ranking('category','payRate').rows.find(r=>r.id===0);
+assert.equal(invalid.current,null);assert.equal(invalid.delta,null);assert.equal(invalid.contribution,null);assert.ok(invalid.currentReason.includes('分子分母'));
+assert.equal(invalid.robustZ,null);assert.ok(invalid.scoreReason.includes('校准'));
+const mixed=createEngine(badRatio).aggregate('category','payRate','2026-11-23','2026-11-24').rows.find(r=>r.id===0);
+assert.equal(mixed.value,null);assert.equal(mixed.complete,false);
+const badBaseline={...payload,categoryRows:payload.categoryRows.map(r=>{const x=[...r];if(r[1]===0&&dates[r[0]]==='2026-11-17'){x[2]=98;x[4]=4751}return x})};
+const invalidBase=createEngine(badBaseline).ranking('category','payRate').rows.find(r=>r.id===0);
+assert.equal(invalidBase.baseline,null);assert.ok(invalidBase.baselineReason.includes('分子分母'));
+console.log('Invalid pay-rate source rows and mixed valid/invalid windows are blocked with reasons');

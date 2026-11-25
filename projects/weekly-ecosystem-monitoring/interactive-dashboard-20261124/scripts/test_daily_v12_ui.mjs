@@ -70,3 +70,38 @@ const pendingSupply=api.engine.ranking('guild','liveAnchors',{start:'2026-11-16'
 assert.ok(pendingSupply.every(r=>r.severity==='待判断'&&r.robustZ===null));
 
 console.log(JSON.stringify({status:'passed',kind:'DOM emulator; visual acceptance not executed',cards:4,anchors:api.data.anchors.length,categoryCandidates:category.length,tests:'default render, independent filters, denominator stability, metric switch, process diagnostics, full-index search, anchor chart, indexed comparison, layout persistence/reset, invalid dates',errors},null,2));
+// Process explanations must use the result object's own scope and exact comparison.
+api.state.paths=[];api.state.comparison='weekday';api.state.start=api.data.reportDate;api.state.end=api.data.reportDate;
+const diagnosticRows=api.summaryCandidates().slice(0,5);
+for(const row of diagnosticRows){const d=api.processExplanation(row);assert.ok(d.conclusion);for(const e of d.evidence){assert.equal(e.scope,row.scope);assert.equal(e.period,row.period);assert.equal(e.comparisonPeriod,row.comparisonPeriod);assert.ok(Number.isFinite(e.current)&&Number.isFinite(e.baseline));}assert.ok(d.boundary.includes('因果'));}
+api.renderSummary();assert.ok($('summaryCards').querySelector('.finding-values'));assert.ok(!$('summaryCards').textContent.includes('已核对开播主播数'));
+console.log('Matched-context process explanation checks passed');
+
+// The object pane exposes process contributions and a freely selected child layer.
+api.state.paths=[];api.state.comparison='weekday';api.setMetric('dau');
+const slot=w.document.querySelector('[data-table="category"]');
+const result=api.engine.ranking('category','dau',api.opts('category')).rows.find(r=>r.current!=null&&r.baseline!=null);
+api.objectAction(result,'category',slot);
+assert.ok(slot.querySelector('.process-evidence'));
+assert.ok(slot.querySelector('.process-evidence').textContent.includes('贡献'));
+assert.ok(slot.querySelector('.process-evidence').textContent.includes('异常分'));
+const child=slot.querySelector('[data-child-dimension]');
+assert.ok([...child.options].some(o=>o.value==='guild'));
+child.value='guild';child.onchange();
+assert.ok(slot.querySelector('[data-child-period]').textContent.includes('2026-11-16'));
+assert.ok(slot.querySelector('[data-child-table]').textContent.includes('贡献'));
+assert.ok(slot.querySelector('[data-child-table]').textContent.includes('异常分'));
+$('advanced').open=true;api.renderTrend();
+assert.ok($('canvasObjectOptions').querySelectorAll('[data-canvas-select]').length<=6);
+// Source mismatch from the user's screenshot is not rendered as a legitimate rate.
+api.filterState.anchor={levels:[],min:null,max:null,strength:null,direction:'all',query:''};
+api.setMetric('payRate');
+const idx=api.data.anchors.findIndex(a=>String(a.id)==='2374381262');
+const bad=api.engine.ranking('anchor','payRate',api.opts('anchor')).rows.find(r=>r.id===idx);
+assert.equal(bad.current,null);assert.ok(bad.currentReason.includes('分子分母'));
+const anchorSlot=w.document.querySelector('[data-table="anchor"]');
+anchorSlot.querySelector('[data-search]').value='2374381262';anchorSlot.querySelector('[data-search]').dispatchEvent(new w.Event('input'));
+assert.ok(anchorSlot.querySelector('[data-result]').textContent.includes('口径异常'));
+assert.ok(!anchorSlot.querySelector('[data-result]').textContent.includes('4848.0%'));
+assert.equal(errors.length,0);
+console.log('Object process table, child guild drilldown, compact picker and real pay-rate counterexample passed');
