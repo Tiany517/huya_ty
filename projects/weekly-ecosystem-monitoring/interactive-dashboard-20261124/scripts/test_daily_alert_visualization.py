@@ -39,6 +39,13 @@ def sample_data() -> dict:
                 {"id": "2", "name": "王者荣耀", "group": 0},
                 {"id": "3", "name": "星秀", "group": 1},
             ],
+            "anchors": [
+                {"id": "10001", "name": "测试主播甲", "roomid": "20001"},
+            ],
+            "anchorDailyColumns": [
+                "date", "anchor", "dau", "revenue", "payUsers", "viewMinutes",
+                "attributionUsers", "interactionCount", "interactionUsers", "isLive",
+            ],
         },
         "categoryDaily": [
             ["2026-11-17", 0, 0, 100, 0, 0, 0, 0, 0, 1, 1, 1],
@@ -50,6 +57,10 @@ def sample_data() -> dict:
             ["2026-11-24", 0, 0, 150, 0, 0, 0, 0, 0, 1, 1, 1],
             ["2026-11-24", 1, 0, 80, 0, 0, 0, 0, 0, 1, 1, 1],
             ["2026-11-24", 2, 1, 40, 0, 0, 0, 0, 0, 1, 1, 1],
+        ],
+        "anchorDaily": [
+            ["2026-11-17", 0, 30, 0, 0, 0, 0, 0, 0, 1],
+            ["2026-11-18", 0, 35, 0, 0, 0, 0, 0, 0, 1],
         ],
     }
 
@@ -72,6 +83,46 @@ class VisualizationPayloadTest(unittest.TestCase):
         self.assertEqual(payload["categories"][0]["name"], "英雄联盟")
         self.assertEqual(payload["platform"], [["2026-11-23", 5_600_000], ["2026-11-24", 5_700_000]])
         self.assertEqual(payload["rows"][0][-1], 100)
+
+    def test_payload_includes_anchor_comparison_data_and_available_range(self):
+        payload = MODULE.build_visualization_payload(
+            sample_data(),
+            {"2026-11-23": 5_600_000, "2026-11-24": 5_700_000},
+            date(2026, 11, 24),
+            anchor_rank_rows=[{"_key": (0, 0, 0)}],
+        )
+        self.assertEqual(payload["anchorOptions"][0]["name"], "测试主播甲")
+        self.assertEqual(payload["anchorDates"], ["2026-11-17", "2026-11-18"])
+        self.assertEqual(payload["anchorRows"], [[0, 0, 30], [1, 0, 35]])
+        self.assertEqual(payload["anchorAvailableStart"], "2026-11-17")
+
+    def test_category_contribution_uses_gross_delta_and_stays_bounded(self):
+        dimensions = {
+            "categories": sample_data()["meta"]["categories"],
+            "groups": sample_data()["meta"]["contentGroups"],
+        }
+        by_category = {
+            "2026-11-23": {
+                0: {"dau": 100},
+                1: {"dau": 100},
+                2: {"dau": 100},
+            },
+            "2026-11-16": {
+                0: {"dau": 90},
+                1: {"dau": 110},
+                2: {"dau": 100},
+            },
+        }
+        rows = MODULE.rank_daily_categories(
+            date(2026, 11, 23),
+            [date(2026, 11, 16)],
+            by_category,
+            dimensions,
+            3,
+        )
+        shares = [row["contributionShare"] for row in rows]
+        self.assertAlmostEqual(sum(abs(value) for value in shares), 1.0)
+        self.assertTrue(all(-1 <= value <= 1 for value in shares))
 
     def test_anchor_level_uses_its_own_four_week_history(self):
         row = {"_key": (0, 0, 0), "currentDau": 20_000}
@@ -203,10 +254,16 @@ class VisualizationRenderTest(unittest.TestCase):
         self.assertIn('id="visualizationDimension"', html_text)
         self.assertIn('id="visualizationDrillValue"', html_text)
         self.assertIn('id="visualizationTooltip"', html_text)
+        self.assertIn('id="visualizationObjectSearch"', html_text)
+        self.assertIn('id="visualizationStartDate"', html_text)
+        self.assertIn('id="visualizationEndDate"', html_text)
+        self.assertIn('<option value="custom">自定义时间段</option>', html_text)
+        self.assertIn('<option value="anchor">主播（异动 Top50）</option>', html_text)
         self.assertIn('data-chart-type="line"', html_text)
         self.assertIn('data-chart-type="bar"', html_text)
         self.assertIn('data-chart-type="stack"', html_text)
         self.assertIn("品类 Top10", html_text)
+        self.assertIn("贡献占比（绝对值口径）", html_text)
         self.assertIn('id="categoryTopLimit"', html_text)
         self.assertIn('id="categoryTable"', html_text)
         self.assertIn('id="guildTopLimit"', html_text)

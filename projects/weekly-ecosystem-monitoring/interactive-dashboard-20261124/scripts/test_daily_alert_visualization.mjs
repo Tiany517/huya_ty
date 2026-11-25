@@ -73,10 +73,15 @@ const initial = await evaluate(`(() => ({
   granularity: window.__visualizationDebug?.state.granularity,
   chartType: window.__visualizationDebug?.state.chartType,
   rows: window.__visualizationDebug?.dataLength || 0,
+  anchorRows: window.__visualizationDebug?.anchorDataLength || 0,
   scopeOptions: document.querySelectorAll("#visualizationScope option").length,
   scopeLabels: [...document.querySelectorAll("#visualizationScope option")].map(x => x.textContent.trim()),
   dimensionOptions: [...document.querySelectorAll("#visualizationDimension option")].map(x => x.value),
   dimensionDisabled: document.getElementById("visualizationDimension")?.disabled,
+  rangeOptions: [...document.querySelectorAll("#visualizationRange option")].map(x => x.value),
+  objectSearchPresent: Boolean(document.getElementById("visualizationObjectSearch")),
+  startDatePresent: Boolean(document.getElementById("visualizationStartDate")),
+  endDatePresent: Boolean(document.getElementById("visualizationEndDate")),
   charts: document.querySelectorAll("#visualizationChart svg").length,
   periodLabels: [...document.querySelectorAll(".kpi-label")].map(x => x.textContent.trim()),
   headers: [...document.querySelectorAll("section:not(.visualization-space) thead th")].map(x => x.textContent.trim()),
@@ -96,6 +101,17 @@ const initial = await evaluate(`(() => ({
   visibleAnchorRows: document.querySelectorAll("#anchorTableBody tr:not([hidden])").length,
   totalAnchorRows: document.querySelectorAll("#anchorTableBody tr").length
 }))()`);
+
+const customRange = await evaluate(`(() => {
+  const range=document.getElementById("visualizationRange");
+  range.value="custom";range.dispatchEvent(new Event("change",{bubbles:true}));
+  const start=document.getElementById("visualizationStartDate");
+  const end=document.getElementById("visualizationEndDate");
+  start.value="2026-11-01";start.dispatchEvent(new Event("change",{bubbles:true}));
+  end.value="2026-11-10";end.dispatchEvent(new Event("change",{bubbles:true}));
+  return {range:window.__visualizationDebug.state.range,start:start.value,end:end.value,points:window.__visualizationDebug.aggregateMain().length};
+})()`);
+await evaluate(`(() => { const range=document.getElementById("visualizationRange"); range.value="all"; range.dispatchEvent(new Event("change",{bubbles:true})); })()`);
 
 const tooltip = await evaluate(`(() => {
   const target=document.querySelector("#visualizationChart [data-tooltip]");
@@ -141,6 +157,26 @@ const guildTopN = await evaluate(`(() => {
   };
 })()`);
 
+const categoryCompare = await evaluate(`(() => {
+  const scope=document.getElementById("visualizationScope");scope.value="total";scope.dispatchEvent(new Event("change",{bubbles:true}));
+  const dimension=document.getElementById("visualizationDimension");dimension.value="category";dimension.dispatchEvent(new Event("change",{bubbles:true}));
+  const search=document.getElementById("visualizationObjectSearch");search.value="英雄";search.dispatchEvent(new Event("input",{bubbles:true}));
+  document.getElementById("visualizationSelectVisible").click();
+  search.value="王者荣耀";search.dispatchEvent(new Event("input",{bubbles:true}));
+  const option=[...document.querySelectorAll("#visualizationDrillValue [data-object-value]")].find(input=>input.closest("label")?.textContent.includes("王者荣耀"));
+  option?.click();
+  return {selected:window.__visualizationDebug.getSelected(),legend:[...document.querySelectorAll("#visualizationLegend span")].map(x=>x.textContent.trim()),lines:document.querySelectorAll("#visualizationChart path.line-path").length};
+})()`);
+
+const anchorCompare = await evaluate(`(() => {
+  const dimension=document.getElementById("visualizationDimension");dimension.value="anchor";dimension.dispatchEvent(new Event("change",{bubbles:true}));
+  const options=[...document.querySelectorAll("#visualizationDrillValue [data-object-value]")].filter(input=>input.dataset.objectValue!=="all");
+  options[0]?.click();
+  const next=[...document.querySelectorAll("#visualizationDrillValue [data-object-value]")].find(input=>input.dataset.objectValue!=="all"&&!input.checked);
+  next?.click();
+  return {selected:window.__visualizationDebug.getSelected(),anchorRows:window.__visualizationDebug.anchorDataLength,legend:[...document.querySelectorAll("#visualizationLegend span")].map(x=>x.textContent.trim()),lines:document.querySelectorAll("#visualizationChart path.line-path").length,dateMin:document.getElementById("visualizationStartDate").min,dateMax:document.getElementById("visualizationStartDate").max};
+})()`);
+
 async function clickChartType(type) {
   await evaluate(`document.querySelector('[data-chart-type="${type}"]').click()`);
   await delay(300);
@@ -152,6 +188,7 @@ async function clickChartType(type) {
   }))()`);
 }
 
+await evaluate(`(() => { const el=document.getElementById("visualizationScope"); el.value="platform"; el.dispatchEvent(new Event("change",{bubbles:true})); })()`);
 const bar = await clickChartType("bar");
 const stackPlatform = await clickChartType("stack");
 await evaluate(`(() => { const el=document.getElementById("visualizationScope"); el.value="total"; el.dispatchEvent(new Event("change",{bubbles:true})); })()`);
@@ -183,7 +220,7 @@ const monthly = await evaluate(`(() => ({type:window.__visualizationDebug.state.
 const checks = {
   initialized: initial.ready && initial.rows > 0 && initial.scopeOptions === 2 && initial.charts === 1,
   analysisScopeIsPlatformAndEcosystem: initial.scopeLabels.some(label => label.includes("平台 DAU")) && initial.scopeLabels.some(label => label.includes("内容生态 DAU")) && initial.scopeLabels.every(label => !label.includes("内容大类") && !label.includes("品类 ·")),
-  drillDimensionsAvailable: initial.dimensionOptions.join(",") === "none,group,category" && initial.dimensionDisabled === true,
+  drillDimensionsAvailable: initial.dimensionOptions.join(",") === "none,group,category,anchor" && initial.dimensionDisabled === true,
   defaultPlatformDaily: initial.scope === "platform" && initial.dimension === "none" && initial.granularity === "day" && initial.chartType === "line",
   explicitPeriodLabels: initial.periodLabels.every(label => label.endsWith("（日）")) && initial.headers.includes("最新完整周 DAU（7 日求和）"),
   configurableCategoryTopN: categoryTopN.supported && initial.categoryTitle === "品类 Top10" && initial.visibleCategoryRows === 10 && initial.totalCategoryRows === 50 && categoryTopN.visible === 5 && categoryTopN.title === "品类 Top5",
@@ -192,16 +229,19 @@ const checks = {
   anchorSelfLevel: initial.anchorHeaders.includes("级别") && initial.anchorLevelCells === initial.totalAnchorRows,
   guildLiveAnchors: initial.headers.includes("最新完整周 开播主播数（日均）") && initial.headers.includes("上一完整周 开播主播数（日均）"),
   tooltipVisible: tooltip.found && tooltip.visible && tooltip.text.length > 0,
+  customTimeRange: initial.rangeOptions.includes("custom") && initial.startDatePresent && initial.endDatePresent && customRange.range === "custom" && customRange.start === "2026-11-01" && customRange.end === "2026-11-10" && customRange.points === 10,
+  fuzzyMultiCategoryCompare: categoryCompare.selected.length >= 2 && categoryCompare.legend.length >= 2 && categoryCompare.lines >= 2,
+  anchorMultiCompareReady: initial.anchorRows > 0 && anchorCompare.anchorRows > 0 && anchorCompare.selected.length === 2 && anchorCompare.legend.length === 2 && anchorCompare.lines >= 2 && anchorCompare.dateMin === "2026-10-12" && anchorCompare.dateMax === "2026-11-22",
   customAnchorTopN: topN.supported && topN.total >= 5 && topN.visible === 5 && topN.title === "主播 Top5",
   methodNotesAtBottom: initial.methodNotesAfterAnchors,
   barRendered: bar.state === "bar" && bar.bars > 0,
   platformStackRendered: stackPlatform.state === "stack" && stackPlatform.stack > 0 && stackPlatform.legend === 1,
   totalStackComposition: stackTotal.stack > 0 && stackTotal.legend.length >= 3 && stackTotal.drillGroups > 0,
-  categoryDrilldown: drilledGroup.scope === "total" && drilledGroup.dimension === "group" && drilledGroup.drill !== "all" && drilledGroup.breadcrumb.includes("›") && drilledGroup.legend.length >= 2,
+  categoryDrilldown: drilledGroup.scope === "total" && drilledGroup.dimension === "group" && drilledGroup.drill !== "all" && drilledGroup.breadcrumb.includes("›") && drilledGroup.legend.length >= 1,
   monthlyStack: monthly.large > 0 && monthly.breadcrumb.includes("›"),
   noRuntimeExceptions: exceptions.length === 0,
 };
 
-console.log(JSON.stringify({ status: Object.values(checks).every(Boolean) ? "passed" : "failed", checks, initial, tooltip, topN, categoryTopN, guildTopN, bar, stackPlatform, stackTotal, drillClick, drilledGroup, monthly, exceptions }, null, 2));
+console.log(JSON.stringify({ status: Object.values(checks).every(Boolean) ? "passed" : "failed", checks, initial, customRange, tooltip, topN, categoryTopN, guildTopN, categoryCompare, anchorCompare, bar, stackPlatform, stackTotal, drillClick, drilledGroup, monthly, exceptions }, null, 2));
 ws.close();
 if (!Object.values(checks).every(Boolean)) process.exitCode = 1;

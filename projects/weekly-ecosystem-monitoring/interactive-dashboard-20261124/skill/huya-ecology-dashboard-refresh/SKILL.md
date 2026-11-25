@@ -272,7 +272,7 @@ python scripts/verify_dashboard_package.py `
 - `platformDauAvailable`：官方平台 DAU 在日报日期和基线日期均有值。
 - `weeklyComparisonAvailable`：至少有当前和上一个完整自然周。
 - `sourceValidationPassed`：输入的主看板 `validation_report` 为 `passed` 且全部检查为 `true`。
-- `topTablesPopulated`、`visualizationDataAvailable`、`htmlContainsCoreSections`、`allNumbersFinite`。零基线变化率必须返回空值，不得写入 Infinity。
+- `topTablesPopulated`、`visualizationDataAvailable`、`categoryContributionBounded`、`anchorVisualizationAvailable`、`htmlContainsCoreSections`、`allNumbersFinite`。零基线变化率必须返回空值，不得写入 Infinity。
 - 启用浏览器检查时 `browserSmokePassed=true`。
 
 平台 DAU 下降且开播主播数显著下降时才提示供给问题；开播主播数轻微波动不得生成“供给减少”的强结论。品类、公会、主播贡献率必须保留正负方向，贡献分母使用变化绝对值，不能因根节点为负而把跌幅显示成正贡献。
@@ -316,12 +316,13 @@ node scripts/smoke_test_dashboard.mjs `
 7. “开播主播数”可按时间切换，且首屏 KPI、趋势和单层/复层表都能显示。
 8. 赛事状态为 `pending` 时赛事筛选被禁用或明确提示；不能静默显示 0。
 9. 主看板和日报均使用浅色液态玻璃视觉，正文与表格对比度足够；不得只在局部页面应用。
-10. 两个自由分析画布默认展示大盘 DAU 趋势，可切换日/周/月/季度，支持折线、柱状和 100% 堆积；内容生态堆积可从内容大类下钻到品类。悬停应显示时间桶和具体数值 Tooltip。
+10. 两个自由分析画布默认展示大盘 DAU 趋势，可切换日/周/月/季度，支持折线、柱状和 100% 堆积；日报支持模糊搜索并同时选择最多 8 个内容大类、品类或异动 Top50 主播进行对比，也可用预设天数或自定义开始/结束日期限定时间范围。悬停应显示时间桶和具体数值 Tooltip。
 11. 日报所有周期标签必须写清“日/周/月”等口径，例如“平台 DAU（日）”和“最新完整周 DAU（7 日求和）”。
 12. 移动端无关键控件遮挡、页面级横向溢出或无法展开；表格自身可以横向滚动。
 13. 日报分析范围只能包含平台 DAU 和内容生态 DAU；内容大类、品类位于下钻维度。品类、公会、主播榜默认分别为 Top10、Top20、Top10，均支持 1–50 自定义；公会榜主指标为开播主播数日均，层级阈值和灰色口径说明位于页面下方。
 14. 主播榜必须显示“级别”列，并按每一行主播路径自身前 4 个完整周 DAU 的中位数、MAD 和异常分判定；缺周不得补 0，历史不足 4 周时按低把握降级。
 15. 公会榜必须显示“级别”列，并按公会自身前 4 个完整周开播主播数日均的中位数、MAD 和异常分判定；跨品类必须先按公会+主播去重，再使用去重后的 `live_days / 7`。缺周不得补 0，历史不足 4 周时按低把握降级。
+16. 日报自定义日期必须限制在当前数据实际可用区间；主播维度应使用主播日表覆盖区间，不得把未覆盖日期补 0。品类表上线前必须检查所有 `contributionShare` 落在 -100% 至 100%，且绝对值之和接近 100%。
 
 开发模板或画布交互时可运行以下回归检查：
 
@@ -401,6 +402,7 @@ node scripts/test_daily_alert_visualization.mjs '<daily_alert_report.html>'
 - 负向拖累按变化值升序；正向拉动按变化值降序；综合贡献按绝对值降序。
 - 每层 Top N 必须根据当前对比期、当前指标和当前筛选范围动态计算，不得在源码中固定名单。
 - 日报品类、公会、主播榜默认分别为 Top10、Top20、Top10，均支持 1–50；先保留最多 50 行候选，再由前端按用户输入截断。
+- 日报品类贡献占比 = 品类 DAU 日均变化 / 全部品类 DAU 日均变化绝对值之和。分母不使用可能接近零的大盘净变化，避免贡献率被放大到数千百分比。
 
 ### 内容大类
 
