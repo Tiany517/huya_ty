@@ -34,7 +34,7 @@ V1.2独立构建，不自动覆盖旧日报。迁移时复制 `scripts/build_dai
 
 1. 复用前述核心CSV/JSON及独立复算流程，确认实际分区、端范围、唯一键和日期。补充数据未返回不补零，失败查询保留但不作为输入。
 2. 赛事剔除视图先执行 `sql/templates/赛事品类登记日.sql` 和 `sql/templates/赛事单周期统计.sql`。前者输出 `dt,gameid,match_id,match_name`，校验 `dt × gameid × match_id` 唯一；后者至少输出 `gameid,match_id,match_name,observed_days,mean_event_dau`。未覆盖版权记录的品类标“赛事覆盖未知”，不得当非赛事。
-3. 用 `python scripts/build_major_event_days.py --event-days <登记日CSV> --event-cycles <单赛事统计CSV> --output-dir <新赛事目录>` 筛选大赛事。规则按单赛事周期日均 DAU 执行：剔除低于品类最大赛事日均5%的赛事；赛事数不少于4时叠加 log 日均 Tukey 下限。必须回归 CF：保留 `2026CFS中国区预选赛` 和 `2026穿越火线百城联赛秋季嘉年华`，剔除 `2026CF百城`。
+3. 用 `python scripts/build_major_event_days.py --event-days <登记日CSV> --event-cycles <单赛事统计CSV> --official-events <官方排期补充CSV> --output-dir <新赛事目录>` 筛选大赛事。规则按单赛事周期日均 DAU 执行：剔除低于品类最大赛事日均5%的赛事；赛事数不少于4时叠加 log 日均 Tukey 下限。版权表未覆盖但虎牙站内赛事页或官方赛程已明确展示的大赛，必须写入官方排期补充 CSV（含 `gameid,match_id,match_name,start_day,end_day,source,source_url,note`），在 manifest 中标 `selectionSource=official_schedule`，不得静默漏掉，也不得把未登记赛事反推为不存在。必须回归 CF：保留 `2026CFS中国区预选赛` 和 `2026穿越火线百城联赛秋季嘉年华`，剔除 `2026CF百城`；2026-11-24—12-06 CFS 世界总决赛必须能从官方排期补充进入赛事窗口。当前完整周早于或正处赛事窗口时，页面显示“赛前观察”或“赛事进行中”，不得仍然只显示“高”。
 4. 用 `python scripts/build_daily_v12.py --data <不可变JSON> --platform <含鸿蒙官方平台CSV> --supplement <补充查询目录> --event-days <major_event_days.csv> --event-meta <major_event_manifest.json> --output <新目录>` 构建。`--event-top` 仅保留废弃兼容，不得用于新运行。新电脑自行取数；原始数据和内嵌HTML不要求进GitHub。
 5. 先运行 `node scripts/test_anomaly_filters.mjs`、`node scripts/test_daily_v12_engine.mjs`、`python -m unittest scripts.test_major_event_days -v`；设置 `V12_TEST_RUNTIME` 为装有jsdom的外部测试目录，再运行 `node scripts/test_daily_v12_ui.mjs <HTML>`。DOM测试不等于浏览器视觉通过。
 6. 用 `python scripts/reconcile_daily_v12.py --data <原始JSON> --html <HTML> --output <对账JSON>` 独立读取原始列，逐行核对6项品类指标及周日原记录；再运行 `node scripts/reconcile_daily_v12_engine.mjs <HTML> <对账JSON>`，核对独立 Python 周聚合以及主播/公会微观事件剔除结果与 JS 引擎。当前基线应至少通过56项周聚合和30项微观路径对账；新增周期须重新计算预期数量，不得只沿用计数。关键UV必须精确一致、金额误差≤0.01元。此步不能代替源表独立查询。
@@ -45,7 +45,7 @@ V1.2独立构建，不自动覆盖旧日报。迁移时复制 `scripts/build_dai
 
 准确性门槛：缺失不补零；比率分子分母共同有效行且同端/用户语义；百分率差异用百分点、ARPPU等用原单位；多日流水拆解用观看用户日总量而非DAU日均，Shapley闭合误差≤0.01元；搜索、TopN、等级过滤不改变完整父级贡献分母；层级固定参考周名单，新增退出与升降层分开并明示固定周期。公会周最大开播天数不等于主播日并集，未复算不作正式供给评级。
 
-互动率语义失败时封锁正式比率及评级；四端拉新回流不含鸿蒙明确备注。赛事剔除当前指“按单赛事周期日均 DAU 识别大赛事、剔除品类内异常低赛事后，仅移除入选赛事的版权登记日”，不是完整官方赛事窗口；缺官方周期核验不声称已排除赛后效应。未覆盖赛事记录的品类显示待判断，不得推断为非赛事。公会、主播层级和主播只有周聚合时，不生成日级赛事剔除评级。试行混合评级没有低分支，不能把正常改低；保留带方向分，优先级独立。异常分候选必须历史回测、案例核验且用户确认后才切换，不将报警率称准确率。
+互动率语义失败时封锁正式比率及评级；四端拉新回流不含鸿蒙明确备注。赛事剔除当前指“按单赛事周期日均 DAU 识别大赛事、剔除品类内异常低赛事后，移除入选版权登记日，并补充经官方页面核验的排期窗口”；补充排期也必须保留来源，不能把未列赛事反推为不存在。官方排期只用于窗口提示和已核验剔除，不能单独证明赛后效应或赛事净因果。未覆盖赛事记录的品类显示待判断，不得推断为非赛事。公会、主播层级和主播只有周聚合时，不生成日级赛事剔除评级。试行混合评级没有低分支，不能把正常改低；保留带方向分，优先级独立。异常分候选必须历史回测、案例核验且用户确认后才切换，不将报警率称准确率。
 
 English: Build V1.2 into a new directory. Independent export-to-UI and warehouse reconciliation are separate gates. DOM success is not browser acceptance. Preserve pending metrics and trial ratings; never silently fill missing data or publish score-only grades.
 

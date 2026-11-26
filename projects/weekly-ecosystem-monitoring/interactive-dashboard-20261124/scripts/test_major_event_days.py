@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_daily_v12 import load_major_event_days
-from build_major_event_days import classify_cycles, load_event_days
+from build_major_event_days import classify_cycles, load_event_days, load_official_events, merge_official_events
 
 
 class MajorEventSelectionTest(unittest.TestCase):
@@ -61,6 +61,34 @@ class MajorEventSelectionTest(unittest.TestCase):
         self.assertEqual({row["gameid"] for row in rows}, {"4", "5937"})
         self.assertEqual(stats["rawEventDayRows"], 4)
         self.assertEqual(stats["selectedEventDayRows"], 2)
+
+    def test_verified_official_schedule_supplements_copyright_gap(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "official.csv"
+            with path.open("w", encoding="utf-8-sig", newline="") as handle:
+                writer = csv.DictWriter(
+                    handle,
+                    fieldnames=["gameid", "match_id", "match_name", "start_day", "end_day", "source", "source_url", "note"],
+                )
+                writer.writeheader()
+                writer.writerow({
+                    "gameid": "4",
+                    "match_id": "official-cfs-world-finals-2026",
+                    "match_name": "2026CFS世界总决赛",
+                    "start_day": "2026-11-24",
+                    "end_day": "2026-11-26",
+                    "source": "虎牙站内赛事页",
+                    "source_url": "",
+                    "note": "版权表未覆盖",
+                })
+            official = load_official_events(path)
+            cycles = classify_cycles([self.cycle("4", "9029612", "百城联赛秋季嘉年华", 7, 56568)])
+            cycles, days, stats = merge_official_events(cycles, [], official)
+        self.assertEqual(stats["officialEventDayRows"], 3)
+        self.assertEqual([row["dt"] for row in days], ["2026-11-24", "2026-11-25", "2026-11-26"])
+        official_cycle = next(row for row in cycles if row["match_id"] == "official-cfs-world-finals-2026")
+        self.assertEqual(official_cycle["status"], "selected_official")
+        self.assertEqual(official_cycle["selection_source"], "official_schedule")
 
     def test_builder_preserves_major_event_provenance(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

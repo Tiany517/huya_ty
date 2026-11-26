@@ -13,6 +13,7 @@ import json
 import math
 import statistics
 from collections import defaultdict
+from datetime import date, timedelta
 from pathlib import Path
 
 
@@ -162,6 +163,94 @@ def load_event_days(path: Path, cycles: list[dict]) -> tuple[list[dict], dict]:
     }
 
 
+def load_official_events(path: Path) -> list[dict]:
+    """Load explicitly verified official schedules missing from copyright data.
+
+    These rows are a controlled supplement, not a replacement for the copyright
+    table. Each row must carry a source and is kept visible in the manifest.
+    """
+    rows = read_csv(path)
+    required = {"gameid", "match_id", "match_name", "start_day", "end_day", "source"}
+    if rows and (missing := required - set(rows[0])):
+        raise ValueError(f"official-event source missing columns: {sorted(missing)}")
+    output: list[dict] = []
+    for row in rows:
+        gameid = normalize_gameid(row["gameid"])
+        match_id = str(row["match_id"]).strip()
+        match_name = str(row["match_name"]).strip()
+        source = str(row["source"]).strip()
+        if not all((gameid, match_id, match_name, source)):
+            raise ValueError("official-event rows require gameid, match_id, match_name and source")
+        start = date.fromisoformat(str(row["start_day"]).strip())
+        end = date.fromisoformat(str(row["end_day"]).strip())
+        if end < start:
+            raise ValueError(f"official-event end precedes start: {gameid}/{match_id}")
+        output.append({
+            **row,
+            "gameid": gameid,
+            "match_id": match_id,
+            "match_name": match_name,
+            "start_day": start.isoformat(),
+            "end_day": end.isoformat(),
+            "source": source,
+            "source_url": str(row.get("source_url", "")).strip(),
+            "note": str(row.get("note", "")).strip(),
+        })
+    return output
+
+
+def merge_official_events(cycles: list[dict], days: list[dict], official_events: list[dict]) -> tuple[list[dict], list[dict], dict]:
+    """Merge verified official schedules so copyright-table gaps stay visible."""
+    if not official_events:
+        return cycles, days, {"officialEventRows": 0, "officialEventDayRows": 0}
+    category_defaults = {row["gameid"]: row for row in cycles}
+    merged_cycles = [dict(row) for row in cycles]
+    merged_days = [dict(row) for row in days]
+    seen_days = {(row["dt"], row["gameid"], row["match_id"]) for row in merged_days}
+    official_day_rows = 0
+    for event in official_events:
+        defaults = category_defaults.get(event["gameid"])
+        if defaults is None:
+            raise ValueError(f"official event category has no copyright baseline: {event['gameid']}")
+        start = date.fromisoformat(event["start_day"])
+        end = date.fromisoformat(event["end_day"])
+        observed_days = (end - start).days + 1
+        merged_cycles.append({
+            **defaults,
+            "match_id": event["match_id"],
+            "match_name": event["match_name"],
+            "mapped_start": event["start_day"],
+            "mapped_end": event["end_day"],
+            "observed_days": observed_days,
+            "mean_event_dau": 0.0,
+            "status": "selected_official",
+            "reason": "官方排期补充：版权表未覆盖，经人工核验后纳入",
+            "selection_source": "official_schedule",
+            "source": event["source"],
+            "source_url": event["source_url"],
+            "note": event["note"],
+        })
+        for offset in range(observed_days):
+            dt = (start + timedelta(days=offset)).isoformat()
+            key = (dt, event["gameid"], event["match_id"])
+            if key in seen_days:
+                continue
+            seen_days.add(key)
+            merged_days.append({
+                "dt": dt,
+                "gameid": event["gameid"],
+                "match_id": event["match_id"],
+                "match_name": event["match_name"],
+                "selection_source": "official_schedule",
+            })
+            official_day_rows += 1
+    merged_days.sort(key=lambda row: (row["dt"], row["gameid"], row["match_id"]))
+    return merged_cycles, merged_days, {
+        "officialEventRows": len(official_events),
+        "officialEventDayRows": official_day_rows,
+    }
+
+
 def build_metadata(cycles: list[dict], days: list[dict], source_stats: dict, materiality_ratio: float) -> dict:
     selected_days: dict[str, set[str]] = defaultdict(set)
     for row in days:
@@ -188,7 +277,16 @@ def build_metadata(cycles: list[dict], days: list[dict], source_stats: dict, mat
             "observedDays": row["observed_days"],
             "meanEventDau": row["mean_event_dau"],
         }
-        if row["status"] == "selected":
+        if row["status"] in {"selected", "selected_official"}:
+            if row["status"] == "selected_official":
+                event.update({
+                    "selectionSource": "official_schedule",
+                    "source": row.get("source", ""),
+                    "sourceUrl": row.get("source_url", ""),
+                    "note": row.get("note", ""),
+                    "observedDays": (date.fromisoformat(row["mapped_end"]) - date.fromisoformat(row["mapped_start"])).days + 1,
+                    "meanEventDau": None,
+                })
             category["selectedEvents"].append(event)
         elif row["status"] == "excluded_low_scale":
             category["excludedLowEvents"].append(event)
@@ -204,7 +302,7 @@ def build_metadata(cycles: list[dict], days: list[dict], source_stats: dict, mat
         "categories": categories,
         "counts": {
             "categoriesWithCycles": len(categories),
-            "selectedEvents": sum(1 for row in cycles if row["status"] == "selected"),
+            "selectedEvents": sum(1 for row in cycles if row["status"] in {"selected", "selected_official"}),
             "excludedLowEvents": sum(1 for row in cycles if row["status"] == "excluded_low_scale"),
             "excludedUnobservedEvents": sum(1 for row in cycles if row["status"] == "excluded_unobserved"),
             "selectedDays": len(days),
@@ -223,30 +321,40 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(event_days: Path, event_cycles: Path, output_dir: Path, materiality_ratio: float = 0.05) -> dict:
+def run(
+    event_days: Path,
+    event_cycles: Path,
+    output_dir: Path,
+    materiality_ratio: float = 0.05,
+    official_events: Path | None = None,
+) -> dict:
     if output_dir.exists() and any(output_dir.iterdir()):
         raise ValueError(f"output directory must be new or empty: {output_dir}")
     output_dir.mkdir(parents=True, exist_ok=True)
-    cycles = classify_cycles(load_cycles(event_cycles), materiality_ratio)
-    days, day_stats = load_event_days(event_days, cycles)
+    classified_cycles = classify_cycles(load_cycles(event_cycles), materiality_ratio)
+    days, day_stats = load_event_days(event_days, classified_cycles)
+    official = load_official_events(official_events) if official_events else []
+    cycles, days, official_stats = merge_official_events(classified_cycles, days, official)
     metadata = build_metadata(
         cycles,
         days,
         {
             "eventDays": {"path": str(event_days), "sha256": sha256(event_days)},
             "eventCycles": {"path": str(event_cycles), "sha256": sha256(event_cycles)},
+            "officialEvents": ({"path": str(official_events), "sha256": sha256(official_events)} if official_events else None),
             **day_stats,
+            **official_stats,
         },
         materiality_ratio,
     )
-    write_csv(output_dir / "major_event_days.csv", days, ["dt", "gameid", "match_id", "match_name"])
+    write_csv(output_dir / "major_event_days.csv", days, ["dt", "gameid", "match_id", "match_name", "selection_source"])
     write_csv(
         output_dir / "major_event_cycles.csv",
         cycles,
         [
             "gameid", "match_id", "match_name", "mapped_start", "mapped_end", "observed_days",
             "mean_event_dau", "category_max_mean_event_dau", "materiality_floor",
-            "tukey_lower_fence", "selection_threshold", "status", "reason",
+            "tukey_lower_fence", "selection_threshold", "status", "reason", "selection_source", "source", "source_url", "note",
         ],
     )
     (output_dir / "major_event_manifest.json").write_text(
@@ -261,8 +369,9 @@ def main() -> None:
     parser.add_argument("--event-cycles", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--materiality-ratio", type=float, default=0.05)
+    parser.add_argument("--official-events", type=Path)
     args = parser.parse_args()
-    print(json.dumps(run(args.event_days, args.event_cycles, args.output_dir, args.materiality_ratio), ensure_ascii=False))
+    print(json.dumps(run(args.event_days, args.event_cycles, args.output_dir, args.materiality_ratio, args.official_events), ensure_ascii=False))
 
 
 if __name__ == "__main__":

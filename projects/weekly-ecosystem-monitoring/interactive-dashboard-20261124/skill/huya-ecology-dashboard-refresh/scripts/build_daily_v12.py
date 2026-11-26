@@ -43,7 +43,7 @@ def build_payload(data,platform,supplement,report_day,event_days_path=None,event
     event_days,event_meta=(load_major_event_days(event_days_path,event_meta_path) if event_days_path else (registered,{k:{'eventDayCount':len(v),'selectedDayCount':len(v),'rule':'未提供大赛事日源，回退全部登记日','snapshot':None} for k,v in registered.items()}))
     if event_days_path:
         evidence['eventSource']=str(event_days_path)
-        evidence['eventRule']='按单赛事周期识别；剔除低于品类最大赛事日均5%的赛事；赛事数不少于4时叠加log日均Tukey下限；只剔除入选赛事的版权登记日'
+        evidence['eventRule']='按单赛事周期识别；剔除低于品类最大赛事日均5%的赛事；赛事数不少于4时叠加log日均Tukey下限；剔除入选版权登记日及经核验的官方排期补充窗口'
         evidence['eventMetaSource']=str(event_meta_path) if event_meta_path else None
     meta=data['meta'];date_values=sorted(by_category);date_index={d:i for i,d in enumerate(date_values)}
     fields=['dau','revenue','payUsers','attributionUsers','liveAnchors','interactionUsers','newUsers','returnUsers','newReturnUsers','interactionCount','viewMinutes']
@@ -79,7 +79,7 @@ def build_payload(data,platform,supplement,report_day,event_days_path=None,event
                '公会、层级、交叉维度只有完整周数据；日级主播记录不带日级公会路径，不能用最新公会替代历史日维度。',
                '公会开播主播数沿用周路径内同主播最大开播天数，跨品类换播可能低估，尚非精确主播日并集；供给结论待复算。',
                '拉新/回流来自上游四端归因，不含鸿蒙；不能除以含鸿蒙平台DAU作为转化率。',
-               '赛事剔除按单赛事周期的日均DAU识别大赛事，并剔除品类相对下限以下的异常低赛事；未覆盖赛事记录的品类不能等同于无赛事，赛事覆盖未知时评级待判断。',
+               '赛事剔除按单赛事周期的日均DAU识别大赛事，并剔除品类相对下限以下的异常低赛事；版权表未覆盖赛事需结合官方页面核验并以补充窗口显式标明来源；未覆盖赛事记录的品类不能等同于无赛事，赛事覆盖未知时评级待判断。',
                '旧混合评级未定义低等级，低对象计数为0。未正式校准；比率和新增过程指标等级待判断。']}
 
 def backtest(payload):
