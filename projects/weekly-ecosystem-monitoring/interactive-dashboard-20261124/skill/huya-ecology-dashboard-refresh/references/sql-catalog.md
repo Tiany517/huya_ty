@@ -26,11 +26,12 @@
 
 ## 待验证/待回刷
 
-### `sql/templates/赛事品类前10赛事日.sql`
+### `sql/templates/赛事品类登记日.sql` 与 `sql/templates/赛事单周期统计.sql`
 
-- 用途：V1.2 赛事剔除视图，按品类赛事关联 DAU 降序选取前 10% 日期。
-- 输出：`dt + gameid`，含 `event_dau`、`event_day_count`、`rn`。
-- 执行：替换快照、起止日期后使用 Presto；导出 CSV 传给 `build_daily_v12.py --event-top`。
+- 用途：V1.2 赛事剔除视图。按单赛事周期日均 DAU 筛选大赛事，并剔除品类相对下限以下的异常低赛事。
+- 输出：登记日模板输出 `dt + gameid + match_id`；单赛事统计模板输出 `gameid + match_id + observed_days + mean_event_dau`。
+- 执行：替换快照、起止日期后使用 Presto；运行 `build_major_event_days.py` 生成 `major_event_days.csv` 和 `major_event_manifest.json`，再传入 `build_daily_v12.py --event-days --event-meta`。
+- 历史 `赛事品类前10赛事日.sql` 已废弃，仅用于复盘；不得用于新运行。
 - 限制：版权表未覆盖品类表示赛事覆盖未知，不是非赛事；该规则不是官方赛事窗口或因果净效应。
 
 ### `assets/sql/core/04_赛事用户支付属性_优化版_未产出.sql`

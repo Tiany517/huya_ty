@@ -12,7 +12,7 @@ const dom=new JSDOM(shell,{runScripts:'outside-only',url:'http://localhost/v12'}
 for(const [key,value] of Object.entries({Blob,Response,DecompressionStream,TextDecoder,structuredClone}))w[key]=value;
 w.HTMLElement.prototype.scrollIntoView=function(){};
 w.document.getElementById('v12-data').textContent=payload;
-const errors=[];w.console.error=e=>errors.push(String(e));
+const errors=[];w.console.error=e=>errors.push(e?.stack||String(e));
 console.time('controller');await w.eval(js);console.timeEnd('controller');
 assert.ok(w.__v12Ready,'page initialization failed: '+errors.join(';'));
 const api=w.__dailyV12,$=id=>w.document.getElementById(id);
@@ -26,6 +26,21 @@ const insightCards=[...$('executiveSummary').querySelectorAll('.analyst-insight'
 assert.ok(insightCards.length>=3&&insightCards.length<=5,'analyst summary should contain 3-5 progressive insights');
 assert.ok(insightCards.every(card=>[...card.querySelectorAll('[data-analyst-part]')].map(e=>e.dataset.analystPart).join('|')==='洞察|现象|原因|建议'),'every insight must retain insight/evidence/cause/action');
 assert.ok(insightCards[0].textContent.includes('平台')&&insightCards.some(c=>c.textContent.includes('品类'))&&insightCards.some(c=>c.textContent.includes('公会'))&&insightCards.some(c=>c.textContent.includes('主播')),'insights should progress from macro to micro layers');
+const priorityRadar=$('executiveSummary').querySelector('.priority-radar');
+assert.ok(priorityRadar,'priority category radar must appear before analyst insights');
+assert.ok(priorityRadar.compareDocumentPosition(insightCards[0])&w.Node.DOCUMENT_POSITION_FOLLOWING,'priority categories must precede insights');
+assert.ok(priorityRadar.querySelector('.priority-up'),'priority radar must include rising categories');
+assert.ok(priorityRadar.querySelector('.priority-down'),'priority radar must include falling categories');
+assert.ok(priorityRadar.textContent.includes('高贡献')&&priorityRadar.textContent.includes('高异常'),'priority radar must distinguish contribution and anomaly ranking');
+assert.ok($('eventPhaseModule'),'global category event-phase module missing');
+assert.deepEqual([...$('eventPhaseMode').options].map(o=>o.value),['event','nonEvent'],'event-phase switch should support event and non-event');
+assert.ok([...$('eventPhaseMetric').options].length>=4,'event-phase module needs selectable metrics');
+const nonEventPhaseRows=api.eventPhaseRows('nonEvent','dau');
+assert.ok(nonEventPhaseRows.length>0,'non-event phase comparison returned no covered categories');
+assert.ok(nonEventPhaseRows.some(r=>r.delta>0)&&nonEventPhaseRows.some(r=>r.delta<0),'event-phase module must retain rising and falling categories');
+assert.ok(nonEventPhaseRows.some(r=>Number.isFinite(r.contribution)&&Number.isFinite(r.robustZ)),'event-phase module must expose contribution and anomaly score');
+$('eventPhaseMode').value='event';$('eventPhaseMode').dispatchEvent(new w.Event('change'));
+assert.ok($('eventPhaseTable').textContent.includes('赛事期'),'event-phase output must label the selected phase');
 assert.ok($('executiveSummary').textContent.includes('非赛事 vs 非赛事'),'analyst summary should identify the event-adjusted comparison');
 const microAnchor=api.engine.anchorEventWeeklyComparison('dau').rows[0];
 assert.ok(microAnchor,'test data needs at least one event-adjusted anchor path');
@@ -40,6 +55,14 @@ assert.ok(!analystInsight.startsWith(analystVerdict),'insight section should int
 assert.equal($('executiveSummary').querySelector('ol'),null,'analyst summary should not be a numbered metric bulletin');
 assert.ok($('analysisScope'),'global analysis scope summary missing');
 assert.ok($('analysisScope').textContent.includes('本期'));
+assert.ok($('analysisScope').textContent.includes('异常低赛事'),'analysis scope must explain low-scale event filtering');
+assert.ok(!$('analysisScope').textContent.includes('前10%'),'analysis scope must not retain the obsolete top-10-percent event rule');
+assert.ok(api.data.eventMeta['4'],'CF event metadata missing');
+assert.ok(api.data.eventMeta['4'].selectedEvents.some(e=>e.matchId==='9029611'),'CFS qualifier must remain selected');
+assert.ok(api.data.eventMeta['4'].selectedEvents.some(e=>e.matchId==='9029612'),'November CF carnival must remain selected');
+assert.ok(api.data.eventMeta['4'].excludedLowEvents.some(e=>e.matchId==='9029608'),'tiny CF Baicheng event must be excluded');
+assert.ok(api.data.eventDays['4'].includes('2026-11-07'),'November CF event day missing from non-event exclusion');
+assert.ok(!api.data.eventMeta['4'].selectedEvents.some(e=>e.matchId==='9029608'),'tiny CF Baicheng event must not be selected as a major event');
 assert.ok($('eventSummaryDetails'),'event-adjusted findings should use a collapsible disclosure');
 assert.equal($('eventSummaryDetails').open,false,'event-adjusted findings should be collapsed by default');
 assert.ok($('kpis').querySelector('.kpi-meta'),'KPI period details should be available in a disclosure');
@@ -121,7 +144,10 @@ assert.ok(revenueProcess.some(r=>r.metric==='interactionUsers'),'revenue diagnos
 console.log('Matched-context process explanation checks passed');
 
 // The compact summary opens one shared result -> process -> child attribution workspace.
-assert.ok(!$('summaryCards').querySelector('details'),'summary cards should not carry long inline evidence');
+const summaryHints=[...$('summaryCards').querySelectorAll('details.finding-hint-details')];
+assert.ok(summaryHints.length>0,'summary cards need collapsible investigation hints');
+assert.ok(summaryHints.every(d=>!d.open),'investigation hints must be collapsed by default');
+assert.ok(![...$('summaryCards').querySelectorAll('.finding')].some(card=>[...card.children].some(child=>child.classList.contains('finding-diagnosis'))),'investigation hints must not stay expanded in the card body');
 const tierRow=api.summaryCandidates().find(r=>r.scope==='tier'&&String(r.name).includes('腰部')&&r.metric==='dau');
 assert.ok(tierRow,'expected a 腰部 DAU tier candidate');
 const tierDiagnosis=api.processExplanation(tierRow);
@@ -173,6 +199,19 @@ assert.ok(slot.querySelector('[data-child-table]').textContent.includes('贡献'
 assert.ok(slot.querySelector('[data-child-table]').textContent.includes('异常分'));
 $('advanced').open=true;api.renderTrend();
 assert.ok($('canvasObjectOptions').querySelectorAll('[data-canvas-select]').length<=6);
+const drillOptions=[...$('drillDimension').options].map(o=>o.value);
+for(const dim of ['group','category','guild','tier','anchor','event'])assert.ok(drillOptions.includes(dim),'canvas drill option missing '+dim);
+$('drillDimension').value='tier';$('drillDimension').dispatchEvent(new w.Event('change'));
+assert.equal($('trendGrain').value,'week','weekly-only canvas dimensions must switch to week grain');
+api.renderTrend();
+assert.ok($('chartLegend').querySelectorAll('[data-hide]').length>0,'tier canvas did not produce comparable series');
+assert.ok($('chartHost').querySelectorAll('circle[data-tooltip]').length>0,'tier canvas produced no plotted data');
+assert.ok(!$('chartMessage').textContent.includes('按日不会伪造'),'tier canvas should explain the corrected weekly view');
+api.renderTable('anchor');
+const anchorTable=$('anchorModule');
+const firstAnchorName=anchorTable.querySelector('[data-result] [data-object]')?.textContent.trim();
+assert.ok(firstAnchorName,'anchor table has no object rows');
+assert.ok(anchorTable.querySelector('[data-result] [data-object]').closest('td').textContent.includes('品类'),'anchor table must show each anchor category name');
 // Source mismatch from the user's screenshot is not rendered as a legitimate rate.
 api.filterState.anchor={levels:[],min:null,max:null,strength:null,direction:'all',query:''};
 api.setMetric('payRate');

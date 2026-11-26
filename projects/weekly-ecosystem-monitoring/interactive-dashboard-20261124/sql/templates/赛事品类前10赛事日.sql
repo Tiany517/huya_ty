@@ -3,7 +3,9 @@
 -- 结果契约：输出粒度 dt × gameid；必须唯一。event_day_count 为该品类有赛事关联观看的正向赛事日数。
 -- 选取规则：event_dau 降序、dt 升序打破并列；rn <= ceil(event_day_count * 0.10)。
 -- 口径边界：赛事 DAU 为 APP 四端 is_app=1，不含鸿蒙；这是赛事关联热度日，不等同官方赛程窗口。
--- 构建日报时导出本模板结果为 CSV，再传 `python scripts/build_daily_v12.py --event-top <csv>`。
+-- DEPRECATED：前10%只保留历史高流量日期，会漏掉中型但真实赛事。
+-- 新流程：`赛事品类登记日.sql` + `赛事单周期统计.sql` -> `build_major_event_days.py`
+-- -> `build_daily_v12.py --event-days <major_event_days.csv> --event-meta <major_event_manifest.json>`。
 WITH copyright_raw AS (
     SELECT
         substr(cast(day AS varchar), 1, 10) AS dt,

@@ -33,22 +33,29 @@ python scripts/refresh_dashboard.py \
 ## V1.2 构建与赛事日输入
 
 ```bash
+python scripts/build_major_event_days.py \
+  --event-days <event_days.csv> \
+  --event-cycles <event_cycles.csv> \
+  --output-dir <event_run_dir>
+
 python scripts/build_daily_v12.py \
   --data <dashboard_data.json> \
   --platform <platform_daily_harmony.csv> \
   --supplement <metric_supplement_dir> \
-  --event-top <event_top10.csv> \
+  --event-days <event_run_dir>/major_event_days.csv \
+  --event-meta <event_run_dir>/major_event_manifest.json \
   --output <new_run_dir> \
   --report-date <YYYY-MM-DD>
 ```
 
-`event_top10.csv` 由 `sql/templates/赛事品类前10赛事日.sql` 执行后导出，必需列为 `dt,gameid,event_dau,event_day_count,rn`。构建器按 `dt × gameid` 校验唯一，并把全部登记赛事日与入选 Top 10% 赛事日分开写入载荷。没有该 CSV 时不得声称已完成大事件剔除；未覆盖品类显示待判断。
+`event_days.csv` 由 `sql/templates/赛事品类登记日.sql` 导出，必需列为 `dt,gameid,match_id,match_name`；`event_cycles.csv` 由 `sql/templates/赛事单周期统计.sql` 导出，至少包含 `gameid,match_id,match_name,observed_days,mean_event_dau`。分类脚本按单赛事周期日均 DAU 筛选，剔除低于品类最大赛事 5% 的异常低赛事；赛事数不少于4时叠加 log 日均 Tukey 下限。输出 `major_event_days.csv`、`major_event_cycles.csv` 和 `major_event_manifest.json`。构建器只把入选赛事的版权登记日写入赛事剔除载荷；未覆盖品类显示待判断。
 
 V1.2 发布前至少运行：
 
 ```bash
 node --check assets/daily_v12.js
 python -m py_compile scripts/build_daily_v12.py scripts/analyst_upgrade.py
+python -m unittest scripts.test_major_event_days -v
 node scripts/test_daily_v12_engine.mjs
 node scripts/test_anomaly_filters.mjs
 node scripts/test_daily_v12_ui.mjs <HTML>

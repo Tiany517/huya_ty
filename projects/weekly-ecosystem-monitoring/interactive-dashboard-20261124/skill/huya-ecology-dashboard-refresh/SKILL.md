@@ -33,10 +33,11 @@ V1.2独立构建，不自动覆盖旧日报。迁移时复制 `scripts/build_dai
 摘要正文固定为 3–5 张从宏观到微观递进的洞察卡，当前生产版为“平台→品类→公会→主播→抵消与背离”5 层。每张卡都必须独立保留“洞察→现象→原因→建议”四段，不能只在下钻归因表里给贡献值，也不能用一段指标通报替代分析师解释。公会和主播卡必须落到具体对象，至少包含主播昵称、UID、公会、品类、本期与比较期的非赛事日均、非赛事有效日、开播天数及互动人数变化；正向抵消卡用同一口径给出可复制的正向样本。长口径说明默认折叠，不能遮挡首屏结论。
 
 1. 复用前述核心CSV/JSON及独立复算流程，确认实际分区、端范围、唯一键和日期。补充数据未返回不补零，失败查询保留但不作为输入。
-2. 赛事剔除视图先执行 `sql/templates/赛事品类前10赛事日.sql`：按品类赛事关联 DAU 降序、日期升序打破并列，取 `ceil(赛事关联正向日数 × 10%)`。导出列必须为 `dt,gameid,event_dau,event_day_count,rn`，校验 `dt × gameid` 唯一，并独立抽查至少5个品类行数与 event_dau。未覆盖版权记录的品类标“赛事覆盖未知”，不得当非赛事。
-3. 用 `python scripts/build_daily_v12.py --data <不可变JSON> --platform <含鸿蒙官方平台CSV> --supplement <补充查询目录> --event-top <赛事前10%CSV> --output <新目录>` 构建。新电脑自行取数；原始数据和内嵌HTML不要求进GitHub。
-4. 先运行 `node scripts/test_anomaly_filters.mjs`、`node scripts/test_daily_v12_engine.mjs`；设置 `V12_TEST_RUNTIME` 为装有jsdom的外部测试目录，再运行 `node scripts/test_daily_v12_ui.mjs <HTML>`。DOM测试不等于浏览器视觉通过。
-5. 用 `python scripts/reconcile_daily_v12.py --data <原始JSON> --html <HTML> --output <对账JSON>` 独立读取原始列，逐行核对6项品类指标及周日原记录；再运行 `node scripts/reconcile_daily_v12_engine.mjs <HTML> <对账JSON>`，核对独立 Python 周聚合以及主播/公会微观事件剔除结果与 JS 引擎。当前基线应至少通过56项周聚合和30项微观路径对账；新增周期须重新计算预期数量，不得只沿用计数。关键UV必须精确一致、金额误差≤0.01元。此步不能代替源表独立查询。
+2. 赛事剔除视图先执行 `sql/templates/赛事品类登记日.sql` 和 `sql/templates/赛事单周期统计.sql`。前者输出 `dt,gameid,match_id,match_name`，校验 `dt × gameid × match_id` 唯一；后者至少输出 `gameid,match_id,match_name,observed_days,mean_event_dau`。未覆盖版权记录的品类标“赛事覆盖未知”，不得当非赛事。
+3. 用 `python scripts/build_major_event_days.py --event-days <登记日CSV> --event-cycles <单赛事统计CSV> --output-dir <新赛事目录>` 筛选大赛事。规则按单赛事周期日均 DAU 执行：剔除低于品类最大赛事日均5%的赛事；赛事数不少于4时叠加 log 日均 Tukey 下限。必须回归 CF：保留 `2026CFS中国区预选赛` 和 `2026穿越火线百城联赛秋季嘉年华`，剔除 `2026CF百城`。
+4. 用 `python scripts/build_daily_v12.py --data <不可变JSON> --platform <含鸿蒙官方平台CSV> --supplement <补充查询目录> --event-days <major_event_days.csv> --event-meta <major_event_manifest.json> --output <新目录>` 构建。`--event-top` 仅保留废弃兼容，不得用于新运行。新电脑自行取数；原始数据和内嵌HTML不要求进GitHub。
+5. 先运行 `node scripts/test_anomaly_filters.mjs`、`node scripts/test_daily_v12_engine.mjs`、`python -m unittest scripts.test_major_event_days -v`；设置 `V12_TEST_RUNTIME` 为装有jsdom的外部测试目录，再运行 `node scripts/test_daily_v12_ui.mjs <HTML>`。DOM测试不等于浏览器视觉通过。
+6. 用 `python scripts/reconcile_daily_v12.py --data <原始JSON> --html <HTML> --output <对账JSON>` 独立读取原始列，逐行核对6项品类指标及周日原记录；再运行 `node scripts/reconcile_daily_v12_engine.mjs <HTML> <对账JSON>`，核对独立 Python 周聚合以及主播/公会微观事件剔除结果与 JS 引擎。当前基线应至少通过56项周聚合和30项微观路径对账；新增周期须重新计算预期数量，不得只沿用计数。关键UV必须精确一致、金额误差≤0.01元。此步不能代替源表独立查询。
 
 主播与公会的赛事剔除使用“主播周主路径”：主播日表本身不含品类和公会，因此每个主播每期先取该周DAU最大的“品类+公会”作为主路径，再按该路径品类的大赛事日分别从本期和比较期剔除；两期各至少保留3个非赛事有效日才可进入微观测算。公会值等于可归因主播主路径非赛事日均之和，主播与品类之间允许重叠；赛事映射未覆盖的品类不得进入微观归因，更不能写成“无赛事”。两期非赛事有效星期结构不同时，平台层差值只用于方向校验，不解释为赛事净效应。
 6. 平台拉新回流必须按用户日并集；独立查询用不同集合路径复算每日期的拉新/回流/并集/交集，保存SQL和查询rid。仅有5日不得冒充连续历史。补充独立验证SQL见项目 `sql/diagnostics/13_平台拉新回流独立集合复算_20261124.sql`，执行新周期时先按实际快照改日期。
@@ -44,7 +45,7 @@ V1.2独立构建，不自动覆盖旧日报。迁移时复制 `scripts/build_dai
 
 准确性门槛：缺失不补零；比率分子分母共同有效行且同端/用户语义；百分率差异用百分点、ARPPU等用原单位；多日流水拆解用观看用户日总量而非DAU日均，Shapley闭合误差≤0.01元；搜索、TopN、等级过滤不改变完整父级贡献分母；层级固定参考周名单，新增退出与升降层分开并明示固定周期。公会周最大开播天数不等于主播日并集，未复算不作正式供给评级。
 
-互动率语义失败时封锁正式比率及评级；四端拉新回流不含鸿蒙明确备注。赛事剔除当前指“各品类赛事关联 DAU 前10%日期”，不是官方赛事窗口；缺官方周期核验不声称已排除赛后效应。未覆盖赛事记录的品类显示待判断，不得推断为非赛事。公会、主播层级和主播只有周聚合时，不生成日级赛事剔除评级。试行混合评级没有低分支，不能把正常改低；保留带方向分，优先级独立。异常分候选必须历史回测、案例核验且用户确认后才切换，不将报警率称准确率。
+互动率语义失败时封锁正式比率及评级；四端拉新回流不含鸿蒙明确备注。赛事剔除当前指“按单赛事周期日均 DAU 识别大赛事、剔除品类内异常低赛事后，仅移除入选赛事的版权登记日”，不是完整官方赛事窗口；缺官方周期核验不声称已排除赛后效应。未覆盖赛事记录的品类显示待判断，不得推断为非赛事。公会、主播层级和主播只有周聚合时，不生成日级赛事剔除评级。试行混合评级没有低分支，不能把正常改低；保留带方向分，优先级独立。异常分候选必须历史回测、案例核验且用户确认后才切换，不将报警率称准确率。
 
 English: Build V1.2 into a new directory. Independent export-to-UI and warehouse reconciliation are separate gates. DOM success is not browser acceptance. Preserve pending metrics and trial ratings; never silently fill missing data or publish score-only grades.
 

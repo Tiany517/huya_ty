@@ -22,7 +22,7 @@
 
 2026-11-26 诊断交互修订：恢复紧凑的多列异动卡，并把长证据收进单一共享诊断工作区；分析顺序固定为“结果指标异常 → 同周期过程指标 → 组成/推荐下钻 → TopN 贡献归因”。主播层级补充开播主播数、观看深度、互动承接、付费和变现过程指标。子层下钻会继承当前结果的周/日上下文；日级对象进入仅周级覆盖的公会、层级或主播层时，自动切换到最近完整周并单独提示，不再出现因沿用日报日期而产生的空表。赛事登记属性仍只在日级品类路径开放，周级路径明确不推荐。
 
-2026-11-26 赛事双视图：首屏和执行摘要同时保留原始全期与赛事剔除视图。大赛事日按每个品类赛事关联 DAU 降序选取前 10%，当前期与比较期同时剔除，形成“非赛事 vs 非赛事”对比。可复用 SQL 为 `sql/templates/赛事品类前10赛事日.sql`，输出 CSV 通过 `--event-top` 传入 V1.2 构建器。未覆盖赛事记录的品类显示“待判断”，不得推断成非赛事；公会、层级和主播的周聚合目前不生成日级赛事剔除评级。
+2026-11-26 赛事双视图：首屏和执行摘要同时保留原始全期与赛事剔除视图。赛事期改为按“单个赛事周期”识别：先计算每场赛事的有观看赛日均 DAU，剔除低于该品类最大赛事日均 5% 的赛事；品类有至少 4 场赛事时，再使用 log 日均的 Tukey 下限剔除异常低长尾。该规则保留 CF 11 月百城嘉年华，同时剔除 CF 百城等极小赛事。流程为 `赛事品类登记日.sql` + `赛事单周期统计.sql` → `build_major_event_days.py` → `build_daily_v12.py --event-days --event-meta`，当前期与比较期同时剔除，形成“非赛事 vs 非赛事”对比。未覆盖赛事记录的品类显示“待判断”，不得推断成非赛事；公会、层级和主播的周聚合目前不生成日级赛事剔除评级。
 
 ## 当前成品
 
@@ -55,14 +55,20 @@ python scripts/refresh_dashboard.py \
 
 没有赛事 CSV 时删除 `--event-csv`。发布前还必须按 `skill/huya-ecology-dashboard-refresh/SKILL.md` 完成源表独立准确性复算，并生成 `accuracy_reconciliation_<run>.md`；只有准确性复算、`validation_report_<run>.json=passed`、开播主播数 UI 专项检查和浏览器冒烟通过且运行清单完整，才能发布 HTML。
 
-V1.2 单文件日报使用独立构建命令；有新赛事日 CSV 时增加 `--event-top`：
+V1.2 单文件日报使用独立构建命令。先由版权登记日和单赛事周期统计生成大赛事输入，再构建：
 
 ```bash
+python scripts/build_major_event_days.py \
+  --event-days <event_days.csv> \
+  --event-cycles <event_cycles.csv> \
+  --output-dir <event_run_dir>
+
 python scripts/build_daily_v12.py \
   --data <dashboard_data.json> \
   --platform <platform_daily_harmony.csv> \
   --supplement <metric_supplement_dir> \
-  --event-top <event_top10.csv> \
+  --event-days <event_run_dir>/major_event_days.csv \
+  --event-meta <event_run_dir>/major_event_manifest.json \
   --output <new_run_dir> \
   --report-date <YYYY-MM-DD>
 ```
