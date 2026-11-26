@@ -10,11 +10,11 @@
 --           同一 game_id 下，赛事主播日期关联观时 / 该 game_id 总观时 >= 70% 判为赛事用户。
 -- 陪玩身份：仅使用 is_peiwan_anchor_90d；每月使用当月 1 日快照，代表月初已知身份。
 --           匹配不到快照的主播标记为“未识别”，不直接当作非陪玩主播。
--- 公会口径：公会稳定身份使用 scid；展示名称取该 scid 截至 2026-11-18 的最新 cname。
+-- 公会口径：公会稳定身份使用 scid；展示名称取该 scid 截至 2026-11-25 的最新 cname。
 --           收入当天优先按 dt + game_id + ayyuid 找 scid；当天无开播记录时，
 --           回退到同月最大开播时长对应的 scid，再回退到历史最后一次出现且总时长最大的 scid。
--- 主播昵称：按 ayyuid 取截至 2026-11-18 的最新昵称。
--- 数据范围：2026-07-01 至 2026-11-18。
+-- 主播昵称：按 ayyuid 取截至 2026-11-25 的最新昵称。
+-- 数据范围：2026-07-01 至 2026-11-25。
 -- 用户过滤：仅保留有效 user_ukey；无法归属用户的流水不进入本明细，因此本明细用于用户下钻，不用于完整收入总额对账。
 
 with copyright_match_anchor_day as (
@@ -26,9 +26,9 @@ with copyright_match_anchor_day as (
         cast(src.match_id as string) as match_id,
         cast(src.match_name as string) as match_name
     from zhgametemp.hss_huya_dim_game_copyright_info_d_a src
-    where src.dt = '2026-11-18'
+    where src.dt = '2026-11-25'
       and substr(cast(src.day as string), 1, 10)
-          between '2026-04-02' and '2026-11-18'
+          between '2026-04-02' and '2026-11-25'
       and src.live_type like '%直播%'
       and src.game_id is not null
       and src.uid is not null
@@ -61,7 +61,7 @@ match_day_dau as (
         on s.dt = k.dt
        and cast(s.gameid as string) = k.game_id
        and cast(s.ayyuid as string) = k.luid
-    where s.dt between '2026-07-01' and '2026-11-18'
+    where s.dt between '2026-07-01' and '2026-11-25'
       and s.is_app = 1
       and s.is_watch > 0
       and s.is_black = 0
@@ -160,7 +160,7 @@ revenue_detail as (
         coalesce(nullif(cast(game_id as string), ''), '未知游戏') as game_id,
         sum(cast(user_consume_amount as double)) as consume_amt
     from zhgametemp.hss_tichu_shuadan_dws_huya_revenue_detail_d_i
-    where dt between '2026-07-01' and '2026-11-18'
+    where dt between '2026-07-01' and '2026-11-25'
       and cast(user_consume_amount as double) > 0
       and coalesce(is_free_item, 0) = 0
       and ext['ukey'] is not null
@@ -202,7 +202,7 @@ user_anchor_game_day_watch as (
         cast(luid as string) as luid,
         sum(cast(user_duration as double)) as watch_ms
     from gamelive.dwt_huya_ayyuid_session_from_server_with_user
-    where dt between '2026-04-02' and '2026-11-17'
+    where dt between '2026-04-02' and '2026-11-24'
       and tag = 'gameid'
       and htime = 'session'
       and user_ukey is not null
@@ -291,7 +291,7 @@ anchor_scid_day_base as (
         cast(scid as string) as scid,
         sum(coalesce(cast(live_mins as double), 0)) as live_hours
     from gamelive.dm_huya_ayyuid_detail_day
-    where dt between '2026-07-01' and '2026-11-18'
+    where dt between '2026-07-01' and '2026-11-25'
       and gameid is not null
       and ayyuid is not null
       and trim(cast(ayyuid as string)) not in ('', '0', '-1')
@@ -417,7 +417,7 @@ guild_cname_day as (
         trim(cast(cname as string)) as cname,
         sum(coalesce(cast(live_mins as double), 0)) as live_hours
     from gamelive.dm_huya_ayyuid_detail_day
-    where dt between '2026-07-01' and '2026-11-18'
+    where dt between '2026-07-01' and '2026-11-25'
       and scid is not null
       and trim(cast(scid as string)) not in ('', '0', '-1')
       and cname is not null
@@ -440,7 +440,7 @@ guild_cname_latest_ranked as (
 ),
 
 guild_cname_latest as (
-    -- 粒度：scid。每个稳定公会 ID 只保留截至 2026-11-18 的最新 cname。
+    -- 粒度：scid。每个稳定公会 ID 只保留截至 2026-11-25 的最新 cname。
     select
         scid,
         cname
@@ -456,7 +456,7 @@ anchor_nickname_day as (
         trim(cast(nickname as string)) as nickname,
         sum(coalesce(cast(live_mins as double), 0)) as live_hours
     from gamelive.dm_huya_ayyuid_detail_day
-    where dt between '2026-07-01' and '2026-11-18'
+    where dt between '2026-07-01' and '2026-11-25'
       and ayyuid is not null
       and trim(cast(ayyuid as string)) not in ('', '0', '-1')
       and nickname is not null
@@ -493,7 +493,7 @@ game_info as (
         cast(game_id as string) as game_id,
         max(cast(game_name as string)) as game_name
     from gamelive.dim_huya_game_d_a
-    where dt = '2026-11-18'
+    where dt = '2026-11-25'
     group by
         cast(game_id as string)
 ),
