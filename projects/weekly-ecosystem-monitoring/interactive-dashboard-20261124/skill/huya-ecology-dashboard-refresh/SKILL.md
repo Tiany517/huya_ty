@@ -28,6 +28,8 @@ description: 刷新、迁移或验收虎牙生态监控 HTML 看板与异动日�
 
 V1.2独立构建，不自动覆盖旧日报。迁移时复制 `scripts/build_daily_v12.py`、其现有依赖 `analyst_upgrade.py/build_daily_alert_report.py/daily_analysis.py/tournament_context.py` 及这些文件的现有依赖，和 `assets/daily_v12.html/.css/.js`、`daily_v12_engine.mjs`、`anomaly_filters.mjs`。依赖缺失停止，不手工拼半截HTML。
 
+日报摘要必须采用分析师笔记结构，而不是指标通报：先给“分析师判断”，再分别写“洞察（对判断的进一步解释）、现象（结果指标与品类证据）、原因（过程指标和暂时不能排除/确认的解释）、建议（具体排查对象与下一步）”。洞察不得重复顶部判断；所有判断区分事实、推断和待验证项。页面采用渐进披露：日期口径集中在页首，赛事剔除明细、长诊断解释、下一层明细和口径说明可折叠，原始全期证据与品类/公会/主播主表保持默认展开；“展开全部/收起全部”和折叠状态需持久化。
+
 1. 复用前述核心CSV/JSON及独立复算流程，确认实际分区、端范围、唯一键和日期。补充数据未返回不补零，失败查询保留但不作为输入。
 2. 赛事剔除视图先执行 `sql/templates/赛事品类前10赛事日.sql`：按品类赛事关联 DAU 降序、日期升序打破并列，取 `ceil(赛事关联正向日数 × 10%)`。导出列必须为 `dt,gameid,event_dau,event_day_count,rn`，校验 `dt × gameid` 唯一，并独立抽查至少5个品类行数与 event_dau。未覆盖版权记录的品类标“赛事覆盖未知”，不得当非赛事。
 3. 用 `python scripts/build_daily_v12.py --data <不可变JSON> --platform <含鸿蒙官方平台CSV> --supplement <补充查询目录> --event-top <赛事前10%CSV> --output <新目录>` 构建。新电脑自行取数；原始数据和内嵌HTML不要求进GitHub。
