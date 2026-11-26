@@ -66,3 +66,18 @@ const weeklyBaseline=weeklyEngine.aggregate('tier','liveAnchors','2026-11-09','2
 assert.equal(weeklyCurrent.value,9/7);
 assert.equal(weeklyBaseline.value,6/7);
 console.log('Weekly tier liveAnchors dedupe starts from a finite zero');
+
+// Micro attribution uses each anchor's weekly max-DAU category/guild path and
+// removes that path's event days from both periods. It never fills absent days.
+const microDates=['2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-16','2026-11-17','2026-11-18','2026-11-19'];
+const microWeek=(week,anchor,category,guild,dau)=>{const r=Array(17).fill(0);r[0]=week;r[1]=category;r[2]=0;r[3]=guild;r[4]=anchor;r[5]=dau;r[9]=3500;r[10]=7;r[16]=7;return r};
+const microDaily=(date,anchor,dau,interaction,isLive=1)=>[date,anchor,dau,100,10,20,5,20,interaction,isLive];
+const microPayload={...payload,dates:microDates,categories:[{id:'1',name:'品类A',group:0},{id:'2',name:'品类B',group:0},{id:'3',name:'未覆盖品类',group:0}],guilds:['公会一','公会二'],anchors:[{id:'u1',name:'主播A',roomid:'r1'},{id:'u2',name:'主播B',roomid:'r2'},{id:'u3',name:'主播C',roomid:'r3'}],anchorDailyColumns:['date','anchor','dau','revenue','payUsers','viewMinutes','attributionUsers','interactionCount','interactionUsers','isLive'],anchorColumns:['week','category','group','guild','anchor','dau','revenue','payUsers','live','acuSum','acuDays','viewMinutes','viewDays','attributionUsers','interactionCount','interactionUsers','liveDays'],weeks:['2026W46','2026W47'],weekRanges:{'2026W46':{start:'2026-11-09',end:'2026-11-15'},'2026W47':{start:'2026-11-16',end:'2026-11-22'}},anchorWeekly:[microWeek(0,0,0,0,300),microWeek(0,1,0,0,300),microWeek(0,2,2,1,300),microWeek(1,0,0,0,200),microWeek(1,1,0,0,400),microWeek(1,2,2,1,200)],anchorDaily:[...['2026-11-09','2026-11-10','2026-11-11','2026-11-12'].map(d=>microDaily(d,0,300,30)).map(r=>{if(['2026-11-10','2026-11-12'].includes(r[0]))r[9]=0;return r}),...['2026-11-16','2026-11-17','2026-11-18','2026-11-19'].map(d=>microDaily(d,0,200,20)).map(r=>{if(r[0]==='2026-11-18')r[9]=0;return r}),...['2026-11-09','2026-11-10','2026-11-11','2026-11-12'].map(d=>microDaily(d,1,300,30)),...['2026-11-16','2026-11-17','2026-11-18','2026-11-19'].map(d=>microDaily(d,1,400,40)),...['2026-11-09','2026-11-10','2026-11-11','2026-11-12'].map(d=>microDaily(d,2,300,30)),...['2026-11-16','2026-11-17','2026-11-18','2026-11-19'].map(d=>microDaily(d,2,200,20))],eventDays:{'1':['2026-11-17'],'2':[]},reportDate:'2026-11-19'};
+const microEngine=createEngine(microPayload),microAnchor=microEngine.anchorEventWeeklyComparison('dau');
+assert.equal(microAnchor.curWeek,'2026W47');assert.equal(microAnchor.baseWeek,'2026W46');
+const anchorA=microAnchor.rows.find(r=>r.name==='主播A'),anchorB=microAnchor.rows.find(r=>r.name==='主播B');
+assert.equal(anchorA.current,200);assert.equal(anchorA.baseline,300);assert.equal(anchorA.delta,-100);
+assert.equal(anchorA.currentDays,3);assert.equal(anchorA.baselineDays,4);assert.equal(anchorA.currentLiveDays,2);
+assert.equal(anchorB.delta,100);assert.ok(!microAnchor.rows.some(r=>r.name==='主播C'),'event-unknown categories must not enter calibrated micro attribution');
+const microGuild=microEngine.guildEventWeeklyComparison('dau');assert.equal(microGuild.rows.find(r=>r.name==='公会一').delta,0);
+console.log('Anchor and guild event-adjusted weekly attribution passed');

@@ -55,7 +55,7 @@ export function valueFor(values,metric){const m=metrics[metric];if(!m||m.blocked
 export function createEngine(data){
  const dates=data.dates,catCols=data.categoryMetrics,dc=data.anchorDailyColumns,wc=data.anchorColumns;
  const catMap=new Map(),dailyByAnchor=new Map(),weekly=[],catByDate=new Map(),weeklyByDate=new Map();
- const anchorPaths=new Map();for(const row of data.anchorWeekly){const w=row[0],ca=row[1],g=row[2],guild=row[3],anchor=row[4],acu=row[10]?row[9]/row[10]:null,liveDays=Number(row[16]);const r={date:data.weekRanges[data.weeks[w]].start,end:data.weekRanges[data.weeks[w]].end,week:w,category:ca,group:g,guild,anchor,tier:fixedTier(acu),values:{dau:row[5],revenue:row[6],payUsers:row[7],attributionUsers:row[13],interactionCount:row[14],interactionUsers:row[15],liveAnchors:Number.isFinite(liveDays)?liveDays/7:null,acu,viewMinutes:row[12]?row[11]/row[12]:null},row};weekly.push(r);const old=anchorPaths.get(anchor);if(!old||old.week<w)anchorPaths.set(anchor,r)}
+ const anchorPaths=new Map(),weeklyPathByWeekAnchor=new Map();for(const row of data.anchorWeekly){const w=row[0],ca=row[1],g=row[2],guild=row[3],anchor=row[4],acu=row[10]?row[9]/row[10]:null,liveDays=Number(row[16]);const r={date:data.weekRanges[data.weeks[w]].start,end:data.weekRanges[data.weeks[w]].end,week:w,category:ca,group:g,guild,anchor,tier:fixedTier(acu),values:{dau:row[5],revenue:row[6],payUsers:row[7],attributionUsers:row[13],interactionCount:row[14],interactionUsers:row[15],liveAnchors:Number.isFinite(liveDays)?liveDays/7:null,acu,viewMinutes:row[12]?row[11]/row[12]:null},row};weekly.push(r);const old=anchorPaths.get(anchor);if(!old||old.week<w)anchorPaths.set(anchor,r);const pathKey=w+'|'+anchor,pathOld=weeklyPathByWeekAnchor.get(pathKey),pathValue=Number.isFinite(Number(r.values.dau))?Number(r.values.dau):null;if(!pathOld||(pathValue!=null&&(pathOld.value==null||pathValue>pathOld.value)))weeklyPathByWeekAnchor.set(pathKey,{...r,value:pathValue})}
  for(const r of data.categoryRows){const values=Object.fromEntries(catCols.map((m,i)=>[m,r[i+2]])),cat=data.categories[r[1]],row={date:dates[r[0]],category:r[1],group:Number(cat.group),values};catMap.set(row.date+'|'+row.category,row)}
  const catRows=[...catMap.values()];
  for(const row of catRows){if(!catByDate.has(row.date))catByDate.set(row.date,[]);catByDate.get(row.date).push(row)}
@@ -107,7 +107,69 @@ export function createEngine(data){
   rows=rows.map((r,i)=>{const c=current.rows[i],baseIssue=base.map(m=>m.get(String(r.id))?.invalidReason).find(Boolean);return {...r,currentReason:c.invalidReason||(r.current==null?'本期指标缺失或日期覆盖不完整':null),baselineReason:baseIssue||(r.baseline==null?'比较期缺记录、覆盖不完整或分母为零':null),scoreReason:metrics[metric]?.blocked?'口径未通过核验':metrics[metric]?.pending?'指标评级尚未校准':r.robustZ==null?r.rule:null}});
   rows=contributions(rows,metric);rows.forEach(r=>r.priority=priority(r));const result={rows,kind:current.kind,unsupported:current.unsupported};cache.set(key,result);return result;
  }
+ // 主播日表没有品类/公会列。微观赛事剔除先为每个主播、每个完整周
+ // 选择 DAU 最大的“品类+公会”作为主路径，再只保留该周主路径品类
+ // 的非赛事日。它是“主播主路径非赛事日均”，不是跨品类去重总量。
+ const microCache=new Map();
+ function mainWeeklyPath(week,anchor){
+   return weeklyPathByWeekAnchor.get(week+'|'+anchor)||null;
+ }
+ function dailySummary(anchor,path,start,end){
+   if(!path)return null;
+   const excluded=eventDays.get(eventKey(path.category));
+   if(!excluded)return null;
+   const values={},liveDates=new Set(),observedDates=new Set();
+   for(const raw of dailyByAnchor.get(anchor)||[]){
+     const dt=raw[dailyColumns.date];
+     if(dt<start||dt>end||excluded.has(dt))continue;
+     observedDates.add(dt);
+     if(Number(raw[dailyColumns.isLive])===1)liveDates.add(dt);
+     for(const metric of ['dau','revenue','payUsers','attributionUsers','interactionUsers']){
+       const value=raw[dailyColumns[metric]];
+       if(value==null||!Number.isFinite(Number(value)))continue;
+       if(!values[metric])values[metric]=[];
+       values[metric].push(Number(value));
+     }
+   }
+   const averages={};
+   for(const [metric,items] of Object.entries(values))averages[metric]=items.reduce((a,b)=>a+b,0)/items.length;
+   return {...averages,days:observedDates.size,liveDays:liveDates.size,excludedDays:excluded?span(start,end).filter(d=>excluded.has(d)).length:0,eventCoverage:'covered'};
+ }
+ function anchorEventWeeklyComparison(metric='dau',options={}){
+   const curWeek=options.curWeek??data.weeks.length-1,baseWeek=options.baseWeek??curWeek-1;
+   const key='anchor|'+metric+'|'+curWeek+'|'+baseWeek;
+   if(microCache.has(key))return microCache.get(key);
+   if(curWeek<0||baseWeek<0||!data.weeks[curWeek]||!data.weeks[baseWeek])return {rows:[],curWeek:data.weeks[curWeek],baseWeek:data.weeks[baseWeek],unsupported:'缺少相邻完整周'};
+   const cr=data.weekRanges[data.weeks[curWeek]],br=data.weekRanges[data.weeks[baseWeek]];
+   const anchors=new Set([...weekly.filter(r=>r.week===curWeek||r.week===baseWeek).map(r=>r.anchor)]);
+   const rows=[];
+   for(const anchor of anchors){
+     const cp=mainWeeklyPath(curWeek,anchor),bp=mainWeeklyPath(baseWeek,anchor);
+     if(!cp||!bp)continue;
+     if(eventCoverage(cp.category)==='unknown'||eventCoverage(bp.category)==='unknown')continue;
+     const cs=dailySummary(anchor,cp,cr.start,cr.end),bs=dailySummary(anchor,bp,br.start,br.end);
+     if(!cs||!bs||cs.days<3||bs.days<3)continue;
+     const current=cs[metric],baseline=bs[metric];
+     if(current==null||baseline==null)continue;
+     const meta=data.anchors[anchor]||{};
+     rows.push({id:cp.category+'|'+cp.guild+'|'+anchor,anchorId:anchor,uid:meta.id,roomid:meta.roomid,name:meta.name||label('anchor',anchor),category:cp.category,categoryName:label('category',cp.category),guild:cp.guild,guildName:label('guild',cp.guild),baselineGuild:bp.guild,baselineGuildName:label('guild',bp.guild),baselineCategory:bp.category,baselineCategoryName:label('category',bp.category),pathChanged:cp.category!==bp.category||cp.guild!==bp.guild,metric,current,baseline,delta:current-baseline,changePct:baseline?current/baseline-1:null,currentDays:cs.days,baselineDays:bs.days,currentLiveDays:cs.liveDays,baselineLiveDays:bs.liveDays,currentExcludedDays:cs.excludedDays,baselineExcludedDays:bs.excludedDays,currentInteractionUsers:cs.interactionUsers??null,baselineInteractionUsers:bs.interactionUsers??null,currentRevenue:cs.revenue??null,baselineRevenue:bs.revenue??null,curWeek:data.weeks[curWeek],baseWeek:data.weeks[baseWeek]});
+   }
+   rows.sort((a,b)=>a.delta-b.delta||String(a.name).localeCompare(String(b.name)));
+   const response={rows,curWeek:data.weeks[curWeek],baseWeek:data.weeks[baseWeek],curRange:cr,baseRange:br,coverage:'主播主路径事件剔除；仅含有赛事映射且两期各有至少3个非赛事有效日的品类',kind:'anchor-daily-path'};
+   microCache.set(key,response);return response;
+ }
+ function guildEventWeeklyComparison(metric='dau',options={}){
+   const anchors=anchorEventWeeklyComparison(metric,options),groups=new Map(),key='guild|'+metric+'|'+anchors.curWeek+'|'+anchors.baseWeek;
+   if(microCache.has(key))return microCache.get(key);
+   for(const row of anchors.rows){
+     if(!groups.has(row.guild))groups.set(row.guild,{id:row.guild,name:row.guildName,current:0,baseline:0,anchors:0,metric,curWeek:anchors.curWeek,baseWeek:anchors.baseWeek,currentInteractionUsers:0,baselineInteractionUsers:0,currentRevenue:0,baselineRevenue:0});
+     const g=groups.get(row.guild);g.current+=row.current;g.baseline+=row.baseline;g.anchors+=1;g.currentInteractionUsers+=row.currentInteractionUsers||0;g.baselineInteractionUsers+=row.baselineInteractionUsers||0;g.currentRevenue+=row.currentRevenue||0;g.baselineRevenue+=row.baselineRevenue||0;
+   }
+   const rows=[...groups.values()].map(g=>({...g,delta:g.current-g.baseline,changePct:g.baseline?g.current/g.baseline-1:null}));rows.sort((a,b)=>a.delta-b.delta||String(a.name).localeCompare(String(b.name)));
+   const response={...anchors,rows,coverage:'公会内可归因主播主路径日均加总；主播、品类之间可重叠'};
+   microCache.set(key,response);return response;
+ }
  function anchorHistory(index,metric,start,end,grain='day'){const raw=(dailyByAnchor.get(index)||[]).filter(r=>r[dailyColumns.date]>=start&&r[dailyColumns.date]<=end),map=new Map();for(const record of raw){const r=dailyObject(record);if(valueFor(r.values,metric)==null)continue;const k=bucket(r.date,grain),a=map.get(k)||{dates:new Set(),values:{},weight:0};for(const m of metrics[metric]?.ratio||[metric]){const v=r.values[m];if(v==null)continue;if(m==='viewMinutes'){a.values[m]=(a.values[m]||0)+v*(r.values.dau||0);a.weight+=r.values.dau||0}else a.values[m]=(a.values[m]||0)+v}a.dates.add(r.date);map.set(k,a)}return [...map].sort().map(([key,a])=>{if(a.weight)a.values.viewMinutes/=a.weight;let value=valueFor(a.values,metric);if(metrics[metric]?.agg==='mean'&&value!=null)value/=a.dates.size;return {key,value,days:a.dates.size}})}
  function tierMigration(curWeek=data.weeks.length-1,baseWeek=curWeek-1){const cur=new Map(),base=new Map();for(const r of weekly)if(r.week===curWeek||r.week===baseWeek){const m=r.week===curWeek?cur:base,a=m.get(r.anchor)||{acuSum:0,acuDays:0,dau:0,revenue:0};a.acuSum+=r.row[9];a.acuDays+=r.row[10];a.dau+=r.values.dau;a.revenue+=r.values.revenue;m.set(r.anchor,a)}const matrix=new Map(),cohorts=new Map();for(const ai of new Set([...cur.keys(),...base.keys()])){const c=cur.get(ai),b=base.get(ai),bt=b?fixedTier(b.acuDays?b.acuSum/b.acuDays:null):'新增',ct=c?fixedTier(c.acuDays?c.acuSum/c.acuDays:null):'退出',k=bt+' → '+ct;matrix.set(k,(matrix.get(k)||0)+1);const co=cohorts.get(bt)||{tier:bt,anchors:0,currentDau:0,baselineDau:0,currentRevenue:0,baselineRevenue:0};co.anchors++;co.currentDau+=(c?.dau||0)/7;co.baselineDau+=(b?.dau||0)/7;co.currentRevenue+=c?.revenue||0;co.baselineRevenue+=b?.revenue||0;cohorts.set(bt,co)}return {matrix:[...matrix].map(([path,count])=>({path,count})),cohorts:[...cohorts.values()],baseWeek:data.weeks[baseWeek],curWeek:data.weeks[curWeek]}}
-  return {ranking,aggregate,baseRows,anchorHistory,tierMigration,label,eventOf,eventCoverage,eventDaysFor,eventUnion,weekly,catRows,dailyByAnchor,anchorPaths};
+  return {ranking,aggregate,baseRows,anchorEventWeeklyComparison,guildEventWeeklyComparison,anchorHistory,tierMigration,label,eventOf,eventCoverage,eventDaysFor,eventUnion,weekly,catRows,dailyByAnchor,anchorPaths};
 }
